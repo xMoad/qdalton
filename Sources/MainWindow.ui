@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="_2">
+    <item row="2" column="0" rowspan="2" colspan="2">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabJob">
+       <attribute name="title">
+        <string>Job</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBoxDalFile">
+          <property name="title">
+           <string>Dalton input file: </string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelJobType">
+             <property name="text">
+              <string>Job type: </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxJobType">
+             <property name="currentIndex">
+              <number>1</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>.OPTIMIZE</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>.WALK</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>.RUN</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBoxMolFile">
+          <property name="title">
+           <string>Molecule input file:</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxBasisType">
+             <property name="currentIndex">
+              <number>1</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>ATOMBASIS</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>BASIS</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>INTGRL</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelBasisType">
+             <property name="text">
+              <string>Basis Type:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Comment Line #1:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEditComment1"/>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEditComment2"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Comment Line #2:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Basis Set:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBox">
+             <item>
+              <property name="text">
+               <string>STO-2G</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>STO-3G</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>STO-6G</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabDal">
+       <attribute name="title">
+        <string>DAL File</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <widget class="QPlainTextEdit" name="plainTextEditDal"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabMol">
+       <attribute name="title">
+        <string>new.mol</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QPlainTextEdit" name="plainTextEditMol"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab3d">
+       <attribute name="title">
+        <string>3D</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+        <item>
+         <widget class="Render::Viewer" name="viewer" native="true"/>
+        </item>
+        <item>
+         <widget class="QToolBox" name="toolBox">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <widget class="QWidget" name="pageView">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>157</width>
+             <height>103</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>View</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="1" colspan="4">
+             <widget class="QCheckBox" name="checkBoxAxes">
+              <property name="text">
+               <string>Axes</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="5">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxAxesSize">
+              <property name="mouseTracking">
+               <bool>false</bool>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::PlusMinus</enum>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="5">
+             <widget class="QComboBox" name="viewQComboBox">
+              <item>
+               <property name="text">
+                <string>Balls &amp; Sticks</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Sticks</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>VdW Spheres</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="5">
+             <widget class="QCheckBox" name="checkBoxDebugInfo">
+              <property name="text">
+               <string>Debug Info</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageAdd">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>156</width>
+             <height>68</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Add</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBoxAtom">
+              <item>
+               <property name="text">
+                <string>C</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>N</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>O</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>P</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>S</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Atom:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QCheckBox" name="checkBoxImplicitH">
+              <property name="text">
+               <string>Implicit hydrogens</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageAtoms">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>104</width>
+             <height>104</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Atoms</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
+             <widget class="QTableWidget" name="atomsTableWidget">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>18</number>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>ID</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Element</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="2">
+     <widget class="QWidget" name="welcomeWidget" native="true">
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Welcome to QDalton!
+
+QDalton is powerful GUI for Dalton.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Job</string>
+    </property>
+    <addaction name="actionJobOpen"/>
+    <addaction name="actionJobNew"/>
+    <addaction name="actionJobImportDalton"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelpHelp"/>
+    <addaction name="actionHelpAbout"/>
+    <addaction name="actionHelpAboutQt"/>
+   </widget>
+   <widget class="QMenu" name="menuStructure">
+    <property name="title">
+     <string>Structure</string>
+    </property>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+     <addaction name="actionStructureImportGaussianOutput"/>
+    </widget>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="actionStructureExportImage"/>
+    </widget>
+    <addaction name="menuImport"/>
+    <addaction name="menuExport"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuStructure"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionJobOpen"/>
+   <addaction name="actionJobNew"/>
+   <addaction name="actionJobImportDalton"/>
+   <addaction name="separator"/>
+   <addaction name="actionStructureImportGaussianOutput"/>
+   <addaction name="actionStructureExportImage"/>
+   <addaction name="separator"/>
+   <addaction name="actionHelpHelp"/>
+  </widget>
+  <action name="actionJobOpen">
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionJobOpen.png</normaloff>:/icons/16x16/actionJobOpen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionJobImportDalton">
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionJobImportDalton.png</normaloff>:/icons/16x16/actionJobImportDalton.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dalton Input</string>
+   </property>
+   <property name="toolTip">
+    <string>Import existing Dalton input file(s)</string>
+   </property>
+  </action>
+  <action name="actionJobNew">
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionJobNew.png</normaloff>:/icons/16x16/actionJobNew.png</iconset>
+   </property>
+   <property name="text">
+    <string>New...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionHelpHelp">
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionHelpHelp.png</normaloff>:/icons/16x16/actionHelpHelp.png</iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionStructureImportGaussianOutput">
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</iconset>
+   </property>
+   <property name="text">
+    <string>Gaussian Output</string>
+   </property>
+   <property name="toolTip">
+    <string>Import structure from Gaussian output file.</string>
+   </property>
+  </action>
+  <action name="actionStructureExportImage">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../rsrc/icons.qrc">
+     <normaloff>:/icons/16x16/actionStructureExportImage.png</normaloff>:/icons/16x16/actionStructureExportImage.png</iconset>
+   </property>
+   <property name="text">
+    <string>Image</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionHelpAboutQt">
+   <property name="text">
+    <string>About Qt...</string>
+   </property>
+  </action>
+  <action name="actionHelpAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Render::Viewer</class>
+   <extends></extends>
+   <header>Render/RenderViewer.h</header>
+   <slots>
+    <slot>slot1()</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../rsrc/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
