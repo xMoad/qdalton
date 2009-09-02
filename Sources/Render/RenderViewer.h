@@ -61,9 +61,11 @@ namespace Render
     void updateGLList(GLList gllist);
     void updateRenderAtoms();
     void updateRenderBonds();
+
     Chemistry::Molecule molecule_;
     View view_;
     Mode mode_;
+
     // GLLists, Low & High Quality.
     GLuint axesLow_;
     GLuint axesHigh_;
@@ -77,6 +79,7 @@ namespace Render
     GLuint sticksHigh_;
     GLuint selectionsLow_;
     GLuint selectionsHigh_;
+
     // GLLists generators.
     GLuint makeAxes(GLfloat size, Quality quality);
     GLuint makeSmallBalls(Quality quality);
@@ -84,6 +87,7 @@ namespace Render
     GLuint makeBigBalls(Quality quality);
     GLuint makeSticks(Quality quality);
     GLuint makeSelections(Quality quality);
+
     // visibility flags
     bool isDebugInfoVisible_;
     bool isAxesVisible_;

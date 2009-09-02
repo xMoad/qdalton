@@ -448,7 +448,6 @@ QDalton is powerful GUI for Dalton.</string>
      <property name="title">
       <string>Import</string>
      </property>
-     <addaction name="actionStructureImportGaussianOutput"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
@@ -484,14 +483,13 @@ QDalton is powerful GUI for Dalton.</string>
    <addaction name="actionJobNew"/>
    <addaction name="actionJobImportDalton"/>
    <addaction name="separator"/>
-   <addaction name="actionStructureImportGaussianOutput"/>
    <addaction name="actionStructureExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionHelpHelp"/>
   </widget>
   <action name="actionJobOpen">
    <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
+    <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobOpen.png</normaloff>:/icons/16x16/actionJobOpen.png</iconset>
    </property>
    <property name="text">
@@ -503,7 +501,7 @@ QDalton is powerful GUI for Dalton.</string>
   </action>
   <action name="actionJobImportDalton">
    <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
+    <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobImportDalton.png</normaloff>:/icons/16x16/actionJobImportDalton.png</iconset>
    </property>
    <property name="text">
@@ -515,7 +513,7 @@ QDalton is powerful GUI for Dalton.</string>
   </action>
   <action name="actionJobNew">
    <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
+    <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobNew.png</normaloff>:/icons/16x16/actionJobNew.png</iconset>
    </property>
    <property name="text">
@@ -527,23 +525,11 @@ QDalton is powerful GUI for Dalton.</string>
   </action>
   <action name="actionHelpHelp">
    <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
+    <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionHelpHelp.png</normaloff>:/icons/16x16/actionHelpHelp.png</iconset>
    </property>
    <property name="text">
     <string>Help</string>
-   </property>
-  </action>
-  <action name="actionStructureImportGaussianOutput">
-   <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
-     <normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</iconset>
-   </property>
-   <property name="text">
-    <string>Gaussian Output</string>
-   </property>
-   <property name="toolTip">
-    <string>Import structure from Gaussian output file.</string>
    </property>
   </action>
   <action name="actionStructureExportImage">
@@ -551,7 +537,7 @@ QDalton is powerful GUI for Dalton.</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../rsrc/icons.qrc">
+    <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionStructureExportImage.png</normaloff>:/icons/16x16/actionStructureExportImage.png</iconset>
    </property>
    <property name="text">
@@ -591,7 +577,7 @@ QDalton is powerful GUI for Dalton.</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../rsrc/icons.qrc"/>
+  <include location="../Resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

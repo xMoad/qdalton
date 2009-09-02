@@ -10,28 +10,23 @@ namespace Chemistry
   class Atom
   {
   public:
-    Atom();
+    Atom(unsigned char protons, unsigned char neutrons = 0);
     Atom(const Chemistry::Atom& atom);
     
     int protons() const;
-    void setProtons(int protons);
+    int neutrons() const;
     
     int relativeAtomicMass() const;
-    void setRelativeAtomicMass(int mass);
     
     const Eigen::Vector3f& centre() const;
     void setCentre(const Eigen::Vector3f& centre);
-
-    void bondWith(int index);
-    bool isBondedWith(int index) const;
     
     float covalentRadius() const;
 
   private:
-    int protons_;
-    int neutrons_;
+    unsigned char protons_;
+    unsigned char neutrons_;
     Eigen::Vector3f centre_;
-    QList<int> bondedIndexes_;
 
     /**
      * Default table of covalent Radii
@@ -41,6 +36,6 @@ namespace Chemistry
      */
     static short covalentRadii_[];
   };
-} // namespace Chemistry
+}
 
 #endif // CHEMISTRY_ATOM_H

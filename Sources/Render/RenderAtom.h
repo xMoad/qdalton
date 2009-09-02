@@ -30,8 +30,8 @@ namespace Render
       AS_CONNECTOR,
       AS_VDW
     };
-    Atom(const Atom& atom);
-    Atom(const Chemistry::Atom& nucleus);
+    Atom(const Render::Atom& renderAtom);
+    Atom(const Chemistry::Atom& chemistryAtom);
     // Returns
     GLfloat drawRadius() const;
     GLfloat vanderwaalsRadius() const;
@@ -48,11 +48,11 @@ namespace Render
     Atom& operator= (const Atom& operand);
     static const GLfloat SELECTON_RADIUS;
   private:
-    static short vanderwaalsRadii_[];
-    static int colors[];
-    unsigned int atomicNumber_;
-    double exactMass_;
-    Eigen::Vector3f centre_;
+    static const short vanderwaalsRadii_[];
+    static const int colors[];
+
+    Chemistry::Atom chemistryAtom_;
+
     bool isSelected_;
     bool isMovable_;
     QString label_;

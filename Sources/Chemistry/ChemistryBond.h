@@ -6,8 +6,12 @@ namespace Chemistry
   class Bond
   {
   public:
-    Bond();
+    Bond(int beginIndex, int endIndex);
+    int beginIndex() const;
+    int endIndex() const;
+  private:
+    int beginIndex_;
+    int endIndex_;
   };
-} // namespace Chemistry
-
+}
 #endif // CHEMISTRY_BOND_H

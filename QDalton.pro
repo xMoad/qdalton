@@ -57,29 +57,36 @@ FORMS += Sources/MainWindow.ui \
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
 
+CONFIG(debug, debug|release) {
+  MOC_DIR = Build/Temp/debug
+  RCC_DIR = Build/Temp/debug
+  UI_DIR = Build/Temp/debug
+  OBJECTS_DIR = Build/Objects/debug
+#  TARGET = QDalton-debug
+} else {
+  MOC_DIR = Build/Temp/release
+  RCC_DIR = Build/Temp/release
+  UI_DIR = Build/Temp/release
+  OBJECTS_DIR = Build/Objects/release
+#  TARGET = QDalton
+}
+
 win32 {
   DESTDIR = Build/Binaries/Windows
   CONFIG(debug, debug|release) {
-    MOC_DIR = Build/Temp/debug
-    RCC_DIR = Build/Temp/debug
-    UI_DIR = Build/Temp/debug
-    OBJECTS_DIR = Build/Objects/debug
-    TARGET = QDalton-debug
     LIBS += -LLibraries/Windows -ldQGLViewer2
   } else {
-    MOC_DIR = Build/Temp/release
-    RCC_DIR = Build/Temp/release
-    UI_DIR = Build/Temp/release
-    OBJECTS_DIR = Build/Objects/release
-    TARGET = QDalton
     LIBS += -LLibraries/Windows -lQGLViewer2
   }
 }
 
 macx {
-  DESTDIR = Binaries/MacOS
-  LIBS *= -framework \
-    QGLViewer
+  DESTDIR = Build/Binaries/MacOS
+  CONFIG(debug, debug|release) {
+    LIBS += -framework QGLViewer_debug
+  } else {
+    LIBS += -framework QGLViewer
+  }
 }
 
 linux-g++ {

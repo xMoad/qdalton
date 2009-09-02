@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/" >
-        <file>icons/16x16/actionStructureImportGaussianOutput.png</file>
         <file>icons/16x16/actionStructureExportImage.png</file>
         <file>icons/16x16/actionJobOpen.png</file>
         <file>icons/16x16/actionJobImportDalton.png</file>

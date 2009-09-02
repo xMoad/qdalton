@@ -4,6 +4,7 @@
 #include <QList>
 
 #include "Chemistry/ChemistryAtom.h"
+#include "Chemistry/ChemistryBond.h"
 
 namespace Chemistry
 {
@@ -23,12 +24,19 @@ namespace Chemistry
 
     float interatomicDistance(int index1, int index2);
 
+    bool isConnected(int index1, int index2) const;
+    void connect(int index1, int index2);
+
     void rebond();
 
   private:
+    typedef QList<Chemistry::Bond*> IncidenceList;
+    typedef QList<IncidenceList> IncidenceMatrix;
+
+    IncidenceMatrix incidenceMatrix_;
     int charge_;
     QList<Chemistry::Atom> atoms_;
   };
-} // namespace Chemistry
+}
 
 #endif // CHEMISTRY_MOLECULE_H

@@ -188,11 +188,9 @@ void Render::Viewer::drawWithNames()
 
 void Render::Viewer::postSelection(const QPoint& point)
 {
-  // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
   bool found;
-  selectedPoint = camera()->pointUnderPixel(point, found);
-  // Note that "found" is different from (selectedObjectId()>=0) because of the size of the select region.
 
+  selectedPoint = camera()->pointUnderPixel(point, found);
   if (selectedName() != -1)
   {
     atomsQList_[selectedName()].setSelected(!atomsQList_[selectedName()].isSelected());
@@ -410,7 +408,31 @@ void Render::Viewer::addBond(const Bond& bond)
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 {
-  QGLViewer::mouseMoveEvent(e);
+  switch (e->buttons())
+  {
+  case Qt::LeftButton:
+    switch (e->modifiers())
+    {
+    case Qt::NoModifier:
+      QGLViewer::mouseMoveEvent(e);
+      break;
+    default:
+      break;
+    }
+    break;
+  case Qt::RightButton:
+    switch (e->modifiers())
+    {
+    case Qt::NoModifier:
+      QGLViewer::mouseMoveEvent(e);
+      break;
+    default:
+      break;
+    }
+    break;
+  default:
+    break;
+  }
 }
 
 void Render::Viewer::mousePressEvent(QMouseEvent* e)
@@ -447,9 +469,9 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
           updateGLList(Viewer::GLLIST_BALLS);
         }
       }
+      QGLViewer::mousePressEvent(e);
       break;
     case MODE_ADD:
-      Chemistry::Atom chemistryAtom;
       if (found)
       {
 //        obatom = obmol_.GetAtom(selectedName()+1);
@@ -457,7 +479,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       else
       {
-        chemistryAtom.setProtons(atomicNumber_);
+        Chemistry::Atom chemistryAtom(atomicNumber_);
         molecule_.addAtom(chemistryAtom);
       }
       updateMolecule();
@@ -470,7 +492,6 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       break;
     }
-    QGLViewer::mousePressEvent(e);
     break;
   case Qt::RightButton:
     switch (mode_)
@@ -564,7 +585,7 @@ void Render::Viewer::updateRenderBonds()
   {
     for (int j = i + 1; j < molecule_.atomsCount(); ++j)
     {
-      if (molecule_.atom(i).isBondedWith(j))
+      if (molecule_.isConnected(i, j))
       {
         Render::Bond renderBond(&molecule_, i, j);
         addBond(renderBond);

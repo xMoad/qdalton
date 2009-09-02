@@ -43,7 +43,6 @@ private slots:
   void on_checkBoxAxes_toggled(bool checked);
   void on_actionExit_triggered();
   void on_actionStructureExportImage_triggered();
-  void on_actionStructureImportGaussianOutput_triggered();
   void on_comboBoxAtom_currentIndexChanged(QString );
   void on_actionJobNew_triggered();
   void on_toolBox_currentChanged(int index);

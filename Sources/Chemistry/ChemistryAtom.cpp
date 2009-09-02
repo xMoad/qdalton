@@ -1,9 +1,10 @@
 #include "ChemistryAtom.h"
 
-Chemistry::Atom::Atom()
+Chemistry::Atom::Atom(unsigned char protons, unsigned char neutrons)
 {
-  protons_ = 0;
-  neutrons_ = 0;
+  protons_ = protons;
+  // TODO If neutrons == 0 then take value from default isotope table! Not 1!
+  neutrons_ = (neutrons == 0) ? 1 : neutrons;
 }
 
 Chemistry::Atom::Atom(const Chemistry::Atom& atom)
@@ -11,7 +12,6 @@ Chemistry::Atom::Atom(const Chemistry::Atom& atom)
   protons_ = atom.protons_;
   neutrons_ = atom.neutrons_;
   centre_ = atom.centre_;
-  bondedIndexes_ = bondedIndexes_;
 }
 
 int Chemistry::Atom::protons() const
@@ -19,19 +19,14 @@ int Chemistry::Atom::protons() const
   return protons_;
 }
 
-void Chemistry::Atom::setProtons(int protons)
+int Chemistry::Atom::neutrons() const
 {
-  protons_ = protons;
+  return neutrons_;
 }
 
 int Chemistry::Atom::relativeAtomicMass() const
 {
   return protons_ + neutrons_;
-}
-
-void Chemistry::Atom::setRelativeAtomicMass(int mass)
-{
-  neutrons_ = mass - protons_;
 }
 
 const Eigen::Vector3f& Chemistry::Atom::centre() const
@@ -42,16 +37,6 @@ const Eigen::Vector3f& Chemistry::Atom::centre() const
 void Chemistry::Atom::setCentre(const Eigen::Vector3f& point)
 {
   centre_ = point;
-}
-
-void Chemistry::Atom::bondWith(int index)
-{
-  bondedIndexes_ << index;
-}
-
-bool Chemistry::Atom::isBondedWith(int index) const
-{
-  return bondedIndexes_.contains(index);
 }
 
 float Chemistry::Atom::covalentRadius() const

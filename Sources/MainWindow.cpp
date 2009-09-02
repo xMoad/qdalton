@@ -217,30 +217,6 @@ void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
 //  ui->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
 }
 
-void MainWindow::on_actionStructureImportGaussianOutput_triggered()
-{
-/*  QString fileName = QFileDialog::getOpenFileName(this,
-                                                  "Choose Gaussian output file",
-                                                  getWorkDir(),
-                                                  "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
-  if (!fileName.isEmpty())
-  {
-    OpenBabel::OBMol obmol;
-    OpenBabel::OBConversion conv;
-    conv.SetInFormat("g03");
-    if (conv.ReadFile(&obmol, fileName.toStdString()))
-    {
-      ui->welcomeWidget->hide();
-      ui->tabWidget->show();
-      ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(obmol);
-      ui->actionStructureExportImage->setEnabled(true);
-    }
-    else
-      QMessageBox::critical(this, QCoreApplication::applicationName(), "Can't import file " + fileName);
-  } */
-}
-
 void MainWindow::on_actionStructureExportImage_triggered()
 {
   ui->viewer->saveSnapshot(false, false);

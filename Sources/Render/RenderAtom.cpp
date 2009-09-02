@@ -8,20 +8,16 @@
 
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
-Render::Atom::Atom(const Render::Atom& atom)
+Render::Atom::Atom(const Render::Atom& renderAtom) :
+    chemistryAtom_(renderAtom.chemistryAtom_)
 {
-  atomicNumber_ = atom.atomicNumber_;
-  exactMass_ = atom.exactMass_;
-  centre_ = atom.centre_;
-  isSelected_ = atom.isSelected_;
-  isMovable_ = atom.isMovable_;
+  isSelected_ = renderAtom.isSelected_;
+  isMovable_ = renderAtom.isMovable_;
 }
 
-Render::Atom::Atom(const Chemistry::Atom& atom)
+Render::Atom::Atom(const Chemistry::Atom& chemistryAtom) :
+    chemistryAtom_(chemistryAtom)
 {
-  atomicNumber_ = atom.protons();
-  exactMass_ = atom.relativeAtomicMass();
-  centre_ = atom.centre();
 //  label_ = obatom->Get
   isSelected_ = false;
   isMovable_ = false;
@@ -29,24 +25,24 @@ Render::Atom::Atom(const Chemistry::Atom& atom)
 
 GLfloat Render::Atom::drawRadius() const
 {
-  return cbrt(exactMass_) / 10.0f + 0.2f;
+  return cbrt(chemistryAtom_.relativeAtomicMass()) / 10.0f + 0.2f;
 }
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) vanderwaalsRadii_[4 *(atomicNumber_)] / 1000.0f;
+  return (GLfloat) vanderwaalsRadii_[4 *(chemistryAtom_.protons())] / 1000.0f;
 }
 
 Render::Color Render::Atom::color() const
 {
-  QColor color(colors[atomicNumber_]);
+  QColor color(colors[chemistryAtom_.protons()]);
   return Render::Color(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
 
 void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) const
 {
   Material material(color(), true);
-  Sphere sphere(centre_, drawRadius(), material);
+  Sphere sphere(chemistryAtom_.centre(), drawRadius(), material);
 
   switch (style)
   {
@@ -65,7 +61,7 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
   if (isMovable_)
   {
     GLfloat size = 1.0f;
-    glTranslatef(centre_.x(), centre_.y(), centre_.z());
+    glTranslatef(chemistryAtom_.centre().x(), chemistryAtom_.centre().y(), chemistryAtom_.centre().z());
     Arrow x(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
             Eigen::Vector3f(size, 0.0f, 0.0f),
             0.04f,
@@ -89,7 +85,7 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
   Material material(Color::selection(), true);
-  Sphere sphere(centre_,
+  Sphere sphere(chemistryAtom_.centre(),
                 drawRadius() + SELECTON_RADIUS,
                 material);
   if (style == AS_CONNECTOR)
@@ -106,12 +102,12 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 
 const Eigen::Vector3f& Render::Atom::centre() const
 {
-  return centre_;
+  return chemistryAtom_.centre();
 }
 
 void Render::Atom::setCentre(const Eigen::Vector3f& point)
 {
-  centre_ = point;
+  chemistryAtom_.setCentre(point);
 }
 
 bool Render::Atom::isSelected() const
@@ -146,7 +142,7 @@ const QString& Render::Atom::label() const
   return "Atom";
 }
 
-short Render::Atom::vanderwaalsRadii_[] =
+const short Render::Atom::vanderwaalsRadii_[] =
 {
   //Jmol,openBabel,openRasmol,reserved
     1000,1000,1000,0, // XX 0
@@ -265,7 +261,7 @@ short Render::Atom::vanderwaalsRadii_[] =
    * Default table of CPK atom colors.
    * ghemical colors with a few proposed modifications
    */
-  int Render::Atom::colors[] =
+  const int Render::Atom::colors[] =
   {
     0xFFFF1493, // Xx 0
     0xFFFFFFFF, // H  1
