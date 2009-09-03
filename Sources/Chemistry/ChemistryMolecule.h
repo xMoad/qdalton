@@ -1,3 +1,24 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #ifndef CHEMISTRY_MOLECULE_H
 #define CHEMISTRY_MOLECULE_H
 
@@ -13,19 +34,19 @@ namespace Chemistry
   public:
     Molecule();
 
-    const Chemistry::Atom& atom(int index) const;
+    const Chemistry::Atom& atom(uint16_t index) const;
 
-    int atomsCount() const;
+    uint16_t atomsCount() const;
 
-    int charge() const;
-    void setCharge(int charge);
+    uint8_t charge() const;
+    void setCharge(uint8_t charge);
 
     void addAtom(const Chemistry::Atom& atom);
 
-    float interatomicDistance(int index1, int index2);
+    float interatomicDistance(uint16_t index1, uint16_t index2);
 
-    bool isConnected(int index1, int index2) const;
-    void connect(int index1, int index2);
+    bool isConnected(uint16_t index1, uint16_t index2) const;
+    void connect(uint16_t index1, uint16_t index2);
 
     void rebond();
 
@@ -34,7 +55,8 @@ namespace Chemistry
     typedef QList<IncidenceList> IncidenceMatrix;
 
     IncidenceMatrix incidenceMatrix_;
-    int charge_;
+
+    uint8_t charge_;
     QList<Chemistry::Atom> atoms_;
   };
 }

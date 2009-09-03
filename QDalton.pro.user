@@ -55,7 +55,7 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
    <value key="QtVersionId" type="int" >0</value>
    <value key="addQDumper" type="" ></value>
-   <value key="buildDirectory" type="QString" >/Users/kemiisto/Desktop/QDalton/Project</value>
+   <value key="buildDirectory" type="QString" >/Volumes/Seagate/Projects/QDalton/Project</value>
   </valuemap>
  </data>
  <data>
@@ -63,16 +63,16 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-LFkeee/Render</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-oodLOm/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DISPLAY=/tmp/launch-FklhGR/:0</value>
+    <value type="QString" >DISPLAY=/tmp/launch-QknRyr/:0</value>
     <value type="QString" >HOME=/Users/kemiisto</value>
     <value type="QString" >LOGNAME=kemiisto</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=8147b0</value>
+    <value type="QString" >SECURITYSESSIONID=d36a70</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-U8KdxS/Listeners</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-B2Q1Do/Listeners</value>
     <value type="QString" >TMPDIR=/var/folders/VA/VAfyKKPvGeSaaRIxO0oUK++++TI/-Tmp-/</value>
     <value type="QString" >USER=kemiisto</value>
     <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
@@ -94,16 +94,16 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-LFkeee/Render</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-oodLOm/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DISPLAY=/tmp/launch-FklhGR/:0</value>
+    <value type="QString" >DISPLAY=/tmp/launch-QknRyr/:0</value>
     <value type="QString" >HOME=/Users/kemiisto</value>
     <value type="QString" >LOGNAME=kemiisto</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=8147b0</value>
+    <value type="QString" >SECURITYSESSIONID=d36a70</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-U8KdxS/Listeners</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-B2Q1Do/Listeners</value>
     <value type="QString" >TMPDIR=/var/folders/VA/VAfyKKPvGeSaaRIxO0oUK++++TI/-Tmp-/</value>
     <value type="QString" >USER=kemiisto</value>
     <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
@@ -121,16 +121,16 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-LFkeee/Render</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-oodLOm/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DISPLAY=/tmp/launch-FklhGR/:0</value>
+    <value type="QString" >DISPLAY=/tmp/launch-QknRyr/:0</value>
     <value type="QString" >HOME=/Users/kemiisto</value>
     <value type="QString" >LOGNAME=kemiisto</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=8147b0</value>
+    <value type="QString" >SECURITYSESSIONID=d36a70</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-U8KdxS/Listeners</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-B2Q1Do/Listeners</value>
     <value type="QString" >TMPDIR=/var/folders/VA/VAfyKKPvGeSaaRIxO0oUK++++TI/-Tmp-/</value>
     <value type="QString" >USER=kemiisto</value>
     <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
@@ -150,18 +150,19 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
     <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\kemiisto\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
+    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
+    <value type="QString" >COMPUTERNAME=EXPERIEN-DF7431</value>
     <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString" >DEVMGR_SHOW_DETAILS=</value>
+    <value type="QString" >DEVMGR_SHOW_NONPRESENT_DEVICES=1</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\kemiisto</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
+    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
+    <value type="QString" >LOGONSERVER=\\EXPERIEN-DF7431</value>
     <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\MinGW\bin;c:\Qt\4.5.2\bin</value>
+    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\MinGW\bin;c:\Qt\4.5.2\bin;C:\Program Files\TortoiseHg</value>
     <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
     <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
@@ -169,18 +170,17 @@
     <value type="QString" >PROCESSOR_REVISION=1706</value>
     <value type="QString" >PROGRAMFILES=C:\Program Files</value>
     <value type="QString" >QTDIR=C:/Qt/4.5.2</value>
-    <value type="QString" >SESSIONNAME=Console</value>
     <value type="QString" >SYSTEMDRIVE=C:</value>
     <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=kemiisto</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\kemiisto</value>
+    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >USERDOMAIN=EXPERIEN-DF7431</value>
+    <value type="QString" >USERNAME=Administrator</value>
+    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
     <value type="QString" >WINDIR=C:\WINDOWS</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >X:/QDalton/Project/QDalton.pro</value>
+    <value type="QString" >Z:/Projects/QDalton/Project/QDalton.pro</value>
     <value type="QString" >-spec</value>
     <value type="QString" >win32-g++</value>
     <value type="QString" >-r</value>
@@ -188,7 +188,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString" >C:/Qt/4.5.2/bin/qmake.exe</value>
    <value key="abstractProcess.enabled" type="bool" >false</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >X:/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Projects/QDalton/Project</value>
    <value key="buildConfiguration" type="int" >0</value>
   </valuemap>
  </data>
@@ -198,18 +198,19 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
     <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\kemiisto\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
+    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
+    <value type="QString" >COMPUTERNAME=EXPERIEN-DF7431</value>
     <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString" >DEVMGR_SHOW_DETAILS=</value>
+    <value type="QString" >DEVMGR_SHOW_NONPRESENT_DEVICES=1</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\kemiisto</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
+    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
+    <value type="QString" >LOGONSERVER=\\EXPERIEN-DF7431</value>
     <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\MinGW\bin;c:\Qt\4.5.2\bin</value>
+    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\MinGW\bin;c:\Qt\4.5.2\bin;C:\Program Files\TortoiseHg</value>
     <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
     <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
@@ -217,14 +218,13 @@
     <value type="QString" >PROCESSOR_REVISION=1706</value>
     <value type="QString" >PROGRAMFILES=C:\Program Files</value>
     <value type="QString" >QTDIR=C:/Qt/4.5.2</value>
-    <value type="QString" >SESSIONNAME=Console</value>
     <value type="QString" >SYSTEMDRIVE=C:</value>
     <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=kemiisto</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\kemiisto</value>
+    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >USERDOMAIN=EXPERIEN-DF7431</value>
+    <value type="QString" >USERNAME=Administrator</value>
+    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
     <value type="QString" >WINDIR=C:\WINDOWS</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
@@ -232,7 +232,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString" >C:/MinGW/bin/mingw32-make.exe</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >X:/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Projects/QDalton/Project</value>
   </valuemap>
  </data>
  <data>
@@ -241,18 +241,19 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
     <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\kemiisto\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
+    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
+    <value type="QString" >COMPUTERNAME=EXPERIEN-DF7431</value>
     <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
+    <value type="QString" >DEVMGR_SHOW_DETAILS=</value>
+    <value type="QString" >DEVMGR_SHOW_NONPRESENT_DEVICES=1</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\kemiisto</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
+    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
+    <value type="QString" >LOGONSERVER=\\EXPERIEN-DF7431</value>
     <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\MinGW\bin;c:\Qt\4.5.2\bin</value>
+    <value type="QString" >PATH=C:\Qt\4.5.2\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\MinGW\bin;c:\Qt\4.5.2\bin;C:\Program Files\TortoiseHg</value>
     <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
     <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
@@ -260,14 +261,13 @@
     <value type="QString" >PROCESSOR_REVISION=1706</value>
     <value type="QString" >PROGRAMFILES=C:\Program Files</value>
     <value type="QString" >QTDIR=C:/Qt/4.5.2</value>
-    <value type="QString" >SESSIONNAME=Console</value>
     <value type="QString" >SYSTEMDRIVE=C:</value>
     <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\kemiisto\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=kemiisto</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\kemiisto</value>
+    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
+    <value type="QString" >USERDOMAIN=EXPERIEN-DF7431</value>
+    <value type="QString" >USERNAME=Administrator</value>
+    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
     <value type="QString" >WINDIR=C:\WINDOWS</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
@@ -276,7 +276,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString" >C:/MinGW/bin/mingw32-make.exe</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >X:/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Projects/QDalton/Project</value>
   </valuemap>
  </data>
  <data>

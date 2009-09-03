@@ -1,3 +1,24 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #ifndef FILE_MOL_H
 #define FILE_MOL_H
 
@@ -24,8 +45,8 @@ namespace File
     BasisType basisType() const;
     BasisSet basisSet();
     const QString& comment() const;
-    int atomTypes() const;
-    void setAtomTypes(int atomTypes);
+    uint8_t atomTypes() const;
+    void setAtomTypes(uint8_t atomTypes);
     bool isAngstrom() const;
     void setAngstrom(bool isAngstrom);
     bool isCartesian() const;
@@ -35,7 +56,7 @@ namespace File
     BasisType basisType_;
     BasisSet basisSet_;
     QString comment_;
-    int atomTypes_;
+    uint8_t atomTypes_;
     bool isAngstrom_;
     bool isCartesian_;
   };

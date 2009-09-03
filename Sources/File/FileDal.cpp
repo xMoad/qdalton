@@ -1,3 +1,24 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #include "File/FileDal.h"
 
 #include <QStringList>
@@ -102,9 +123,9 @@ bool File::Dal::parse()
   return true;
 }
 
-char File::Dal::moduleIndex(const QString& moduleName)
+uint8_t File::Dal::moduleIndex(const QString& moduleName)
 {
-  for (int i = 0; i < modules_.size(); ++i)
+  for (uint8_t i = 0; i < modules_.size(); ++i)
   {
     if (modules_[i].name() == moduleName + "\n")
       return i;
@@ -118,9 +139,9 @@ QString File::Dal::parametreValue(const QString& moduleName,
 {
   if (hasParametre(moduleName, submoduleName, parametreName))
   {
-    char m = moduleIndex(moduleName);
-    char s = modules_[m].submoduleIndex(submoduleName);
-    char p = modules_[m][s].parametreIndex(parametreName);
+    uint8_t m = moduleIndex(moduleName);
+    uint8_t s = modules_[m].submoduleIndex(submoduleName);
+    uint8_t p = modules_[m][s].parametreIndex(parametreName);
     return modules_[m][s][p].value();
   }
   else
@@ -131,13 +152,13 @@ bool File::Dal::hasParametre(const QString& moduleName,
                                   const QString& submoduleName,
                                   const QString& parametreName)
 {
-  char m = moduleIndex(moduleName);
+  uint8_t m = moduleIndex(moduleName);
   if (m != -1)
   {
-    char s = modules_[m].submoduleIndex(submoduleName);
+    uint8_t s = modules_[m].submoduleIndex(submoduleName);
     if (s != -1)
     {
-      char p = modules_[m][s].parametreIndex(parametreName);
+      uint8_t p = modules_[m][s].parametreIndex(parametreName);
       if (p != -1)
         return true;
       else

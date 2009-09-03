@@ -1,3 +1,24 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #include "ChemistryMolecule.h"
 
 float tolerance = 0.4f;
@@ -6,22 +27,22 @@ Chemistry::Molecule::Molecule()
 {
 }
 
-const Chemistry::Atom& Chemistry::Molecule::atom(int index) const
+const Chemistry::Atom& Chemistry::Molecule::atom(uint16_t index) const
 {
   return atoms_.at(index);
 }
 
-int Chemistry::Molecule::atomsCount() const
+uint16_t Chemistry::Molecule::atomsCount() const
 {
   return atoms_.count();
 }
 
-int Chemistry::Molecule::charge() const
+uint8_t Chemistry::Molecule::charge() const
 {
   return charge_;
 }
 
-void Chemistry::Molecule::setCharge(int charge)
+void Chemistry::Molecule::setCharge(uint8_t charge)
 {
   charge_ = charge;
 }
@@ -32,12 +53,12 @@ void Chemistry::Molecule::addAtom(const Chemistry::Atom& atom)
   incidenceMatrix_ << IncidenceList();
 }
 
-float Chemistry::Molecule::interatomicDistance(int index1, int index2)
+float Chemistry::Molecule::interatomicDistance(uint16_t index1, uint16_t index2)
 { 
   return (atoms_[index2].centre() - atoms_[index1].centre()).norm();
 }
 
-bool Chemistry::Molecule::isConnected(int index1, int index2) const
+bool Chemistry::Molecule::isConnected(uint16_t index1, uint16_t index2) const
 {
   for (int i = 0; i < incidenceMatrix_.at(index1).count(); ++i)
   {
@@ -49,7 +70,7 @@ bool Chemistry::Molecule::isConnected(int index1, int index2) const
   return false;
 }
 
-void Chemistry::Molecule::connect(int index1, int index2)
+void Chemistry::Molecule::connect(uint16_t index1, uint16_t index2)
 {
   Chemistry::Bond* chemistryBond = new Chemistry::Bond(index1, index2);
   incidenceMatrix_[index1] << chemistryBond;

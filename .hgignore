@@ -4,3 +4,5 @@ glob:Build
 glob:Makefile*
 glob:object_script*
 glob:.DS_Store
+glob:.project
+glob:.cproject

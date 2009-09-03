@@ -1,6 +1,27 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #include "ChemistryAtom.h"
 
-Chemistry::Atom::Atom(unsigned char protons, unsigned char neutrons)
+Chemistry::Atom::Atom(uint8_t protons, uint8_t neutrons)
 {
   protons_ = protons;
   // TODO If neutrons == 0 then take value from default isotope table! Not 1!
@@ -14,17 +35,17 @@ Chemistry::Atom::Atom(const Chemistry::Atom& atom)
   centre_ = atom.centre_;
 }
 
-int Chemistry::Atom::protons() const
+uint8_t Chemistry::Atom::protons() const
 {
   return protons_;
 }
 
-int Chemistry::Atom::neutrons() const
+uint8_t Chemistry::Atom::neutrons() const
 {
   return neutrons_;
 }
 
-int Chemistry::Atom::relativeAtomicMass() const
+uint16_t Chemistry::Atom::relativeAtomicMass() const
 {
   return protons_ + neutrons_;
 }
@@ -44,7 +65,7 @@ float Chemistry::Atom::covalentRadius() const
   return (float) covalentRadii_[protons_] / 1000.0f;
 }
 
-short Chemistry::Atom::covalentRadii_[] =
+uint16_t Chemistry::Atom::covalentRadii_[] =
 {
     0,    //   0  Xx does not bond
     230,  //   1  H

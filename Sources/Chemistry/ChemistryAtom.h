@@ -1,3 +1,24 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #ifndef CHEMISTRY_ATOM_H
 #define CHEMISTRY_ATOM_H
 
@@ -7,16 +28,27 @@
 
 namespace Chemistry
 {
+  /**
+   * @class Chemistry::Atom ChemistryAtom.h "Chemistry/ChemistryAtom.h"
+   * @brief Represents atom from the chemical point of view.
+   * @author Anton Simakov
+   * @version 0.1
+   */
   class Atom
   {
   public:
-    Atom(unsigned char protons, unsigned char neutrons = 0);
+    /** Constructor.
+     * @param protons is is the number of protons.
+     * @param neutrons is the number of neutrons.
+     * .
+     */
+    Atom(uint8_t protons, uint8_t neutrons = 0);
     Atom(const Chemistry::Atom& atom);
     
-    int protons() const;
-    int neutrons() const;
+    uint8_t protons() const;
+    uint8_t neutrons() const;
     
-    int relativeAtomicMass() const;
+    uint16_t relativeAtomicMass() const;
     
     const Eigen::Vector3f& centre() const;
     void setCentre(const Eigen::Vector3f& centre);
@@ -24,17 +56,14 @@ namespace Chemistry
     float covalentRadius() const;
 
   private:
-    unsigned char protons_;
-    unsigned char neutrons_;
+    uint8_t protons_;
+    uint8_t neutrons_;
     Eigen::Vector3f centre_;
 
-    /**
-     * Default table of covalent Radii
-     * stored as a short mar ... Milli Angstrom Radius
-     * Values taken from OpenBabel.
-     * @see <a href="http://openbabel.sourceforge.net">openbabel.sourceforge.net</a>
+    /** Default table of covalent Radii.
+     * Values (milliangstrom)  taken from <a href="http://openbabel.org/">OpenBabel</a>.
      */
-    static short covalentRadii_[];
+    static uint16_t covalentRadii_[];
   };
 }
 
