@@ -25,12 +25,19 @@
 #include <QMouseEvent>
 #include <QGLViewer/qglviewer.h>
 
+#include "Chemistry/ChemistryMolecule.h"
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderQuality.h"
 
 namespace Render
 {
+  /**
+   * @class Render::Viewer RenderViewer.h "Render/RenderViewer.h"
+   * @brief
+   * @author Anton Simakov
+   * @version 0.1
+   */
   class Viewer : public QGLViewer
   {
     Q_OBJECT
@@ -42,14 +49,21 @@ namespace Render
       VIEW_STICKS,
       VIEW_VDW
     };
+
     enum Mode
     {
       MODE_VIEW,
       MODE_ADD
     };
+
     Viewer(QWidget* parent);
     ~Viewer();
-    void setMolecule(const Chemistry::Molecule& obmol);
+
+    /** Set Chemistry::Molecule instance to view.
+     * @param chemistryMolecule is
+     */
+    void setMolecule(const Chemistry::Molecule& chemistryMolecule);
+
     void updateMolecule();
     void setView(View view);
     void setMode(Mode mode);
@@ -79,11 +93,8 @@ namespace Render
       GLLIST_STICKS,
       GLLIST_SELECTIONS
     };
-    void updateGLList(GLList gllist);
-    void updateRenderAtoms();
-    void updateRenderBonds();
 
-    Chemistry::Molecule molecule_;
+    Chemistry::Molecule chemistryMolecule_;
     View view_;
     Mode mode_;
 
@@ -101,6 +112,10 @@ namespace Render
     GLuint selectionsLow_;
     GLuint selectionsHigh_;
 
+    void updateGLList(GLList gllist);
+    void updateRenderAtoms();
+    void updateRenderBonds();
+
     // GLLists generators.
     GLuint makeAxes(GLfloat size, Quality quality);
     GLuint makeSmallBalls(Quality quality);
@@ -115,9 +130,11 @@ namespace Render
     GLfloat axesSize_;
 
     QPoint lastMousePosition_;
-    QList<Render::Atom> atomsQList_;
+    QList<Render::Atom> renderAtomsList_;
+    QList<Render::Bond> renderBondsList_;
+
     int movableIndex;
-    QList<Render::Bond> bondsQList_;
+
     qglviewer::Vec selectedPoint;
     // added atom atomic number
     int atomicNumber_;

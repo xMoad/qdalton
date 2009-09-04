@@ -19,20 +19,24 @@
 
  **********************************************************************/
 
-#include "ChemistryAtom.h"
+#include "Chemistry/ChemistryAtom.h"
+#include "Chemistry/ChemistryMolecule.h"
 
-Chemistry::Atom::Atom(uint8_t protons, uint8_t neutrons)
+Chemistry::Atom::Atom(Chemistry::Molecule* chemistryMolecule,
+                      uint8_t protons,
+                      uint8_t neutrons)
 {
+  chemistryMolecule_ = chemistryMolecule;
   protons_ = protons;
   // TODO If neutrons == 0 then take value from default isotope table! Not 1!
   neutrons_ = (neutrons == 0) ? 1 : neutrons;
 }
 
-Chemistry::Atom::Atom(const Chemistry::Atom& atom)
+Chemistry::Atom::Atom(const Chemistry::Atom& chemistryAtom)
 {
-  protons_ = atom.protons_;
-  neutrons_ = atom.neutrons_;
-  centre_ = atom.centre_;
+  protons_ = chemistryAtom.protons_;
+  neutrons_ = chemistryAtom.neutrons_;
+  centre_ = chemistryAtom.centre_;
 }
 
 uint8_t Chemistry::Atom::protons() const

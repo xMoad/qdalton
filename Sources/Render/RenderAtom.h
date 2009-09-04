@@ -33,7 +33,7 @@ namespace Render
 {
   class Color;
   /**
-   * @class Atom Atom.h "Render/Atom.h"
+   * @class Render::Atom RenderAtom.h "Render/RenderAtom.h"
    * @brief Represents and draw atom.
    * @author Anton Simakov
    * @version 0.1
@@ -52,7 +52,7 @@ namespace Render
      * @param chemistryAtom is a reference to Chemistry::Atom class instance.
      * This is one and only one way to create Render::Atom object - from Chemistry::Atom instance that already exists.
      */
-    Atom(const Chemistry::Atom& chemistryAtom);
+    Atom(Chemistry::Atom* chemistryAtom);
 
     /** Copy constructor.
      * @param renderAtom is a reference to Render::Atom class instance to copy from.
@@ -81,7 +81,7 @@ namespace Render
     static const uint16_t vanderwaalsRadii_[];
     static const uint32_t colors[];
 
-    Chemistry::Atom chemistryAtom_;
+    Chemistry::Atom* chemistryAtom_;
 
     bool isSelected_;
     bool isMovable_;

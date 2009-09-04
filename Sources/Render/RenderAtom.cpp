@@ -36,34 +36,33 @@ Render::Atom::Atom(const Render::Atom& renderAtom) :
   isMovable_ = renderAtom.isMovable_;
 }
 
-Render::Atom::Atom(const Chemistry::Atom& chemistryAtom) :
-    chemistryAtom_(chemistryAtom)
+Render::Atom::Atom(Chemistry::Atom* chemistryAtom)
 {
-//  label_ = obatom->Get
+  chemistryAtom_ = chemistryAtom;
   isSelected_ = false;
   isMovable_ = false;
 }
 
 GLfloat Render::Atom::drawRadius() const
 {
-  return cbrt(chemistryAtom_.relativeAtomicMass()) / 10.0f + 0.2f;
+  return cbrt(chemistryAtom_->relativeAtomicMass()) / 10.0f + 0.2f;
 }
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) vanderwaalsRadii_[4 *(chemistryAtom_.protons())] / 1000.0f;
+  return (GLfloat) vanderwaalsRadii_[4 *(chemistryAtom_->protons())] / 1000.0f;
 }
 
 Render::Color Render::Atom::color() const
 {
-  QColor color(colors[chemistryAtom_.protons()]);
+  QColor color(colors[chemistryAtom_->protons()]);
   return Render::Color(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
 
 void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) const
 {
   Material material(color(), true);
-  Sphere sphere(chemistryAtom_.centre(), drawRadius(), material);
+  Sphere sphere(chemistryAtom_->centre(), drawRadius(), material);
 
   switch (style)
   {
@@ -82,7 +81,9 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
   if (isMovable_)
   {
     GLfloat size = 1.0f;
-    glTranslatef(chemistryAtom_.centre().x(), chemistryAtom_.centre().y(), chemistryAtom_.centre().z());
+    glTranslatef(chemistryAtom_->centre().x(),
+                 chemistryAtom_->centre().y(),
+                 chemistryAtom_->centre().z());
     Arrow x(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
             Eigen::Vector3f(size, 0.0f, 0.0f),
             0.04f,
@@ -106,7 +107,7 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
   Material material(Color::selection(), true);
-  Sphere sphere(chemistryAtom_.centre(),
+  Sphere sphere(chemistryAtom_->centre(),
                 drawRadius() + SELECTON_RADIUS,
                 material);
   if (style == AS_CONNECTOR)
@@ -123,12 +124,12 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 
 const Eigen::Vector3f& Render::Atom::centre() const
 {
-  return chemistryAtom_.centre();
+  return chemistryAtom_->centre();
 }
 
 void Render::Atom::setCentre(const Eigen::Vector3f& point)
 {
-  chemistryAtom_.setCentre(point);
+  chemistryAtom_->setCentre(point);
 }
 
 bool Render::Atom::isSelected() const

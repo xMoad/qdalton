@@ -28,6 +28,8 @@
 
 namespace Chemistry
 {
+  class Molecule;
+
   /**
    * @class Chemistry::Atom ChemistryAtom.h "Chemistry/ChemistryAtom.h"
    * @brief Represents atom from the chemical point of view.
@@ -42,8 +44,11 @@ namespace Chemistry
      * @param neutrons is the number of neutrons.
      * .
      */
-    Atom(uint8_t protons, uint8_t neutrons = 0);
-    Atom(const Chemistry::Atom& atom);
+    Atom(Chemistry::Molecule* chemistryMolecule,
+         uint8_t protons,
+         uint8_t neutrons = 0);
+
+    Atom(const Chemistry::Atom& chemistryAtom);
     
     uint8_t protons() const;
     uint8_t neutrons() const;
@@ -56,6 +61,7 @@ namespace Chemistry
     float covalentRadius() const;
 
   private:
+    Chemistry::Molecule* chemistryMolecule_;
     uint8_t protons_;
     uint8_t neutrons_;
     Eigen::Vector3f centre_;

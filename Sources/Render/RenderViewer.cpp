@@ -143,7 +143,7 @@ void Render::Viewer::draw()
       // Multiply matrix to get in the frame coordinate system.
       glMultMatrixd(manipulatedFrame()->matrix());
       //      if (showAtoms_)
-      atomsQList_[movableIndex].draw(Atom::AS_ATOM, QUALITY_HIGH);
+      renderAtomsList_[movableIndex].draw(Atom::AS_ATOM, QUALITY_HIGH);
     }
     glPopMatrix();
   }
@@ -186,20 +186,20 @@ void Render::Viewer::fastDraw()
 void Render::Viewer::drawWithNames()
 {
   glInitNames();
-  for (int i = 0; i < atomsQList_.size(); ++i)
+  for (int i = 0; i < renderAtomsList_.size(); ++i)
   {
     glPushName(i);
     {
       switch (view_)
       {
       case VIEW_BALLS_STICKS:
-        atomsQList_[i].draw(Atom::AS_ATOM, QUALITY_LOW);
+        renderAtomsList_[i].draw(Atom::AS_ATOM, QUALITY_LOW);
         break;
       case VIEW_STICKS:
-        atomsQList_[i].draw(Atom::AS_CONNECTOR, QUALITY_LOW);
+        renderAtomsList_[i].draw(Atom::AS_CONNECTOR, QUALITY_LOW);
         break;
       case VIEW_VDW:
-        atomsQList_[i].draw(Atom::AS_VDW, QUALITY_LOW);
+        renderAtomsList_[i].draw(Atom::AS_VDW, QUALITY_LOW);
         break;
       }
     }
@@ -214,7 +214,7 @@ void Render::Viewer::postSelection(const QPoint& point)
   selectedPoint = camera()->pointUnderPixel(point, found);
   if (selectedName() != -1)
   {
-    atomsQList_[selectedName()].setSelected(!atomsQList_[selectedName()].isSelected());
+    renderAtomsList_[selectedName()].setSelected(!renderAtomsList_[selectedName()].isSelected());
     updateGLList(Viewer::GLLIST_SELECTIONS);
   }
 }
@@ -302,8 +302,8 @@ GLuint Render::Viewer::makeSmallBalls(Render::Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < atomsQList_.size(); ++i)
-      atomsQList_[i].draw(Atom::AS_CONNECTOR, quality);
+    for (int i = 0; i < renderAtomsList_.size(); ++i)
+      renderAtomsList_[i].draw(Atom::AS_CONNECTOR, quality);
   }
   glEndList();
   return list;
@@ -314,9 +314,9 @@ GLuint Render::Viewer::makeMediumBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < atomsQList_.size(); ++i)
-      if (!atomsQList_[i].isMovable())
-        atomsQList_[i].draw(Atom::AS_ATOM, quality);
+    for (int i = 0; i < renderAtomsList_.size(); ++i)
+      if (!renderAtomsList_[i].isMovable())
+        renderAtomsList_[i].draw(Atom::AS_ATOM, quality);
   }
   glEndList();
   return list;
@@ -327,8 +327,8 @@ GLuint Render::Viewer::makeBigBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < atomsQList_.size(); ++i)
-      atomsQList_[i].draw(Atom::AS_VDW, quality);
+    for (int i = 0; i < renderAtomsList_.size(); ++i)
+      renderAtomsList_[i].draw(Atom::AS_VDW, quality);
   }
   glEndList();
   return list;
@@ -339,8 +339,8 @@ GLuint Render::Viewer::makeSticks(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < bondsQList_.size(); ++i)
-      bondsQList_[i].draw(quality);
+    for (int i = 0; i < renderBondsList_.size(); ++i)
+      renderBondsList_[i].draw(quality);
   }
   glEndList();
   return list;
@@ -351,18 +351,18 @@ GLuint Render::Viewer::makeSelections(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < atomsQList_.size(); i++)
-      if (atomsQList_[i].isSelected())
+    for (int i = 0; i < renderAtomsList_.size(); i++)
+      if (renderAtomsList_[i].isSelected())
         switch (view_)
         {
             case VIEW_BALLS_STICKS:
-      atomsQList_[i].drawSelection(Atom::AS_ATOM, quality);
+      renderAtomsList_[i].drawSelection(Atom::AS_ATOM, quality);
       break;
             case VIEW_STICKS:
-      atomsQList_[i].drawSelection(Atom::AS_CONNECTOR, quality);
+      renderAtomsList_[i].drawSelection(Atom::AS_CONNECTOR, quality);
       break;
             case VIEW_VDW:
-      atomsQList_[i].drawSelection(Atom::AS_VDW, quality);
+      renderAtomsList_[i].drawSelection(Atom::AS_VDW, quality);
       break;
     }
   }
@@ -397,9 +397,9 @@ void Render::Viewer::setDebugInfoVisibility(bool visibility)
   updateGL();
 }
 
-void Render::Viewer::setMolecule(const Chemistry::Molecule& molecule)
+void Render::Viewer::setMolecule(const Chemistry::Molecule& chemistryMolecule)
 {
-  molecule_ = molecule;
+  chemistryMolecule_ = chemistryMolecule;
   updateMolecule();
 }
 
@@ -419,12 +419,12 @@ void Render::Viewer::updateMolecule()
 
 void Render::Viewer::addAtom(const Atom& atom)
 {
-  atomsQList_ << atom;
+  renderAtomsList_ << atom;
 }
 
 void Render::Viewer::addBond(const Bond& bond)
 {
-  bondsQList_ << bond;
+  renderBondsList_ << bond;
 }
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
@@ -473,20 +473,20 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       if (e->modifiers() == Qt::NoModifier)
       {
         if (found)
-          camera()->setRevolveAroundPoint(qglviewer::Vec(atomsQList_[selectedName()].centre().x(),
-                                                         atomsQList_[selectedName()].centre().y(),
-                                                         atomsQList_[selectedName()].centre().z()));
+          camera()->setRevolveAroundPoint(qglviewer::Vec(renderAtomsList_[selectedName()].centre().x(),
+                                                         renderAtomsList_[selectedName()].centre().y(),
+                                                         renderAtomsList_[selectedName()].centre().z()));
         else
           camera()->setRevolveAroundPoint(qglviewer::Vec());
       }
       else if (e->modifiers() == Qt::ControlModifier)
       {
-        for (int i = 0; i < atomsQList_.size(); ++i)
-          atomsQList_[i].setMovable(false);
+        for (int i = 0; i < renderAtomsList_.size(); ++i)
+          renderAtomsList_[i].setMovable(false);
         if (found)
         {
           movableIndex = selectedName();
-          atomsQList_[selectedName()].setMovable(true);
+          renderAtomsList_[selectedName()].setMovable(true);
           updateGLList(Viewer::GLLIST_BALLS);
         }
       }
@@ -500,8 +500,8 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       else
       {
-        Chemistry::Atom chemistryAtom(atomicNumber_);
-        molecule_.addAtom(chemistryAtom);
+        Chemistry::Atom chemistryAtom(&chemistryMolecule_, atomicNumber_);
+        chemistryMolecule_.addAtom(chemistryAtom);
       }
       updateMolecule();
       if (!found)
@@ -524,6 +524,8 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       break;
     }
     break;
+  default:
+    break;
   }
 }
 
@@ -532,11 +534,11 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
   if (movableIndex != -1)
   {
     Eigen::Vector3f p(manipulatedFrame()->position().x +
-                      atomsQList_[movableIndex].centre().x(),
+                      renderAtomsList_[movableIndex].centre().x(),
                       manipulatedFrame()->position().y +
-                      atomsQList_[movableIndex].centre().y(),
+                      renderAtomsList_[movableIndex].centre().y(),
                       manipulatedFrame()->position().z +
-                      atomsQList_[movableIndex].centre().z());
+                      renderAtomsList_[movableIndex].centre().z());
     //      atomsQList_[movableIndex].setCentre(p);
     //      atomsQList_[movableIndex].setMovable(false);
 //    obmol_.GetAtom(movableIndex + 1)->SetVector(p.x(), p.y(), p.z());
@@ -591,26 +593,32 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
 
 void Render::Viewer::updateRenderAtoms()
 {
-  atomsQList_.clear();
-  for (int i = 0; i < molecule_.atomsCount(); ++i)
+  renderAtomsList_.clear();
+  for (int i = 0; i < chemistryMolecule_.atomsCount(); ++i)
   {
-    Render::Atom renderAtom(molecule_.atom(i));
+    Render::Atom renderAtom(chemistryMolecule_.atomPtr(i));
     addAtom(renderAtom);
   }
 }
 
 void Render::Viewer::updateRenderBonds()
 {
-  bondsQList_.clear();
-  for (int i = 0; i < molecule_.atomsCount() - 1; ++i)
+  renderBondsList_.clear();
+  for (uint16_t i = 0; i < chemistryMolecule_.bondsCount() - 1; ++i)
   {
-    for (int j = i + 1; j < molecule_.atomsCount(); ++j)
+    Render::Bond renderBond(chemistryMolecule_.bondPtr(i));
+    addBond(renderBond);
+  }
+  /*
+  for (int i = 0; i < chemistryMolecule_.atomsCount() - 1; ++i)
+  {
+    for (int j = i + 1; j < chemistryMolecule_.atomsCount(); ++j)
     {
-      if (molecule_.isConnected(i, j))
+      if (chemistryMolecule_.isConnected(i, j))
       {
-        Render::Bond renderBond(&molecule_, i, j);
+        Render::Bond renderBond(&chemistryMolecule_, i, j);
         addBond(renderBond);
       }
     }
-  }
+  } */
 }

@@ -35,8 +35,12 @@ namespace Chemistry
     Molecule();
 
     const Chemistry::Atom& atom(uint16_t index) const;
+    Chemistry::Atom* atomPtr(uint16_t index);
+
+    Chemistry::Bond* bondPtr(uint16_t index);
 
     uint16_t atomsCount() const;
+    uint16_t bondsCount() const;
 
     uint8_t charge() const;
     void setCharge(uint8_t charge);
@@ -54,10 +58,11 @@ namespace Chemistry
     typedef QList<Chemistry::Bond*> IncidenceList;
     typedef QList<IncidenceList> IncidenceMatrix;
 
+    QList<Chemistry::Atom> chemistryAtoms_;
+    QList<Chemistry::Bond> chemistryBonds_;
     IncidenceMatrix incidenceMatrix_;
 
     uint8_t charge_;
-    QList<Chemistry::Atom> atoms_;
   };
 }
 

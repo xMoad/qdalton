@@ -25,18 +25,16 @@
 
 const GLfloat Render::Bond::DEFAULT_THIKNESS = 0.15f;
 
-Render::Bond::Bond(Chemistry::Molecule* molecule, int index1, int index2):
-    isSelected_(false)
+Render::Bond::Bond(Chemistry::Bond* chemistryBond)
 {
-  molecule_ = molecule;
-  beginAtomId_ = index1;
-  endAtomId_ = index2;
+  chemistryBond_ = chemistryBond;
+  isSelected_ = false;
 }
 
 void Render::Bond::draw(Quality quality) const
 {
-  Render::Atom atom1(molecule_->atom(beginAtomId_));
-  Render::Atom atom2(molecule_->atom(endAtomId_));
+  Render::Atom atom1(chemistryBond_->beginAtomPtr());
+  Render::Atom atom2(chemistryBond_->endAtomPtr());
   Render::Material material1(atom1.color(), true);
   Render::Material material2(atom2.color(), true);
 

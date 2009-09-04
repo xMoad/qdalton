@@ -19,7 +19,7 @@
 
  **********************************************************************/
 
-#include "ChemistryMolecule.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 float tolerance = 0.4f;
 
@@ -29,12 +29,27 @@ Chemistry::Molecule::Molecule()
 
 const Chemistry::Atom& Chemistry::Molecule::atom(uint16_t index) const
 {
-  return atoms_.at(index);
+  return chemistryAtoms_.at(index);
+}
+
+Chemistry::Atom* Chemistry::Molecule::atomPtr(uint16_t index)
+{
+  return &chemistryAtoms_[index];
+}
+
+Chemistry::Bond* Chemistry::Molecule::bondPtr(uint16_t index)
+{
+  return &chemistryBonds_[index];
 }
 
 uint16_t Chemistry::Molecule::atomsCount() const
 {
-  return atoms_.count();
+  return chemistryAtoms_.count();
+}
+
+uint16_t Chemistry::Molecule::bondsCount() const
+{
+  return chemistryBonds_.count();
 }
 
 uint8_t Chemistry::Molecule::charge() const
@@ -49,13 +64,14 @@ void Chemistry::Molecule::setCharge(uint8_t charge)
 
 void Chemistry::Molecule::addAtom(const Chemistry::Atom& atom)
 {
-  atoms_ << atom;
+  chemistryAtoms_ << atom;
   incidenceMatrix_ << IncidenceList();
 }
 
 float Chemistry::Molecule::interatomicDistance(uint16_t index1, uint16_t index2)
 { 
-  return (atoms_[index2].centre() - atoms_[index1].centre()).norm();
+  return (chemistryAtoms_[index2].centre() -
+          chemistryAtoms_[index1].centre()).norm();
 }
 
 bool Chemistry::Molecule::isConnected(uint16_t index1, uint16_t index2) const
@@ -72,19 +88,20 @@ bool Chemistry::Molecule::isConnected(uint16_t index1, uint16_t index2) const
 
 void Chemistry::Molecule::connect(uint16_t index1, uint16_t index2)
 {
-  Chemistry::Bond* chemistryBond = new Chemistry::Bond(index1, index2);
-  incidenceMatrix_[index1] << chemistryBond;
-  incidenceMatrix_[index2] << chemistryBond;
+  chemistryBonds_ << Chemistry::Bond(this, index1, index2);
+  incidenceMatrix_[index1] << &chemistryBonds_[bondsCount() - 1];
+  incidenceMatrix_[index2] << &chemistryBonds_[bondsCount() - 1];
 }
 
 void Chemistry::Molecule::rebond()
 {
-  for (int i = 0; i < atoms_.count() - 1; ++i)
+  for (int i = 0; i < atomsCount() - 1; ++i)
   {
-    for (int j = i + 1; j < atoms_.count(); ++j)
+    for (int j = i + 1; j < atomsCount(); ++j)
     {
       if (interatomicDistance(i, j) <
-          atoms_[i].covalentRadius() + atoms_[j].covalentRadius() + tolerance)
+          chemistryAtoms_[i].covalentRadius() +
+          chemistryAtoms_[j].covalentRadius() + tolerance)
       {
         connect(i, j);
       }

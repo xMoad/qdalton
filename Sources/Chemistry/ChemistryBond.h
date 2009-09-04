@@ -26,13 +26,21 @@
 
 namespace Chemistry
 {
+  class Atom;
+  class Molecule;
+
   class Bond
   {
   public:
-    Bond(uint16_t beginIndex, uint16_t endIndex);
+    Bond(Chemistry::Molecule* chemistryMolecule,
+         uint16_t beginIndex,
+         uint16_t endIndex);
+    Chemistry::Atom* beginAtomPtr();
+    Chemistry::Atom* endAtomPtr();
     uint16_t beginIndex() const;
     uint16_t endIndex() const;
   private:
+    Chemistry::Molecule* chemistryMolecule_;
     uint16_t beginIndex_;
     uint16_t endIndex_;
   };

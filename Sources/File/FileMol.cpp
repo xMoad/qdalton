@@ -153,7 +153,7 @@ bool File::Mol::parse(bool doAutoRebond)
         i++;
         if (regExpAtom.indexIn(this->strings_[i]) != -1)
         {
-          Chemistry::Atom atom(protons);
+          Chemistry::Atom atom(&molecule_, protons);
           //          obatom.SetIsotope(0); !!!
           // TODO Fix label!
           QString label = regExpAtom.cap(1);
