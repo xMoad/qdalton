@@ -35,10 +35,12 @@ namespace Render
   class Color
   {
   public:
-    /**
-     * Default constructor.
+    /** Default constructor.
+     *  Create instance with r, g, b and a equals 0.
      */
     Color();
+
+
     Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
     Color(const Color& color);
     GLfloat r() const;

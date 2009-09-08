@@ -75,11 +75,10 @@ namespace Render
     void setSelected(bool selected);
     bool isMovable() const;
     void setMovable(bool movable);
-    Atom& operator= (const Atom& operand);
     static const GLfloat SELECTON_RADIUS;
   private:
-    static const uint16_t vanderwaalsRadii_[];
-    static const uint32_t colors[];
+    static const quint16 vanderwaalsRadii_[];
+    static const quint32 colors[];
 
     Chemistry::Atom* chemistryAtom_;
 

@@ -22,29 +22,38 @@
 #include "Chemistry/ChemistryBond.h"
 #include "Chemistry/ChemistryMolecule.h"
 
-Chemistry::Bond::Bond(Chemistry::Molecule* chemistryMolecule, uint16_t beginIndex, uint16_t endIndex)
+Chemistry::Bond::Bond(Chemistry::Molecule* molecule,
+                      quint16 beginIndex,
+                      quint16 endIndex)
 {
-  chemistryMolecule_ = chemistryMolecule;
+  molecule_ = molecule;
   beginIndex_ = beginIndex;
   endIndex_ = endIndex;
 }
 
-Chemistry::Atom* Chemistry::Bond::beginAtomPtr()
+Chemistry::Bond::Bond(const Chemistry::Bond& bond) :
+    molecule_(bond.molecule_),
+    beginIndex_(bond.beginIndex_),
+    endIndex_(bond.endIndex_)
 {
-  return chemistryMolecule_->atomPtr(beginIndex_);
 }
 
-Chemistry::Atom* Chemistry::Bond::endAtomPtr()
+Chemistry::Atom* Chemistry::Bond::beginAtomPointer() const
 {
-  return chemistryMolecule_->atomPtr(endIndex_);
+  return molecule_->atomPointer(beginIndex_);
 }
 
-uint16_t Chemistry::Bond::beginIndex() const
+Chemistry::Atom* Chemistry::Bond::endAtomPointer() const
+{
+  return molecule_->atomPointer(endIndex_);
+}
+
+quint16 Chemistry::Bond::beginIndex() const
 {
   return beginIndex_;
 }
 
-uint16_t Chemistry::Bond::endIndex() const
+quint16 Chemistry::Bond::endIndex() const
 {
   return endIndex_;
 }

@@ -23,62 +23,119 @@
 
 float tolerance = 0.4f;
 
+float bohrsToAngstroms(float bohrs)
+{
+  return 0.529177249 * bohrs;
+}
+
 Chemistry::Molecule::Molecule()
 {
 }
 
-const Chemistry::Atom& Chemistry::Molecule::atom(uint16_t index) const
+Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
+    atoms_(molecule.atoms_),
+    bonds_(molecule.bonds_),
+    incidenceMatrix_(molecule.incidenceMatrix_),
+    charge_(molecule.charge_),
+    unitOfLength_(molecule.unitOfLength_)
 {
-  return chemistryAtoms_.at(index);
+  QListIterator<Chemistry::Atom*> aPtr(atoms_);
+  while (aPtr.hasNext())
+  {
+    aPtr.next()->setParentMolecule(this);
+  }
+
+  QListIterator<Chemistry::Bond*> bPtr(bonds_);
+  while (bPtr.hasNext())
+  {
+    bPtr.next()->molecule_ = this;
+  }
 }
 
-Chemistry::Atom* Chemistry::Molecule::atomPtr(uint16_t index)
+Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
 {
-  return &chemistryAtoms_[index];
+  if (this != &molecule)
+  {
+    atoms_ = QList<Chemistry::Atom*>(molecule.atoms_);
+    bonds_ = QList<Chemistry::Bond*>(molecule.bonds_);
+    incidenceMatrix_ = IncidenceMatrix(molecule.incidenceMatrix_);
+    charge_ = molecule.charge_;
+    unitOfLength_ = molecule.unitOfLength_;
+
+    QListIterator<Chemistry::Atom*> aPtr(atoms_);
+    while (aPtr.hasNext())
+    {
+      aPtr.next()->setParentMolecule(this);
+    }
+
+    QListIterator<Chemistry::Bond*> bPtr(bonds_);
+    while (bPtr.hasNext())
+    {
+      bPtr.next()->molecule_ = this;
+    }
+  }
+
+  return *this;
 }
 
-Chemistry::Bond* Chemistry::Molecule::bondPtr(uint16_t index)
+Chemistry::Molecule::UnitOfLength Chemistry::Molecule::unitOfLength() const
 {
-  return &chemistryBonds_[index];
+  return unitOfLength_;
 }
 
-uint16_t Chemistry::Molecule::atomsCount() const
+void Chemistry::Molecule::setUnitOfLength(UnitOfLength unit)
 {
-  return chemistryAtoms_.count();
+  unitOfLength_ = unit;
 }
 
-uint16_t Chemistry::Molecule::bondsCount() const
+Chemistry::Atom* Chemistry::Molecule::atomPointer(quint16 index) const
 {
-  return chemistryBonds_.count();
+  return atoms_.at(index);
 }
 
-uint8_t Chemistry::Molecule::charge() const
+Chemistry::Bond* Chemistry::Molecule::bondPointer(quint16 index) const
+{
+  return bonds_.at(index);
+}
+
+quint16 Chemistry::Molecule::atomsCount() const
+{
+  return atoms_.count();
+}
+
+quint16 Chemistry::Molecule::bondsCount() const
+{
+  return bonds_.count();
+}
+
+quint8 Chemistry::Molecule::charge() const
 {
   return charge_;
 }
 
-void Chemistry::Molecule::setCharge(uint8_t charge)
+void Chemistry::Molecule::setCharge(quint8 charge)
 {
   charge_ = charge;
 }
 
 void Chemistry::Molecule::addAtom(const Chemistry::Atom& atom)
 {
-  chemistryAtoms_ << atom;
+  atoms_ << new Chemistry::Atom(atom);
+  atoms_.last()->setParentMolecule(this);
   incidenceMatrix_ << IncidenceList();
 }
 
-float Chemistry::Molecule::interatomicDistance(uint16_t index1, uint16_t index2)
+float Chemistry::Molecule::interatomicDistance(quint16 index1, quint16 index2)
 { 
-  return (chemistryAtoms_[index2].centre() -
-          chemistryAtoms_[index1].centre()).norm();
+  return (atoms_[index2]->centre() -
+          atoms_[index1]->centre()).norm();
 }
 
-bool Chemistry::Molecule::isConnected(uint16_t index1, uint16_t index2) const
+bool Chemistry::Molecule::isAtomsBonded(quint16 index1, quint16 index2) const
 {
   for (int i = 0; i < incidenceMatrix_.at(index1).count(); ++i)
   {
-    if (incidenceMatrix_.at(index1).at(i)->endIndex() == index2)
+    if (bondPointer(incidenceMatrix_.at(index1).at(i))->endIndex() == index2)
     {
       return true;
     }
@@ -86,11 +143,11 @@ bool Chemistry::Molecule::isConnected(uint16_t index1, uint16_t index2) const
   return false;
 }
 
-void Chemistry::Molecule::connect(uint16_t index1, uint16_t index2)
+void Chemistry::Molecule::bondAtoms(quint16 index1, quint16 index2)
 {
-  chemistryBonds_ << Chemistry::Bond(this, index1, index2);
-  incidenceMatrix_[index1] << &chemistryBonds_[bondsCount() - 1];
-  incidenceMatrix_[index2] << &chemistryBonds_[bondsCount() - 1];
+  bonds_ << new Chemistry::Bond(this, index1, index2);
+  incidenceMatrix_[index1] << (bondsCount() - 1);
+  incidenceMatrix_[index2] << (bondsCount() - 1);
 }
 
 void Chemistry::Molecule::rebond()
@@ -99,11 +156,24 @@ void Chemistry::Molecule::rebond()
   {
     for (int j = i + 1; j < atomsCount(); ++j)
     {
-      if (interatomicDistance(i, j) <
-          chemistryAtoms_[i].covalentRadius() +
-          chemistryAtoms_[j].covalentRadius() + tolerance)
+      switch (unitOfLength_)
       {
-        connect(i, j);
+      case ANGSTROM:
+        if (interatomicDistance(i, j) <
+            atoms_[i]->covalentRadius() +
+            atoms_[j]->covalentRadius() + tolerance)
+        {
+          bondAtoms(i, j);
+        }
+        break;
+      case BOHR:
+        if (bohrsToAngstroms(interatomicDistance(i, j)) <
+            atoms_[i]->covalentRadius() +
+            atoms_[j]->covalentRadius() + tolerance)
+        {
+          bondAtoms(i, j);
+        }
+        break;
       }
     }
   }

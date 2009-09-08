@@ -33,8 +33,8 @@ namespace File
     const QString& name() const;
     void setName(const QString& name);
     void addSubmodule(const File::Submodule& submodule);
-    uint8_t submoduleIndex(const QString& submoduleName) const;
-    File::Submodule& operator[](uint8_t index);
+    quint8 submoduleIndex(const QString& submoduleName) const;
+    File::Submodule& operator[](quint8 index);
   private:
     QString name_;
     QList<File::Submodule> submoduleList_;

@@ -32,37 +32,47 @@ namespace Chemistry
   class Molecule
   {
   public:
+    enum UnitOfLength
+    {
+      ANGSTROM,
+      BOHR
+    };
+
     Molecule();
+    Molecule(const Chemistry::Molecule& molecule);
+    Chemistry::Molecule& operator=(const Chemistry::Molecule& molecule);
 
-    const Chemistry::Atom& atom(uint16_t index) const;
-    Chemistry::Atom* atomPtr(uint16_t index);
+    UnitOfLength unitOfLength() const;
+    void setUnitOfLength(UnitOfLength unit);
 
-    Chemistry::Bond* bondPtr(uint16_t index);
+    Chemistry::Atom* atomPointer(quint16 index) const;
+    Chemistry::Bond* bondPointer(quint16 index) const;
 
-    uint16_t atomsCount() const;
-    uint16_t bondsCount() const;
+    quint16 atomsCount() const;
+    quint16 bondsCount() const;
 
-    uint8_t charge() const;
-    void setCharge(uint8_t charge);
+    quint8 charge() const;
+    void setCharge(quint8 charge);
 
     void addAtom(const Chemistry::Atom& atom);
 
-    float interatomicDistance(uint16_t index1, uint16_t index2);
+    float interatomicDistance(quint16 index1, quint16 index2);
 
-    bool isConnected(uint16_t index1, uint16_t index2) const;
-    void connect(uint16_t index1, uint16_t index2);
+    bool isAtomsBonded(quint16 index1, quint16 index2) const;
+    void bondAtoms(quint16 index1, quint16 index2);
 
     void rebond();
 
   private:
-    typedef QList<Chemistry::Bond*> IncidenceList;
+    typedef QList<int> IncidenceList;
     typedef QList<IncidenceList> IncidenceMatrix;
 
-    QList<Chemistry::Atom> chemistryAtoms_;
-    QList<Chemistry::Bond> chemistryBonds_;
+    QList<Chemistry::Atom*> atoms_;
+    QList<Chemistry::Bond*> bonds_;
     IncidenceMatrix incidenceMatrix_;
 
-    uint8_t charge_;
+    quint8 charge_;
+    UnitOfLength unitOfLength_;
   };
 }
 

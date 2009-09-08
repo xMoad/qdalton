@@ -108,11 +108,11 @@ bool File::Mol::parse(bool doAutoRebond)
   n = regExp.indexIn(strings_[generalStringIndex]);
   if (n != -1)
   {
-    setAngstrom(true);
+    molecule_.setUnitOfLength(Chemistry::Molecule::ANGSTROM);
   }
   else
   {
-    setAngstrom(false);
+    molecule_.setUnitOfLength(Chemistry::Molecule::BOHR);
   }
 
   regExp.setPattern("Cartesian");
@@ -138,28 +138,29 @@ bool File::Mol::parse(bool doAutoRebond)
   }
 
   // Extract info about atoms
-  regExp.setPattern("Charge=(\\d+) Atoms=(\\d+)");
+  regExp.setPattern("Charge=(\\d+\\.?\\d?) Atoms=(\\d+)");
   int i = generalStringIndex;
   for (int a = 0; a < atomTypes(); a++)
   {
     i++;
     if (regExp.indexIn(this->strings_[i]) != -1)
     {
-      int protons = regExp.cap(1).toInt(&ok, 10);
-      int count = regExp.cap(2).toInt(&ok, 10);
+      quint8 protons = (quint8) regExp.cap(1).toFloat(&ok);
+      quint8 count = regExp.cap(2).toInt(&ok, 10);
       QRegExp regExpAtom("(\\w+)\\s+(-?\\d?\\.\\d+)\\s+(-?\\d?\\.\\d+)\\s+(-?\\d?\\.\\d+)");
       for (int j = 0; j < count; j++)
       {
         i++;
         if (regExpAtom.indexIn(this->strings_[i]) != -1)
         {
-          Chemistry::Atom atom(&molecule_, protons);
+          Chemistry::Atom atom(protons);
           //          obatom.SetIsotope(0); !!!
           // TODO Fix label!
           QString label = regExpAtom.cap(1);
-          Eigen::Vector3f p(regExpAtom.cap(2).toFloat(&ok),
-                            regExpAtom.cap(3).toFloat(&ok),
-                            regExpAtom.cap(4).toFloat(&ok));
+          float x = regExpAtom.cap(2).toFloat(&ok);
+          float y = regExpAtom.cap(3).toFloat(&ok);
+          float z = regExpAtom.cap(4).toFloat(&ok);
+          Eigen::Vector3f p(x, y, z);
           atom.setCentre(p);
           molecule_.addAtom(atom);
         }
@@ -186,24 +187,14 @@ const QString& File::Mol::comment() const
   return comment_;
 }
 
-uint8_t File::Mol::atomTypes() const
+quint8 File::Mol::atomTypes() const
 {
   return atomTypes_;
 }
 
-void File::Mol::setAtomTypes(uint8_t atomTypes)
+void File::Mol::setAtomTypes(quint8 atomTypes)
 {
   atomTypes_ = atomTypes;
-}
-
-bool File::Mol::isAngstrom() const
-{
-  return isAngstrom_;
-}
-
-void File::Mol::setAngstrom(bool isAngstrom)
-{
-  isAngstrom_ = isAngstrom;
 }
 
 bool File::Mol::isCartesian() const

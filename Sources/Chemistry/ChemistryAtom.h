@@ -44,16 +44,17 @@ namespace Chemistry
      * @param neutrons is the number of neutrons.
      * .
      */
-    Atom(Chemistry::Molecule* chemistryMolecule,
-         uint8_t protons,
-         uint8_t neutrons = 0);
+    Atom(quint8 protons,
+         quint8 neutrons = 0);
 
-    Atom(const Chemistry::Atom& chemistryAtom);
+    Atom(const Chemistry::Atom& atom);
+
+    void setParentMolecule(Chemistry::Molecule* molecule);
     
-    uint8_t protons() const;
-    uint8_t neutrons() const;
+    quint8 protons() const;
+    quint8 neutrons() const;
     
-    uint16_t relativeAtomicMass() const;
+    quint16 relativeAtomicMass() const;
     
     const Eigen::Vector3f& centre() const;
     void setCentre(const Eigen::Vector3f& centre);
@@ -61,15 +62,15 @@ namespace Chemistry
     float covalentRadius() const;
 
   private:
-    Chemistry::Molecule* chemistryMolecule_;
-    uint8_t protons_;
-    uint8_t neutrons_;
+    Chemistry::Molecule* molecule_;
+    quint8 protons_;
+    quint8 neutrons_;
     Eigen::Vector3f centre_;
 
     /** Default table of covalent Radii.
      * Values (milliangstrom)  taken from <a href="http://openbabel.org/">OpenBabel</a>.
      */
-    static uint16_t covalentRadii_[];
+    static const quint16 covalentRadii_[];
   };
 }
 

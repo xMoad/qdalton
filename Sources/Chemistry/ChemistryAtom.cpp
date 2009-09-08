@@ -22,34 +22,37 @@
 #include "Chemistry/ChemistryAtom.h"
 #include "Chemistry/ChemistryMolecule.h"
 
-Chemistry::Atom::Atom(Chemistry::Molecule* chemistryMolecule,
-                      uint8_t protons,
-                      uint8_t neutrons)
+Chemistry::Atom::Atom(quint8 protons,
+                      quint8 neutrons)
 {
-  chemistryMolecule_ = chemistryMolecule;
   protons_ = protons;
   // TODO If neutrons == 0 then take value from default isotope table! Not 1!
   neutrons_ = (neutrons == 0) ? 1 : neutrons;
 }
 
-Chemistry::Atom::Atom(const Chemistry::Atom& chemistryAtom)
+Chemistry::Atom::Atom(const Chemistry::Atom& atom):
+    protons_(atom.protons_),
+    neutrons_(atom.neutrons_),
+    centre_(atom.centre_)
 {
-  protons_ = chemistryAtom.protons_;
-  neutrons_ = chemistryAtom.neutrons_;
-  centre_ = chemistryAtom.centre_;
 }
 
-uint8_t Chemistry::Atom::protons() const
+void Chemistry::Atom::setParentMolecule(Chemistry::Molecule* molecule)
+{
+  molecule_ = molecule;
+}
+
+quint8 Chemistry::Atom::protons() const
 {
   return protons_;
 }
 
-uint8_t Chemistry::Atom::neutrons() const
+quint8 Chemistry::Atom::neutrons() const
 {
   return neutrons_;
 }
 
-uint16_t Chemistry::Atom::relativeAtomicMass() const
+quint16 Chemistry::Atom::relativeAtomicMass() const
 {
   return protons_ + neutrons_;
 }
@@ -69,105 +72,105 @@ float Chemistry::Atom::covalentRadius() const
   return (float) covalentRadii_[protons_] / 1000.0f;
 }
 
-uint16_t Chemistry::Atom::covalentRadii_[] =
+const quint16 Chemistry::Atom::covalentRadii_[] =
 {
     0,    //   0  Xx does not bond
-    230,  //   1  H
-    930,  //   2  He
-    680,  //   3  Li
-    350,  //   4  Be
-    830,  //   5  B
-    680,  //   6  C
-    680,  //   7  N
-    680,  //   8  O
-    640,  //   9  F
-    1120, //  10  Ne
-    970,  //  11  Na
-    1100, //  12  Mg
-    1350, //  13  Al
-    1200, //  14  Si
-    750,  //  15  P
-    1020, //  16  S
-    990,  //  17  Cl
-    1570, //  18  Ar
-    1330, //  19  K
-    990,  //  20  Ca
-    1440, //  21  Sc
-    1470, //  22  Ti
-    1330, //  23  V
-    1350, //  24  Cr
-    1350, //  25  Mn
-    1340, //  26  Fe
-    1330, //  27  Co
-    1500, //  28  Ni
-    1520, //  29  Cu
-    1450, //  30  Zn
+    310, //   1  H
+    280, //   2  He
+    1280, //   3  Li
+    960, //   4  Be
+    840, //   5  B
+    730, //   6  C
+    710, //   7  N
+    660, //   8  O
+    570, //   9  F
+    580, //  10  Ne
+    1660, //  11  Na
+    1410, //  12  Mg
+    1210, //  13  Al
+    1110, //  14  Si
+    1070, //  15  P
+    1050, //  16  S
+    1020, //  17  Cl
+    1060, //  18  Ar
+    2029, //  19  K
+    1760, //  20  Ca
+    1700, //  21  Sc
+    1600, //  22  Ti
+    1530, //  23  V
+    1390, //  24  Cr
+    1500, //  25  Mn
+    1400, //  26  Fe
+    1380, //  27  Co
+    1240, //  28  Ni
+    1320, //  29  Cu
+    1220, //  30  Zn
     1220, //  31  Ga
-    1170, //  32  Ge
-    1210, //  33  As
-    1220, //  34  Se
-    1210, //  35  Br
-    1910, //  36  Kr
-    1470, //  37  Rb
-    1120, //  38  Sr
-    1780, //  39  Y
-    1560, //  40  Zr
-    1480, //  41  Nb
-    1470, //  42  Mo
-    1350, //  43  Tc
-    1400, //  44  Ru
-    1450, //  45  Rh
-    1500, //  46  Pd
-    1590, //  47  Ag
-    1690, //  48  Cd
-    1630, //  49  In
-    1460, //  50  Sn
-    1460, //  51  Sb
-    1470, //  52  Te
-    1400, //  53  I
-    1980, //  54  Xe
-    1670, //  55  Cs
-    1340, //  56  Ba
-    1870, //  57  La
-    1830, //  58  Ce
-    1820, //  59  Pr
-    1810, //  60  Nd
-    1800, //  61  Pm
-    1800, //  62  Sm
-    1990, //  63  Eu
-    1790, //  64  Gd
-    1760, //  65  Tb
-    1750, //  66  Dy
-    1740, //  67  Ho
-    1730, //  68  Er
-    1720, //  69  Tm
-    1940, //  70  Yb
-    1720, //  71  Lu
-    1570, //  72  Hf
-    1430, //  73  Ta
-    1370, //  74  W
-    1350, //  75  Re
-    1370, //  76  Os
-    1320, //  77  Ir
-    1500, //  78  Pt
-    1500, //  79  Au
-    1700, //  80  Hg
-    1550, //  81  Tl
-    1540, //  82  Pb
-    1540, //  83  Bi
-    1680, //  84  Po
-    1700, //  85  At
-    2400, //  86  Rn
-    2000, //  87  Fr
-    1900, //  88  Ra
-    1880, //  89  Ac
-    1790, //  90  Th
-    1610, //  91  Pa
-    1580, //  92  U
-    1550, //  93  Np
-    1530, //  94  Pu
-    1510, //  95  Am
-    1500, //  96  Cm
+    1200, //  32  Ge
+    1190, //  33  As
+    1200, //  34  Se
+    1200, //  35  Br
+    1160, //  36  Kr
+    2200, //  37  Rb
+    1950, //  38  Sr
+    1900, //  39  Y
+    1750, //  40  Zr
+    1640, //  41  Nb
+    1540, //  42  Mo
+    1470, //  43  Tc
+    1460, //  44  Ru
+    1420, //  45  Rh
+    1390, //  46  Pd
+    1450, //  47  Ag
+    1440, //  48  Cd
+    1420, //  49  In
+    1390, //  50  Sn
+    1390, //  51  Sb
+    1380, //  52  Te
+    1390, //  53  I
+    1400, //  54  Xe
+    2440, //  55  Cs
+    2150, //  56  Ba
+    2070, //  57  La
+    2040, //  58  Ce
+    2029, //  59  Pr
+    2009, //  60  Nd
+    1990, //  61  Pm
+    1980, //  62  Sm
+    1980, //  63  Eu
+    1960, //  64  Gd
+    1940, //  65  Tb
+    1920, //  66  Dy
+    1920, //  67  Ho
+    1890, //  68  Er
+    1900, //  69  Tm
+    1870, //  70  Yb
+    1870, //  71  Lu
+    1750, //  72  Hf
+    1700, //  73  Ta
+    1620, //  74  W
+    1510, //  75  Re
+    1440, //  76  Os
+    1410, //  77  Ir
+    1360, //  78  Pt
+    1360, //  79  Au
+    1320, //  80  Hg
+    1450, //  81  Tl
+    1460, //  82  Pb
+    1480, //  83  Bi
+    1400, //  84  Po
+    1500, //  85  At
+    1500, //  86  Rn
+    2600, //  87  Fr
+    2210, //  88  Ra
+    2150, //  89  Ac
+    2060, //  90  Th
+    2000, //  91  Pa
+    1960, //  92  U
+    1900, //  93  Np
+    1870, //  94  Pu
+    1800, //  95  Am
+    1690, //  96  Cm last data from article!
     1500, //  97  Bk
     1500, //  98  Cf
     1500, //  99  Es

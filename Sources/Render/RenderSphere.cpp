@@ -45,6 +45,7 @@ void Render::Sphere::draw(Render::Style style, Render::Quality quality) const
     gluSphere(quadric_.GLUquadric_, radius_, slices, stacks);
   }
   glPopMatrix();
+  glFlush();
 }
 
 const Eigen::Vector3f& Render::Sphere::centre() const

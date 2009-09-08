@@ -40,9 +40,9 @@ void File::Module::addSubmodule(const File::Submodule& submodule)
   submoduleList_.append(submodule);
 }
 
-uint8_t File::Module::submoduleIndex(const QString& submoduleName) const
+quint8 File::Module::submoduleIndex(const QString& submoduleName) const
 {
-  for (uint8_t i = 0; i < submoduleList_.size(); ++i)
+  for (quint8 i = 0; i < submoduleList_.size(); ++i)
   {
     if (submoduleList_[i].name() == submoduleName + "\n")
       return i;
@@ -50,7 +50,7 @@ uint8_t File::Module::submoduleIndex(const QString& submoduleName) const
   return -1;
 }
 
-File::Submodule& File::Module::operator[](uint8_t index)
+File::Submodule& File::Module::operator[](quint8 index)
 {
   return submoduleList_[index];
 }

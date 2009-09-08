@@ -45,10 +45,9 @@ namespace File
     BasisType basisType() const;
     BasisSet basisSet();
     const QString& comment() const;
-    uint8_t atomTypes() const;
-    void setAtomTypes(uint8_t atomTypes);
-    bool isAngstrom() const;
-    void setAngstrom(bool isAngstrom);
+    quint8 atomTypes() const;
+    void setAtomTypes(quint8 atomTypes);
+
     bool isCartesian() const;
     void setCartesian(bool isCartesian);
   private:
@@ -56,8 +55,7 @@ namespace File
     BasisType basisType_;
     BasisSet basisSet_;
     QString comment_;
-    uint8_t atomTypes_;
-    bool isAngstrom_;
+    quint8 atomTypes_;
     bool isCartesian_;
   };
 }

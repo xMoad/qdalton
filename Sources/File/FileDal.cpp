@@ -123,9 +123,9 @@ bool File::Dal::parse()
   return true;
 }
 
-uint8_t File::Dal::moduleIndex(const QString& moduleName)
+quint8 File::Dal::moduleIndex(const QString& moduleName)
 {
-  for (uint8_t i = 0; i < modules_.size(); ++i)
+  for (quint8 i = 0; i < modules_.size(); ++i)
   {
     if (modules_[i].name() == moduleName + "\n")
       return i;
@@ -139,9 +139,9 @@ QString File::Dal::parametreValue(const QString& moduleName,
 {
   if (hasParametre(moduleName, submoduleName, parametreName))
   {
-    uint8_t m = moduleIndex(moduleName);
-    uint8_t s = modules_[m].submoduleIndex(submoduleName);
-    uint8_t p = modules_[m][s].parametreIndex(parametreName);
+    quint8 m = moduleIndex(moduleName);
+    quint8 s = modules_[m].submoduleIndex(submoduleName);
+    quint8 p = modules_[m][s].parametreIndex(parametreName);
     return modules_[m][s][p].value();
   }
   else
@@ -152,13 +152,13 @@ bool File::Dal::hasParametre(const QString& moduleName,
                                   const QString& submoduleName,
                                   const QString& parametreName)
 {
-  uint8_t m = moduleIndex(moduleName);
+  quint8 m = moduleIndex(moduleName);
   if (m != -1)
   {
-    uint8_t s = modules_[m].submoduleIndex(submoduleName);
+    quint8 s = modules_[m].submoduleIndex(submoduleName);
     if (s != -1)
     {
-      uint8_t p = modules_[m][s].parametreIndex(parametreName);
+      quint8 p = modules_[m][s].parametreIndex(parametreName);
       if (p != -1)
         return true;
       else

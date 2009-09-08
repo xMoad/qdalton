@@ -22,7 +22,7 @@
 #ifndef CHEMISTRY_BOND_H
 #define CHEMISTRY_BOND_H
 
-#include <stdint.h>
+#include <QtGlobal>
 
 namespace Chemistry
 {
@@ -32,17 +32,21 @@ namespace Chemistry
   class Bond
   {
   public:
-    Bond(Chemistry::Molecule* chemistryMolecule,
-         uint16_t beginIndex,
-         uint16_t endIndex);
-    Chemistry::Atom* beginAtomPtr();
-    Chemistry::Atom* endAtomPtr();
-    uint16_t beginIndex() const;
-    uint16_t endIndex() const;
+    Bond(Chemistry::Molecule* molecule,
+         quint16 beginIndex,
+         quint16 endIndex);
+
+    Bond(const Chemistry::Bond& bond);
+
+    Chemistry::Atom* beginAtomPointer() const;
+    Chemistry::Atom* endAtomPointer() const;
+
+    quint16 beginIndex() const;
+    quint16 endIndex() const;
+    Chemistry::Molecule* molecule_;
   private:
-    Chemistry::Molecule* chemistryMolecule_;
-    uint16_t beginIndex_;
-    uint16_t endIndex_;
+    quint16 beginIndex_;
+    quint16 endIndex_;
   };
 }
 #endif // CHEMISTRY_BOND_H

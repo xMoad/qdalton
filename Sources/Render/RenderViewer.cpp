@@ -53,6 +53,54 @@ Render::Viewer::~Viewer()
   glDeleteLists(smallBallsHigh_, 1);
 }
 
+void Render::Viewer::init()
+{
+  float lightAmbient[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
+  float lightDiffuse[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
+  float lightSpecular[]     = { 1.0f, 1.0f, 1.0f, 1.0f };
+  float lightModelAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+  float fogColor[]          = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+  // This method is called from QGLViewer::initializeGL(),
+  // where GL_COLOR_MATERIAL is enabled. We don't need it!
+  glDisable(GL_COLOR_MATERIAL);
+
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  // Setup shading (filling) mode to smooth
+  glShadeModel(GL_SMOOTH);
+  // Enable the depth buffer updating
+  glEnable(GL_DEPTH_TEST);
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+  glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0f);
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
+
+  glEnable(GL_LIGHT0);
+  glEnable(GL_LIGHTING);
+
+  setSceneRadius(10.0f);
+  showEntireScene();
+
+  //    glEnable(GL_FOG);
+  //    glFogi(GL_FOG_MODE, GL_LINEAR);
+  //    glFogfv(GL_FOG_COLOR, fogColor);
+  //    glFogf(GL_FOG_DENSITY, 0.0001f);
+  //    glHint(GL_FOG_HINT, GL_NICEST);
+  //    glFogf(GL_FOG_START, -sceneRadius());
+  //    glFogf(GL_FOG_END, sceneRadius());
+
+  glEnable(GL_NORMALIZE);
+
+  updateGLList(Viewer::GLLIST_AXES);
+  setManipulatedFrame(new qglviewer::ManipulatedFrame());
+}
+
 void Render::Viewer::draw()
 {
   // Place light at camera position
@@ -86,12 +134,7 @@ void Render::Viewer::draw()
     glGetFloatv(GL_CURRENT_COLOR, color);
     glColor3f(0.0f, 1.0f, 0.0f);
 
-#ifdef __APPLE__
-    QFont font("Monaco", 12);
-#endif
-#ifdef _WIN32
-    QFont font("Luicida Console", 8);
-#endif
+    QFont font;
 
     font.setBold(true);
     renderText(10, 15, "Debug Info", font);
@@ -100,11 +143,19 @@ void Render::Viewer::draw()
     {
     case MODE_VIEW:
       renderText(20, 30, "Mode: View", font);
-//      renderText(20, 45,
-//                 QString("Molecule: %1 (%2 atoms)").arg(
-//                     QString::fromStdString(obmol_.GetFormula()),
-//                     QString::number(obmol_.NumAtoms())),
-//                 font);
+      renderText(20, 45, QString("Molecule: %1").arg("Foo"), font);
+      renderText(20, 60, QString("Atoms: %1").arg(chemistryMolecule_.atomsCount()), font);
+      renderText(20, 75, QString("Bonds: %1").arg(chemistryMolecule_.bondsCount()), font);
+      switch (chemistryMolecule_.unitOfLength())
+      {
+      case Chemistry::Molecule::ANGSTROM:
+        renderText(20, 90, QString("Unit of length: angstrom"), font);
+        break;
+      case Chemistry::Molecule::BOHR:
+        renderText(20, 90, QString("Unit of length: a.u."), font);
+        break;
+      }
+
       break;
     case MODE_ADD:
       renderText(20, 30, "Mode: Add", font);
@@ -219,57 +270,6 @@ void Render::Viewer::postSelection(const QPoint& point)
   }
 }
 
-QString Render::Viewer::helpString() const
-{
-  QString text("<h2>QDalton \"Draft 1\"</h2>");
-  text += "Hi there! =)";
-  return text;
-}
-
-void Render::Viewer::initializeGL()
-{
-  float lightAmbient[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightDiffuse[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightSpecular[]     = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightModelAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-  float fogColor[]          = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  // Setup shading (filling) mode to smooth
-  glShadeModel(GL_SMOOTH);
-  // Enable the depth buffer updating
-  glEnable(GL_DEPTH_TEST);
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0f);
-  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
-
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHTING);
-
-  setSceneRadius(10.0f);
-  showEntireScene();
-
-  //    glEnable(GL_FOG);
-  //    glFogi(GL_FOG_MODE, GL_LINEAR);
-  //    glFogfv(GL_FOG_COLOR, fogColor);
-  //    glFogf(GL_FOG_DENSITY, 0.0001f);
-  //    glHint(GL_FOG_HINT, GL_NICEST);
-  //    glFogf(GL_FOG_START, -sceneRadius());
-  //    glFogf(GL_FOG_END, sceneRadius());
-
-  glEnable(GL_NORMALIZE);
-
-  updateGLList(Viewer::GLLIST_AXES);
-  setManipulatedFrame(new qglviewer::ManipulatedFrame());
-}
-
 GLuint Render::Viewer::makeAxes(GLfloat size, Quality quality)
 {
   GLuint list = glGenLists(1);
@@ -302,8 +302,11 @@ GLuint Render::Viewer::makeSmallBalls(Render::Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < renderAtomsList_.size(); ++i)
-      renderAtomsList_[i].draw(Atom::AS_CONNECTOR, quality);
+    QListIterator<Render::Atom> i(renderAtomsList_);
+    while (i.hasNext())
+    {
+      i.next().draw(Atom::AS_CONNECTOR, quality);
+    }
   }
   glEndList();
   return list;
@@ -314,9 +317,11 @@ GLuint Render::Viewer::makeMediumBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < renderAtomsList_.size(); ++i)
-      if (!renderAtomsList_[i].isMovable())
-        renderAtomsList_[i].draw(Atom::AS_ATOM, quality);
+    QListIterator<Render::Atom> i(renderAtomsList_);
+    while (i.hasNext())
+    {
+      i.next().draw(Render::Atom::AS_ATOM, quality);
+    }
   }
   glEndList();
   return list;
@@ -327,8 +332,11 @@ GLuint Render::Viewer::makeBigBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < renderAtomsList_.size(); ++i)
-      renderAtomsList_[i].draw(Atom::AS_VDW, quality);
+    QListIterator<Render::Atom> i(renderAtomsList_);
+    while (i.hasNext())
+    {
+      i.next().draw(Render::Atom::AS_VDW, quality);
+    }
   }
   glEndList();
   return list;
@@ -339,8 +347,11 @@ GLuint Render::Viewer::makeSticks(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < renderBondsList_.size(); ++i)
-      renderBondsList_[i].draw(quality);
+    QListIterator<Render::Bond> i(renderBondsList_);
+    while (i.hasNext())
+    {
+      i.next().draw(quality);
+    }
   }
   glEndList();
   return list;
@@ -500,7 +511,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       else
       {
-        Chemistry::Atom chemistryAtom(&chemistryMolecule_, atomicNumber_);
+        Chemistry::Atom chemistryAtom(atomicNumber_);
         chemistryMolecule_.addAtom(chemistryAtom);
       }
       updateMolecule();
@@ -594,9 +605,9 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
 void Render::Viewer::updateRenderAtoms()
 {
   renderAtomsList_.clear();
-  for (int i = 0; i < chemistryMolecule_.atomsCount(); ++i)
+  for (quint16 i = 0; i < chemistryMolecule_.atomsCount(); ++i)
   {
-    Render::Atom renderAtom(chemistryMolecule_.atomPtr(i));
+    Render::Atom renderAtom(chemistryMolecule_.atomPointer(i));
     addAtom(renderAtom);
   }
 }
@@ -604,21 +615,9 @@ void Render::Viewer::updateRenderAtoms()
 void Render::Viewer::updateRenderBonds()
 {
   renderBondsList_.clear();
-  for (uint16_t i = 0; i < chemistryMolecule_.bondsCount() - 1; ++i)
+  for (quint16 i = 0; i < chemistryMolecule_.bondsCount(); ++i)
   {
-    Render::Bond renderBond(chemistryMolecule_.bondPtr(i));
+    Render::Bond renderBond(chemistryMolecule_.bondPointer(i));
     addBond(renderBond);
   }
-  /*
-  for (int i = 0; i < chemistryMolecule_.atomsCount() - 1; ++i)
-  {
-    for (int j = i + 1; j < chemistryMolecule_.atomsCount(); ++j)
-    {
-      if (chemistryMolecule_.isConnected(i, j))
-      {
-        Render::Bond renderBond(&chemistryMolecule_, i, j);
-        addBond(renderBond);
-      }
-    }
-  } */
 }

@@ -32,6 +32,7 @@ namespace Render
   {
   public:
     Bond(Chemistry::Bond* chemistryBond);
+
     void draw(Quality quality) const;
     void drawSelection(Quality quality) const;
     bool isSelected() const;

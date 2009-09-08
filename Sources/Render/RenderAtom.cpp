@@ -29,18 +29,18 @@
 
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
+Render::Atom::Atom(Chemistry::Atom* chemistryAtom) :
+    chemistryAtom_(chemistryAtom),
+    isSelected_(false),
+    isMovable_(false)
+{
+}
+
 Render::Atom::Atom(const Render::Atom& renderAtom) :
     chemistryAtom_(renderAtom.chemistryAtom_)
 {
   isSelected_ = renderAtom.isSelected_;
   isMovable_ = renderAtom.isMovable_;
-}
-
-Render::Atom::Atom(Chemistry::Atom* chemistryAtom)
-{
-  chemistryAtom_ = chemistryAtom;
-  isSelected_ = false;
-  isMovable_ = false;
 }
 
 GLfloat Render::Atom::drawRadius() const
@@ -164,7 +164,7 @@ const QString& Render::Atom::label() const
   return "Atom";
 }
 
-const uint16_t Render::Atom::vanderwaalsRadii_[] =
+const quint16 Render::Atom::vanderwaalsRadii_[] =
 {
   //Jmol,openBabel,openRasmol,reserved
     1000,1000,1000,0, // XX 0
@@ -283,7 +283,7 @@ const uint16_t Render::Atom::vanderwaalsRadii_[] =
    * Default table of CPK atom colors.
    * ghemical colors with a few proposed modifications
    */
-const uint32_t Render::Atom::colors[] =
+const quint32 Render::Atom::colors[] =
 {
   0xFFFF1493, // Xx 0
   0xFFFFFFFF, // H  1

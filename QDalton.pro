@@ -1,6 +1,6 @@
 QT *= core gui opengl xml
 TEMPLATE = app
-CONFIG += debug_and_release
+CONFIG += debug_and_release qt opengl warn_on thread rtti console embed_manifest_exe
 INCLUDEPATH += Sources Include
 
 HEADERS += Sources/MainWindow.h \
@@ -62,30 +62,30 @@ CONFIG(debug, debug|release) {
   RCC_DIR = Build/Temp/debug
   UI_DIR = Build/Temp/debug
   OBJECTS_DIR = Build/Objects/debug
-#  TARGET = QDalton-debug
 } else {
   MOC_DIR = Build/Temp/release
   RCC_DIR = Build/Temp/release
   UI_DIR = Build/Temp/release
   OBJECTS_DIR = Build/Objects/release
-#  TARGET = QDalton
 }
 
 win32 {
-  DESTDIR = Build/Binaries/Windows
   CONFIG(debug, debug|release) {
     LIBS += -LLibraries/Windows -ldQGLViewer2
+    DESTDIR = Build/Binaries/Windows/debug
   } else {
     LIBS += -LLibraries/Windows -lQGLViewer2
+    DESTDIR = Build/Binaries/Windows/release
   }
 }
 
 macx {
-  DESTDIR = Build/Binaries/MacOS
+  LIBS += -framework QGLViewer
   CONFIG(debug, debug|release) {
-    LIBS += -framework QGLViewer_debug
+    DESTDIR = Build/Binaries/MacOS/debug
+    DYLD_IMAGE_SUFFIX=_debug
   } else {
-    LIBS += -framework QGLViewer
+    DESTDIR = Build/Binaries/MacOS/release
   }
 }
 

@@ -48,7 +48,7 @@
         <string>Based on:
 &lt;ul&gt;
   &lt;li&gt;Qt 4.5.2
-  &lt;li&gt;libQGLViewer 2.3.3
+  &lt;li&gt;libQGLViewer 2.3.4
   &lt;li&gt;Eigen 2.0.5
 &lt;/ul&gt;</string>
        </property>

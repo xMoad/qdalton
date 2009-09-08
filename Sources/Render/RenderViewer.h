@@ -74,12 +74,11 @@ namespace Render
     void setAtomicNumber(int atomicNumber);
 
   protected:
+    virtual void init();
     virtual void draw();
     virtual void drawWithNames();
     virtual void fastDraw();
     virtual void postSelection(const QPoint& point);
-    virtual void initializeGL();
-    virtual QString helpString() const;
 
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mousePressEvent(QMouseEvent* e);
