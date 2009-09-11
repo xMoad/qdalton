@@ -1,8 +1,10 @@
 QT *= core gui opengl xml
+
+# QMAKE_CXXFLAGS *= -Wold-style-cast -Wfloat-equal -Woverloaded-virtual -Wshadow -Wundef
 TEMPLATE = app
 CONFIG += debug_and_release qt opengl warn_on thread rtti console embed_manifest_exe
-INCLUDEPATH += Sources Include
-
+INCLUDEPATH += Sources \
+    Include
 HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderGL.h \
     Sources/Render/RenderGLU.h \
@@ -26,9 +28,7 @@ HEADERS += Sources/MainWindow.h \
     Sources/File/FileModule.h \
     Sources/File/FileDal.h \
     Sources/AboutDialog.h \
-    Sources/Chemistry/ChemistryAtom.h \
-    Sources/Chemistry/ChemistryMolecule.h \
-    Sources/Chemistry/ChemistryBond.h
+    Sources/Render/RenderMolecule.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -49,47 +49,44 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
-    Sources/Chemistry/ChemistryAtom.cpp \
-    Sources/Chemistry/ChemistryMolecule.cpp \
-    Sources/Chemistry/ChemistryBond.cpp
+    Sources/Render/RenderMolecule.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
-
-CONFIG(debug, debug|release) {
+CONFIG(debug, debug|release) { 
   MOC_DIR = Build/Temp/debug
   RCC_DIR = Build/Temp/debug
   UI_DIR = Build/Temp/debug
   OBJECTS_DIR = Build/Objects/debug
-} else {
+}
+else { 
+  CONFIG -= console
   MOC_DIR = Build/Temp/release
   RCC_DIR = Build/Temp/release
   UI_DIR = Build/Temp/release
   OBJECTS_DIR = Build/Objects/release
 }
 
-win32 {
+win32 { 
+  DESTDIR = Build/Binaries/Windows
   CONFIG(debug, debug|release) {
-    LIBS += -LLibraries/Windows -ldQGLViewer2
-    DESTDIR = Build/Binaries/Windows/debug
-  } else {
-    LIBS += -LLibraries/Windows -lQGLViewer2
-    DESTDIR = Build/Binaries/Windows/release
+      LIBS += -LLibraries/Windows -ldQGLViewer2
+  }
+  else {
+      LIBS += -LLibraries/Windows -lQGLViewer2
   }
 }
 
-macx {
+macx { 
+  DESTDIR = Build/Binaries/MacOS
   LIBS += -framework QGLViewer
-  CONFIG(debug, debug|release) {
-    DESTDIR = Build/Binaries/MacOS/debug
-    DYLD_IMAGE_SUFFIX=_debug
-  } else {
-    DESTDIR = Build/Binaries/MacOS/release
+  CONFIG(debug, debug|release) {   
+    DYLD_IMAGE_SUFFIX = _debug
   }
 }
 
-linux-g++ {
-  DESTDIR = Binaries/Linux
-  LIBS *= -lQGLViewer
+linux-g++ { 
+    DESTDIR = Binaries/Linux
+    LIBS *= -lQGLViewer
 }

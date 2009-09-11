@@ -25,13 +25,14 @@
 #include <QString>
 #include <Eigen/Array>
 
-#include "Chemistry/ChemistryAtom.h"
+#include "Render/RenderAtom.h"
 #include "Render/RenderQuality.h"
 #include "Render/RenderGL.h"
 
 namespace Render
 {
   class Color;
+  class Molecule;
   /**
    * @class Render::Atom RenderAtom.h "Render/RenderAtom.h"
    * @brief Represents and draw atom.
@@ -52,12 +53,13 @@ namespace Render
      * @param chemistryAtom is a reference to Chemistry::Atom class instance.
      * This is one and only one way to create Render::Atom object - from Chemistry::Atom instance that already exists.
      */
-    Atom(Chemistry::Atom* chemistryAtom);
+    Atom(quint8 protons,
+         quint8 neutrons = 0);
 
     /** Copy constructor.
      * @param renderAtom is a reference to Render::Atom class instance to copy from.
      */
-    Atom(const Render::Atom& renderAtom);
+    Atom(const Render::Atom& atom);
 
     /**
      * @return Draw radius for AS_ATOM DrawStyle.
@@ -71,20 +73,39 @@ namespace Render
     const QString& label() const;
     void draw(DrawStyle style, Render::Quality quality) const;
     void drawSelection(DrawStyle style, Render::Quality quality) const;
+
+    void setParentMolecule(Render::Molecule* molecule);
+
+    quint8 protons() const;
+    quint8 neutrons() const;
+
+    quint16 relativeAtomicMass() const;
+
     bool isSelected() const;
     void setSelected(bool selected);
+
+    float covalentRadius() const;
+
     bool isMovable() const;
     void setMovable(bool movable);
     static const GLfloat SELECTON_RADIUS;
+    static quint8 atomicNumberFromSymbol(const QString& symbol);
   private:
-    static const quint16 vanderwaalsRadii_[];
-    static const quint32 colors[];
-
-    Chemistry::Atom* chemistryAtom_;
-
+    Render::Molecule* molecule_;
+    quint8 protons_;
+    quint8 neutrons_;
+    Eigen::Vector3f centre_;
     bool isSelected_;
     bool isMovable_;
     QString label_;
+
+    /** Default table of covalent Radii.
+     * Values (milliangstrom)  taken from <a href="http://openbabel.org/">OpenBabel</a>.
+     */
+    static const quint16 covalentRadii_[];
+    static const quint16 vanderwaalsRadii_[];
+    static const quint32 colors[];
+    static const QString symbols[];
   };
 }
 

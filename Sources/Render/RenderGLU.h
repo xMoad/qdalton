@@ -18,16 +18,19 @@
   along with QDalton. If not, see <http://www.gnu.org/licenses/>.
 
  **********************************************************************/
+#include <QtGlobal>
 
-#ifdef __APPLE__
+#ifdef Q_WS_MAC
 #include "OpenGL/glu.h"
 #endif
 
-#ifdef linux
+#ifdef Q_WS_X11
 #include "GL/glu.h"
 #endif
 
-#ifdef _WIN32
+#ifdef Q_WS_WIN
+#ifdef Q_CC_MSVC
 #include <windows.h>
+#endif
 #include <gl\glu.h>
 #endif

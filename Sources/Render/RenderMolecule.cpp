@@ -19,7 +19,7 @@
 
  **********************************************************************/
 
-#include "Chemistry/ChemistryMolecule.h"
+#include "Render/RenderMolecule.h"
 
 float tolerance = 0.4f;
 
@@ -28,114 +28,108 @@ float bohrsToAngstroms(float bohrs)
   return 0.529177249 * bohrs;
 }
 
-Chemistry::Molecule::Molecule()
+Render::Molecule::Molecule() :
+    atoms_(),
+    bonds_(),
+    incidenceMatrix_(),
+    charge_(0),
+    unitOfLength_(Render::Molecule::ANGSTROM)
 {
 }
 
-Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
+Render::Molecule::Molecule(const Render::Molecule& molecule) :
     atoms_(molecule.atoms_),
     bonds_(molecule.bonds_),
     incidenceMatrix_(molecule.incidenceMatrix_),
     charge_(molecule.charge_),
     unitOfLength_(molecule.unitOfLength_)
 {
-  QListIterator<Chemistry::Atom*> aPtr(atoms_);
-  while (aPtr.hasNext())
-  {
-    aPtr.next()->setParentMolecule(this);
-  }
-
-  QListIterator<Chemistry::Bond*> bPtr(bonds_);
-  while (bPtr.hasNext())
-  {
-    bPtr.next()->molecule_ = this;
-  }
+  becomeParentForAtoms();
 }
 
-Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
+Render::Molecule& Render::Molecule::operator=(const Render::Molecule& molecule)
 {
   if (this != &molecule)
   {
-    atoms_ = QList<Chemistry::Atom*>(molecule.atoms_);
-    bonds_ = QList<Chemistry::Bond*>(molecule.bonds_);
+    atoms_ = QList<Render::Atom>(molecule.atoms_);
+    bonds_ = QList<Render::Bond>(molecule.bonds_);
     incidenceMatrix_ = IncidenceMatrix(molecule.incidenceMatrix_);
     charge_ = molecule.charge_;
     unitOfLength_ = molecule.unitOfLength_;
-
-    QListIterator<Chemistry::Atom*> aPtr(atoms_);
-    while (aPtr.hasNext())
-    {
-      aPtr.next()->setParentMolecule(this);
-    }
-
-    QListIterator<Chemistry::Bond*> bPtr(bonds_);
-    while (bPtr.hasNext())
-    {
-      bPtr.next()->molecule_ = this;
-    }
+    becomeParentForAtoms();
   }
 
   return *this;
 }
 
-Chemistry::Molecule::UnitOfLength Chemistry::Molecule::unitOfLength() const
+Render::Molecule::UnitOfLength Render::Molecule::unitOfLength() const
 {
   return unitOfLength_;
 }
 
-void Chemistry::Molecule::setUnitOfLength(UnitOfLength unit)
+void Render::Molecule::setUnitOfLength(UnitOfLength unit)
 {
   unitOfLength_ = unit;
 }
 
-Chemistry::Atom* Chemistry::Molecule::atomPointer(quint16 index) const
+Render::Atom& Render::Molecule::atom(quint16 index)
+{
+  return atoms_[index];
+}
+
+Render::Bond& Render::Molecule::bond(quint16 index)
+{
+  return bonds_[index];
+}
+
+const Render::Atom& Render::Molecule::atomAt(quint16 index) const
 {
   return atoms_.at(index);
 }
 
-Chemistry::Bond* Chemistry::Molecule::bondPointer(quint16 index) const
+const Render::Bond& Render::Molecule::bondAt(quint16 index) const
 {
   return bonds_.at(index);
 }
 
-quint16 Chemistry::Molecule::atomsCount() const
+quint16 Render::Molecule::atomsCount() const
 {
   return atoms_.count();
 }
 
-quint16 Chemistry::Molecule::bondsCount() const
+quint16 Render::Molecule::bondsCount() const
 {
   return bonds_.count();
 }
 
-quint8 Chemistry::Molecule::charge() const
+quint8 Render::Molecule::charge() const
 {
   return charge_;
 }
 
-void Chemistry::Molecule::setCharge(quint8 charge)
+void Render::Molecule::setCharge(quint8 charge)
 {
   charge_ = charge;
 }
 
-void Chemistry::Molecule::addAtom(const Chemistry::Atom& atom)
+void Render::Molecule::addAtom(const Render::Atom& atom)
 {
-  atoms_ << new Chemistry::Atom(atom);
-  atoms_.last()->setParentMolecule(this);
+  atoms_ << atom;
+  atoms_.last().setParentMolecule(this);
   incidenceMatrix_ << IncidenceList();
 }
 
-float Chemistry::Molecule::interatomicDistance(quint16 index1, quint16 index2)
+float Render::Molecule::interatomicDistance(quint16 index1, quint16 index2)
 { 
-  return (atoms_[index2]->centre() -
-          atoms_[index1]->centre()).norm();
+  return (atoms_[index2].centre() -
+          atoms_[index1].centre()).norm();
 }
 
-bool Chemistry::Molecule::isAtomsBonded(quint16 index1, quint16 index2) const
+bool Render::Molecule::isAtomsBonded(quint16 index1, quint16 index2) const
 {
   for (int i = 0; i < incidenceMatrix_.at(index1).count(); ++i)
   {
-    if (bondPointer(incidenceMatrix_.at(index1).at(i))->endIndex() == index2)
+    if (bondAt(incidenceMatrix_.at(index1).at(i)).endIndex() == index2)
     {
       return true;
     }
@@ -143,14 +137,14 @@ bool Chemistry::Molecule::isAtomsBonded(quint16 index1, quint16 index2) const
   return false;
 }
 
-void Chemistry::Molecule::bondAtoms(quint16 index1, quint16 index2)
+void Render::Molecule::bondAtoms(quint16 index1, quint16 index2)
 {
-  bonds_ << new Chemistry::Bond(this, index1, index2);
+  bonds_ << Render::Bond(this, index1, index2);
   incidenceMatrix_[index1] << (bondsCount() - 1);
   incidenceMatrix_[index2] << (bondsCount() - 1);
 }
 
-void Chemistry::Molecule::rebond()
+void Render::Molecule::rebond()
 {
   for (int i = 0; i < atomsCount() - 1; ++i)
   {
@@ -160,21 +154,36 @@ void Chemistry::Molecule::rebond()
       {
       case ANGSTROM:
         if (interatomicDistance(i, j) <
-            atoms_[i]->covalentRadius() +
-            atoms_[j]->covalentRadius() + tolerance)
+            atoms_[i].covalentRadius() +
+            atoms_[j].covalentRadius() + tolerance)
         {
           bondAtoms(i, j);
         }
         break;
       case BOHR:
         if (bohrsToAngstroms(interatomicDistance(i, j)) <
-            atoms_[i]->covalentRadius() +
-            atoms_[j]->covalentRadius() + tolerance)
+            atoms_[i].covalentRadius() +
+            atoms_[j].covalentRadius() + tolerance)
         {
           bondAtoms(i, j);
         }
         break;
       }
     }
+  }
+}
+
+void Render::Molecule::becomeParentForAtoms()
+{
+  QMutableListIterator<Render::Atom> a(atoms_);
+  while (a.hasNext())
+  {
+    a.next().setParentMolecule(this);
+  }
+
+  QMutableListIterator<Render::Bond> b(bonds_);
+  while (b.hasNext())
+  {
+    b.next().molecule_ = this;
   }
 }

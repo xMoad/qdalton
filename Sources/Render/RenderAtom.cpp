@@ -29,40 +29,54 @@
 
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
-Render::Atom::Atom(Chemistry::Atom* chemistryAtom) :
-    chemistryAtom_(chemistryAtom),
+Render::Atom::Atom(quint8 protons, quint8 neutrons) :
+    molecule_(0),
+    protons_(protons),
+    centre_(),
     isSelected_(false),
-    isMovable_(false)
+    isMovable_(false),
+    label_()
 {
+  // TODO If neutrons == 0 then take value from default isotope table! Not 1!
+  neutrons_ = (neutrons == 0) ? 1 : neutrons;
+  isSelected_ = false;
 }
 
-Render::Atom::Atom(const Render::Atom& renderAtom) :
-    chemistryAtom_(renderAtom.chemistryAtom_)
+Render::Atom::Atom(const Render::Atom& atom) :
+    molecule_(atom.molecule_),
+    protons_(atom.protons_),
+    neutrons_(atom.neutrons_),
+    centre_(atom.centre_),
+    isSelected_(atom.isSelected_),
+    isMovable_ (atom.isMovable_),
+    label_(atom.label_)
 {
-  isSelected_ = renderAtom.isSelected_;
-  isMovable_ = renderAtom.isMovable_;
 }
 
 GLfloat Render::Atom::drawRadius() const
 {
-  return cbrt(chemistryAtom_->relativeAtomicMass()) / 10.0f + 0.2f;
+#ifdef Q_CC_MSVC
+  return pow(relativeAtomicMass(), 1.0/3.0) / 10.0f + 0.2f;
+#else
+  return cbrt(relativeAtomicMass()) / 10.0f + 0.2f;
+#endif
 }
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) vanderwaalsRadii_[4 *(chemistryAtom_->protons())] / 1000.0f;
+  return (GLfloat) vanderwaalsRadii_[4 *(protons())] / 1000.0f;
 }
 
 Render::Color Render::Atom::color() const
 {
-  QColor color(colors[chemistryAtom_->protons()]);
+  QColor color(colors[protons()]);
   return Render::Color(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
 
 void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) const
 {
   Material material(color(), true);
-  Sphere sphere(chemistryAtom_->centre(), drawRadius(), material);
+  Sphere sphere(centre(), drawRadius(), material);
 
   switch (style)
   {
@@ -81,9 +95,9 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
   if (isMovable_)
   {
     GLfloat size = 1.0f;
-    glTranslatef(chemistryAtom_->centre().x(),
-                 chemistryAtom_->centre().y(),
-                 chemistryAtom_->centre().z());
+    glTranslatef(centre().x(),
+                 centre().y(),
+                 centre().z());
     Arrow x(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
             Eigen::Vector3f(size, 0.0f, 0.0f),
             0.04f,
@@ -107,7 +121,7 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
   Material material(Color::selection(), true);
-  Sphere sphere(chemistryAtom_->centre(),
+  Sphere sphere(centre(),
                 drawRadius() + SELECTON_RADIUS,
                 material);
   if (style == AS_CONNECTOR)
@@ -120,29 +134,6 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
   sphere.draw(STYLE_FILL, quality);
   glDisable(GL_BLEND);
   //  glEnable(GL_DEPTH_TEST);
-}
-
-const Eigen::Vector3f& Render::Atom::centre() const
-{
-  return chemistryAtom_->centre();
-}
-
-void Render::Atom::setCentre(const Eigen::Vector3f& point)
-{
-  chemistryAtom_->setCentre(point);
-}
-
-bool Render::Atom::isSelected() const
-{
-  return isSelected_;
-}
-
-void Render::Atom::setSelected(bool selected)
-{
-  if (selected == true)
-    isSelected_ = true;
-  else
-    isSelected_ = false;
 }
 
 bool Render::Atom::isMovable() const
@@ -160,9 +151,182 @@ void Render::Atom::setMovable(bool movable)
 
 const QString& Render::Atom::label() const
 {
-//  return label_;
-  return "Atom";
+  return label_;
 }
+
+void Render::Atom::setParentMolecule(Render::Molecule* molecule)
+{
+  molecule_ = molecule;
+}
+
+quint8 Render::Atom::protons() const
+{
+  return protons_;
+}
+
+quint8 Render::Atom::neutrons() const
+{
+  return neutrons_;
+}
+
+quint16 Render::Atom::relativeAtomicMass() const
+{
+  return protons_ + neutrons_;
+}
+
+const Eigen::Vector3f& Render::Atom::centre() const
+{
+  return centre_;
+}
+
+void Render::Atom::setCentre(const Eigen::Vector3f& point)
+{
+  centre_ = point;
+}
+
+float Render::Atom::covalentRadius() const
+{
+  return (float) covalentRadii_[protons_] / 1000.0f;
+}
+
+bool Render::Atom::isSelected() const
+{
+  return isSelected_;
+}
+
+void Render::Atom::setSelected(bool selected)
+{
+  if (selected == true)
+    isSelected_ = true;
+  else
+    isSelected_ = false;
+}
+
+quint8 Render::Atom::atomicNumberFromSymbol(const QString& symbol)
+{
+  for (quint8 i = 0; i <= 110; ++i)
+  {
+    if (symbols[i] == symbol)
+    {
+      return i;
+    }
+  }
+  return 0;
+}
+
+const quint16 Render::Atom::covalentRadii_[] =
+{
+    0,    //   0  Xx does not bond
+    310, //   1  H
+    280, //   2  He
+    1280, //   3  Li
+    960, //   4  Be
+    840, //   5  B
+    730, //   6  C
+    710, //   7  N
+    660, //   8  O
+    570, //   9  F
+    580, //  10  Ne
+    1660, //  11  Na
+    1410, //  12  Mg
+    1210, //  13  Al
+    1110, //  14  Si
+    1070, //  15  P
+    1050, //  16  S
+    1020, //  17  Cl
+    1060, //  18  Ar
+    2029, //  19  K
+    1760, //  20  Ca
+    1700, //  21  Sc
+    1600, //  22  Ti
+    1530, //  23  V
+    1390, //  24  Cr
+    1500, //  25  Mn
+    1400, //  26  Fe
+    1380, //  27  Co
+    1240, //  28  Ni
+    1320, //  29  Cu
+    1220, //  30  Zn
+    1220, //  31  Ga
+    1200, //  32  Ge
+    1190, //  33  As
+    1200, //  34  Se
+    1200, //  35  Br
+    1160, //  36  Kr
+    2200, //  37  Rb
+    1950, //  38  Sr
+    1900, //  39  Y
+    1750, //  40  Zr
+    1640, //  41  Nb
+    1540, //  42  Mo
+    1470, //  43  Tc
+    1460, //  44  Ru
+    1420, //  45  Rh
+    1390, //  46  Pd
+    1450, //  47  Ag
+    1440, //  48  Cd
+    1420, //  49  In
+    1390, //  50  Sn
+    1390, //  51  Sb
+    1380, //  52  Te
+    1390, //  53  I
+    1400, //  54  Xe
+    2440, //  55  Cs
+    2150, //  56  Ba
+    2070, //  57  La
+    2040, //  58  Ce
+    2029, //  59  Pr
+    2009, //  60  Nd
+    1990, //  61  Pm
+    1980, //  62  Sm
+    1980, //  63  Eu
+    1960, //  64  Gd
+    1940, //  65  Tb
+    1920, //  66  Dy
+    1920, //  67  Ho
+    1890, //  68  Er
+    1900, //  69  Tm
+    1870, //  70  Yb
+    1870, //  71  Lu
+    1750, //  72  Hf
+    1700, //  73  Ta
+    1620, //  74  W
+    1510, //  75  Re
+    1440, //  76  Os
+    1410, //  77  Ir
+    1360, //  78  Pt
+    1360, //  79  Au
+    1320, //  80  Hg
+    1450, //  81  Tl
+    1460, //  82  Pb
+    1480, //  83  Bi
+    1400, //  84  Po
+    1500, //  85  At
+    1500, //  86  Rn
+    2600, //  87  Fr
+    2210, //  88  Ra
+    2150, //  89  Ac
+    2060, //  90  Th
+    2000, //  91  Pa
+    1960, //  92  U
+    1900, //  93  Np
+    1870, //  94  Pu
+    1800, //  95  Am
+    1690, //  96  Cm last data from article!
+    1500, //  97  Bk
+    1500, //  98  Cf
+    1500, //  99  Es
+    1500, // 100  Fm
+    1500, // 101  Md
+    1500, // 102  No
+    1500, // 103  Lr
+    1600, // 104  Rf
+    1600, // 105  Db
+    1600, // 106  Sg
+    1600, // 107  Bh
+    1600, // 108  Hs
+    1600, // 109  Mt
+  };
 
 const quint16 Render::Atom::vanderwaalsRadii_[] =
 {
@@ -279,10 +443,6 @@ const quint16 Render::Atom::vanderwaalsRadii_[] =
     1700,2000,1600,0, // Mt 109
   };
 
-  /**
-   * Default table of CPK atom colors.
-   * ghemical colors with a few proposed modifications
-   */
 const quint32 Render::Atom::colors[] =
 {
   0xFFFF1493, // Xx 0
@@ -395,4 +555,129 @@ const quint32 Render::Atom::colors[] =
   0xFFE00038, // Bh 107
   0xFFE6002E, // Hs 108
   0xFFEB0026, // Mt 109
+};
+
+const QString Render::Atom::symbols[] =
+{
+  "Xx", // 0
+  "H",  // 1
+  "He", // 2
+  "Li", // 3
+  "Be", // 4
+  "B",  // 5
+  "C",  // 6
+  "N",  // 7
+  "O",  // 8
+  "F",  // 9
+  "Ne", // 10
+  "Na", // 11
+  "Mg", // 12
+  "Al", // 13
+  "Si", // 14
+  "P",  // 15
+  "S",  // 16
+  "Cl", // 17
+  "Ar", // 18
+  "K",  // 19
+  "Ca", // 20
+  "Sc", // 21
+  "Ti", // 22
+  "V",  // 23
+  "Cr", // 24
+  "Mn", // 25
+  "Fe", // 26
+  "Co", // 27
+  "Ni", // 28
+  "Cu", // 29
+  "Zn", // 30
+  "Ga", // 31
+  "Ge", // 32
+  "As", // 33
+  "Se", // 34
+  "Br", // 35
+  "Kr", // 36
+  "Rb", // 37
+  "Sr", // 38
+  "Y",  // 39
+  "Zr", // 40
+  "Nb", // 41
+  "Mo", // 42
+  "Tc", // 43
+  "Ru", // 44
+  "Rh", // 45
+  "Pd", // 46
+  "Ag", // 47
+  "Cd", // 48
+  "In", // 49
+  "Sn", // 50
+  "Sb", // 51
+  "Te", // 52
+  "I",  // 53
+  "Xe", // 54
+  "Cs", // 55
+  "Ba", // 56
+  "La", // 57
+  "Ce", // 58
+  "Pr", // 59
+  "Nd", // 60
+  "Pm", // 61
+  "Sm", // 62
+  "Eu", // 63
+  "Gd", // 64
+  "Tb", // 65
+  "Dy", // 66
+  "Ho", // 67
+  "Er", // 68
+  "Tm", // 69
+  "Yb", // 70
+  "Lu", // 71
+  "Hf", // 72
+  "Ta", // 73
+  "W",  // 74
+  "Re", // 75
+  "Os", // 76
+  "Ir", // 77
+  "Pt", // 78
+  "Au", // 79
+  "Hg", // 80
+  "Tl", // 81
+  "Pb", // 82
+  "Bi", // 83
+  "Po", // 84
+  "At", // 85
+  "Rn", // 86
+  "Fr", // 87
+  "Ra", // 88
+  "Ac", // 89
+  "Th", // 90
+  "Pa", // 91
+  "U",  // 92
+  "Np", // 93
+  "Pu", // 94
+  "Am", // 95
+  "Cm", // 96
+  "Bk", // 97
+  "Cf", // 98
+  "Es", // 99
+  "Fm", // 100
+  "Md", // 101
+  "No", // 102
+  "Lr", // 103
+  "Rf", // 104
+  "Db", // 105
+  "Sg", // 106
+  "Bh", // 107
+  "Hs", // 108
+  "Mt", // 109
+  /*
+    "Ds", // 110
+    "Uuu",// 111
+    "Uub",// 112
+    "Uut",// 113
+    "Uuq",// 114
+    "Uup",// 115
+    "Uuh",// 116
+    "Uus",// 117
+    "Uuo",// 118
+    */
 };

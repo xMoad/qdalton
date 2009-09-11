@@ -231,13 +231,6 @@ void MainWindow::on_actionJobNew_triggered()
   ui->tabWidget->show();
 }
 
-void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
-{
-//  QByteArray byteArray = s.toLatin1();
-//  const char* s_char = byteArray.data();
-//  ui->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
-}
-
 void MainWindow::on_actionStructureExportImage_triggered()
 {
   ui->viewer->saveSnapshot(false, false);
@@ -295,4 +288,9 @@ void MainWindow::on_actionHelpAbout_triggered()
   dialog.setHeaderLabelText("<h2>" + QCoreApplication::applicationName() +
                             " " + QCoreApplication::applicationVersion() + "</h2>");
   dialog.exec();
+}
+
+void MainWindow::on_atomComboBox_currentIndexChanged(QString symbol)
+{
+  ui->viewer->setAtomicNumber(Render::Atom::atomicNumberFromSymbol(symbol));
 }

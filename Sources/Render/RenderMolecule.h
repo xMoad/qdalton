@@ -24,10 +24,10 @@
 
 #include <QList>
 
-#include "Chemistry/ChemistryAtom.h"
-#include "Chemistry/ChemistryBond.h"
+#include "Render/RenderAtom.h"
+#include "Render/RenderBond.h"
 
-namespace Chemistry
+namespace Render
 {
   class Molecule
   {
@@ -39,14 +39,17 @@ namespace Chemistry
     };
 
     Molecule();
-    Molecule(const Chemistry::Molecule& molecule);
-    Chemistry::Molecule& operator=(const Chemistry::Molecule& molecule);
+    Molecule(const Render::Molecule& molecule);
+    Render::Molecule& operator=(const Render::Molecule& molecule);
 
     UnitOfLength unitOfLength() const;
     void setUnitOfLength(UnitOfLength unit);
 
-    Chemistry::Atom* atomPointer(quint16 index) const;
-    Chemistry::Bond* bondPointer(quint16 index) const;
+    Render::Atom& atom(quint16 index);
+    Render::Bond& bond(quint16 index);
+
+    const Render::Atom& atomAt(quint16 index) const;
+    const Render::Bond& bondAt(quint16 index) const;
 
     quint16 atomsCount() const;
     quint16 bondsCount() const;
@@ -54,7 +57,7 @@ namespace Chemistry
     quint8 charge() const;
     void setCharge(quint8 charge);
 
-    void addAtom(const Chemistry::Atom& atom);
+    void addAtom(const Render::Atom& atom);
 
     float interatomicDistance(quint16 index1, quint16 index2);
 
@@ -64,11 +67,12 @@ namespace Chemistry
     void rebond();
 
   private:
+    void becomeParentForAtoms();
     typedef QList<int> IncidenceList;
     typedef QList<IncidenceList> IncidenceMatrix;
 
-    QList<Chemistry::Atom*> atoms_;
-    QList<Chemistry::Bond*> bonds_;
+    QList<Render::Atom> atoms_;
+    QList<Render::Bond> bonds_;
     IncidenceMatrix incidenceMatrix_;
 
     quint8 charge_;

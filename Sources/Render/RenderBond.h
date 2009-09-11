@@ -22,7 +22,6 @@
 #ifndef RENDER_BOND_H
 #define RENDER_BOND_H
 
-#include "Chemistry/ChemistryBond.h"
 #include "Render/RenderQuadric.h"
 #include "Render/RenderAtom.h"
 
@@ -31,7 +30,19 @@ namespace Render
   class Bond
   {
   public:
-    Bond(Chemistry::Bond* chemistryBond);
+    Bond(Render::Molecule* molecule,
+         quint16 beginIndex,
+         quint16 endIndex);
+
+    Bond(const Render::Bond& bond);
+
+    const Render::Atom& beginAtom() const;
+    const Render::Atom& endAtom() const;
+
+    quint16 beginIndex() const;
+    quint16 endIndex() const;
+
+    Render::Molecule* molecule_;
 
     void draw(Quality quality) const;
     void drawSelection(Quality quality) const;
@@ -39,7 +50,8 @@ namespace Render
     void setSelected(bool selected);
     static const GLfloat DEFAULT_THIKNESS;
   private:
-    Chemistry::Bond* chemistryBond_;
+    quint16 beginIndex_;
+    quint16 endIndex_;
     bool isSelected_;
   };
 }

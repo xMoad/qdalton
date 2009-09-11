@@ -57,6 +57,7 @@ private:
   QLabel statusLabel_;
 
 private slots:
+  void on_atomComboBox_currentIndexChanged(QString );
   void on_actionHelpAbout_triggered();
   void on_tabWidget_currentChanged(int index);
   void on_actionHelpAboutQt_triggered();
@@ -64,7 +65,6 @@ private slots:
   void on_checkBoxAxes_toggled(bool checked);
   void on_actionExit_triggered();
   void on_actionStructureExportImage_triggered();
-  void on_comboBoxAtom_currentIndexChanged(QString );
   void on_actionJobNew_triggered();
   void on_toolBox_currentChanged(int index);
   void on_viewQComboBox_currentIndexChanged(int index);

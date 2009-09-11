@@ -22,10 +22,16 @@
 #ifndef RENDER_VIEWER_H
 #define RENDER_VIEWER_H
 
+#include <QtGlobal>
+
+#ifdef Q_CC_MSVC
+#define NOMINMAX
+#endif
+
 #include <QMouseEvent>
 #include <QGLViewer/qglviewer.h>
 
-#include "Chemistry/ChemistryMolecule.h"
+#include "Render/RenderMolecule.h"
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderQuality.h"
@@ -62,16 +68,14 @@ namespace Render
     /** Set Chemistry::Molecule instance to view.
      * @param chemistryMolecule is
      */
-    void setMolecule(const Chemistry::Molecule& chemistryMolecule);
+    void setMolecule(const Render::Molecule& chemistryMolecule);
 
     void updateMolecule();
     void setView(View view);
     void setMode(Mode mode);
     void setAxes(bool visibility, GLfloat size);
     void setDebugInfoVisibility(bool visibility);
-    void addAtom(const Render::Atom& atom);
-    void addBond(const Render::Bond& bond);
-    void setAtomicNumber(int atomicNumber);
+    void setAtomicNumber(quint8 atomicNumber);
 
   protected:
     virtual void init();
@@ -93,7 +97,7 @@ namespace Render
       GLLIST_SELECTIONS
     };
 
-    Chemistry::Molecule chemistryMolecule_;
+    Render::Molecule molecule_;
     View view_;
     Mode mode_;
 
@@ -112,8 +116,6 @@ namespace Render
     GLuint selectionsHigh_;
 
     void updateGLList(GLList gllist);
-    void updateRenderAtoms();
-    void updateRenderBonds();
 
     // GLLists generators.
     GLuint makeAxes(GLfloat size, Quality quality);
@@ -129,14 +131,12 @@ namespace Render
     GLfloat axesSize_;
 
     QPoint lastMousePosition_;
-    QList<Render::Atom> renderAtomsList_;
-    QList<Render::Bond> renderBondsList_;
 
     int movableIndex;
 
     qglviewer::Vec selectedPoint;
     // added atom atomic number
-    int atomicNumber_;
+    quint8 atomicNumber_;
   };
 }
 

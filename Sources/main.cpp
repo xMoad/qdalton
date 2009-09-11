@@ -18,6 +18,11 @@
   along with QDalton. If not, see <http://www.gnu.org/licenses/>.
 
  **********************************************************************/
+#include <QtGlobal>
+
+#ifdef Q_CC_MSVC
+#define NOMINMAX
+#endif
 
 #include <QtGui/QApplication>
 #include "MainWindow.h"
@@ -26,12 +31,12 @@ int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
 
-#ifdef __APPLE__
+#ifdef Q_WS_MAC
   a.setAttribute(Qt::AA_DontShowIconsInMenus, true);
 #endif
 
   QCoreApplication::setApplicationName("QDalton");
-  QCoreApplication::setApplicationVersion("0.0.5");
+  QCoreApplication::setApplicationVersion("0.0.5.1");
   QCoreApplication::setOrganizationDomain("ctcc.no");
   QCoreApplication::setOrganizationName("CTCC");
 

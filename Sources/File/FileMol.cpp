@@ -22,7 +22,7 @@
 #include <QTextStream>
 #include <QFile>
 
-#include "Chemistry/ChemistryAtom.h"
+#include "Render/RenderAtom.h"
 #include "File/FileMol.h"
 #include "File/FileText.h"
 
@@ -108,11 +108,11 @@ bool File::Mol::parse(bool doAutoRebond)
   n = regExp.indexIn(strings_[generalStringIndex]);
   if (n != -1)
   {
-    molecule_.setUnitOfLength(Chemistry::Molecule::ANGSTROM);
+    molecule_.setUnitOfLength(Render::Molecule::ANGSTROM);
   }
   else
   {
-    molecule_.setUnitOfLength(Chemistry::Molecule::BOHR);
+    molecule_.setUnitOfLength(Render::Molecule::BOHR);
   }
 
   regExp.setPattern("Cartesian");
@@ -153,7 +153,7 @@ bool File::Mol::parse(bool doAutoRebond)
         i++;
         if (regExpAtom.indexIn(this->strings_[i]) != -1)
         {
-          Chemistry::Atom atom(protons);
+          Render::Atom atom(protons);
           //          obatom.SetIsotope(0); !!!
           // TODO Fix label!
           QString label = regExpAtom.cap(1);
@@ -172,7 +172,7 @@ bool File::Mol::parse(bool doAutoRebond)
   return true;
 }
 
-const Chemistry::Molecule& File::Mol::molecule() const
+const Render::Molecule& File::Mol::molecule() const
 {
   return molecule_;
 }

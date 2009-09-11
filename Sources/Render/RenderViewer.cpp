@@ -144,14 +144,14 @@ void Render::Viewer::draw()
     case MODE_VIEW:
       renderText(20, 30, "Mode: View", font);
       renderText(20, 45, QString("Molecule: %1").arg("Foo"), font);
-      renderText(20, 60, QString("Atoms: %1").arg(chemistryMolecule_.atomsCount()), font);
-      renderText(20, 75, QString("Bonds: %1").arg(chemistryMolecule_.bondsCount()), font);
-      switch (chemistryMolecule_.unitOfLength())
+      renderText(20, 60, QString("Atoms: %1").arg(molecule_.atomsCount()), font);
+      renderText(20, 75, QString("Bonds: %1").arg(molecule_.bondsCount()), font);
+      switch (molecule_.unitOfLength())
       {
-      case Chemistry::Molecule::ANGSTROM:
+      case Render::Molecule::ANGSTROM:
         renderText(20, 90, QString("Unit of length: angstrom"), font);
         break;
-      case Chemistry::Molecule::BOHR:
+      case Render::Molecule::BOHR:
         renderText(20, 90, QString("Unit of length: a.u."), font);
         break;
       }
@@ -194,7 +194,7 @@ void Render::Viewer::draw()
       // Multiply matrix to get in the frame coordinate system.
       glMultMatrixd(manipulatedFrame()->matrix());
       //      if (showAtoms_)
-      renderAtomsList_[movableIndex].draw(Atom::AS_ATOM, QUALITY_HIGH);
+//      molecule_.atoms_[movableIndex].draw(Atom::AS_ATOM, QUALITY_HIGH);
     }
     glPopMatrix();
   }
@@ -237,20 +237,20 @@ void Render::Viewer::fastDraw()
 void Render::Viewer::drawWithNames()
 {
   glInitNames();
-  for (int i = 0; i < renderAtomsList_.size(); ++i)
+  for (int i = 0; i < molecule_.atomsCount(); ++i)
   {
     glPushName(i);
     {
       switch (view_)
       {
       case VIEW_BALLS_STICKS:
-        renderAtomsList_[i].draw(Atom::AS_ATOM, QUALITY_LOW);
+        molecule_.atomAt(i).draw(Atom::AS_ATOM, QUALITY_LOW);
         break;
       case VIEW_STICKS:
-        renderAtomsList_[i].draw(Atom::AS_CONNECTOR, QUALITY_LOW);
+        molecule_.atomAt(i).draw(Atom::AS_CONNECTOR, QUALITY_LOW);
         break;
       case VIEW_VDW:
-        renderAtomsList_[i].draw(Atom::AS_VDW, QUALITY_LOW);
+        molecule_.atomAt(i).draw(Atom::AS_VDW, QUALITY_LOW);
         break;
       }
     }
@@ -265,7 +265,7 @@ void Render::Viewer::postSelection(const QPoint& point)
   selectedPoint = camera()->pointUnderPixel(point, found);
   if (selectedName() != -1)
   {
-    renderAtomsList_[selectedName()].setSelected(!renderAtomsList_[selectedName()].isSelected());
+    molecule_.atom(selectedName()).setSelected(!molecule_.atomAt(selectedName()).isSelected());
     updateGLList(Viewer::GLLIST_SELECTIONS);
   }
 }
@@ -302,10 +302,15 @@ GLuint Render::Viewer::makeSmallBalls(Render::Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    QListIterator<Render::Atom> i(renderAtomsList_);
+    /*
+    QListIterator<Render::Atom*> i(molecule_.atoms_);
     while (i.hasNext())
     {
-      i.next().draw(Atom::AS_CONNECTOR, quality);
+      i.next()->draw(Atom::AS_CONNECTOR, quality);
+    } */
+    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
+    {
+      molecule_.atomAt(i).draw(Render::Atom::AS_CONNECTOR, quality);
     }
   }
   glEndList();
@@ -317,10 +322,15 @@ GLuint Render::Viewer::makeMediumBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    QListIterator<Render::Atom> i(renderAtomsList_);
+    /*
+    QListIterator<Render::Atom*> i(molecule_.atoms_);
     while (i.hasNext())
     {
-      i.next().draw(Render::Atom::AS_ATOM, quality);
+      i.next()->draw(Render::Atom::AS_ATOM, quality);
+    } */
+    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
+    {
+      molecule_.atomAt(i).draw(Render::Atom::AS_ATOM, quality);
     }
   }
   glEndList();
@@ -332,10 +342,15 @@ GLuint Render::Viewer::makeBigBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    QListIterator<Render::Atom> i(renderAtomsList_);
+    /*
+    QListIterator<Render::Atom*> i(molecule_.atoms_);
     while (i.hasNext())
     {
-      i.next().draw(Render::Atom::AS_VDW, quality);
+      i.next()->draw(Render::Atom::AS_VDW, quality);
+    } */
+    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
+    {
+      molecule_.atomAt(i).draw(Render::Atom::AS_VDW, quality);
     }
   }
   glEndList();
@@ -347,10 +362,15 @@ GLuint Render::Viewer::makeSticks(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    QListIterator<Render::Bond> i(renderBondsList_);
+    /*
+    QListIterator<Render::Bond*> i(molecule_.bonds_);
     while (i.hasNext())
     {
-      i.next().draw(quality);
+      i.next()->draw(quality);
+    } */
+    for (quint16 i = 0; i < molecule_.bondsCount(); ++i)
+    {
+      molecule_.bondAt(i).draw(quality);
     }
   }
   glEndList();
@@ -362,19 +382,23 @@ GLuint Render::Viewer::makeSelections(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < renderAtomsList_.size(); i++)
-      if (renderAtomsList_[i].isSelected())
+    for (int i = 0; i < molecule_.atomsCount(); i++)
+    {
+      if (molecule_.atomAt(i).isSelected())
+      {
         switch (view_)
         {
-            case VIEW_BALLS_STICKS:
-      renderAtomsList_[i].drawSelection(Atom::AS_ATOM, quality);
-      break;
-            case VIEW_STICKS:
-      renderAtomsList_[i].drawSelection(Atom::AS_CONNECTOR, quality);
-      break;
-            case VIEW_VDW:
-      renderAtomsList_[i].drawSelection(Atom::AS_VDW, quality);
-      break;
+        case VIEW_BALLS_STICKS:
+          molecule_.atomAt(i).drawSelection(Atom::AS_ATOM, quality);
+          break;
+        case VIEW_STICKS:
+          molecule_.atomAt(i).drawSelection(Atom::AS_CONNECTOR, quality);
+          break;
+        case VIEW_VDW:
+          molecule_.atomAt(i).drawSelection(Atom::AS_VDW, quality);
+          break;
+        }
+      }
     }
   }
   glEndList();
@@ -408,34 +432,22 @@ void Render::Viewer::setDebugInfoVisibility(bool visibility)
   updateGL();
 }
 
-void Render::Viewer::setMolecule(const Chemistry::Molecule& chemistryMolecule)
+void Render::Viewer::setMolecule(const Render::Molecule& molecule)
 {
-  chemistryMolecule_ = chemistryMolecule;
+  molecule_ = molecule;
   updateMolecule();
 }
 
-void Render::Viewer::setAtomicNumber(int atomicNumber)
+void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
 {
   atomicNumber_ = atomicNumber;
 }
 
 void Render::Viewer::updateMolecule()
 {
-  updateRenderAtoms();
   updateGLList(Viewer::GLLIST_BALLS);
-  updateRenderBonds();
   updateGLList(Viewer::GLLIST_STICKS);
   updateGL();
-}
-
-void Render::Viewer::addAtom(const Atom& atom)
-{
-  renderAtomsList_ << atom;
-}
-
-void Render::Viewer::addBond(const Bond& bond)
-{
-  renderBondsList_ << bond;
 }
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
@@ -484,20 +496,22 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       if (e->modifiers() == Qt::NoModifier)
       {
         if (found)
-          camera()->setRevolveAroundPoint(qglviewer::Vec(renderAtomsList_[selectedName()].centre().x(),
-                                                         renderAtomsList_[selectedName()].centre().y(),
-                                                         renderAtomsList_[selectedName()].centre().z()));
+          camera()->setRevolveAroundPoint(qglviewer::Vec(molecule_.atomAt(selectedName()).centre().x(),
+                                                         molecule_.atomAt(selectedName()).centre().y(),
+                                                         molecule_.atomAt(selectedName()).centre().z()));
         else
           camera()->setRevolveAroundPoint(qglviewer::Vec());
       }
       else if (e->modifiers() == Qt::ControlModifier)
       {
-        for (int i = 0; i < renderAtomsList_.size(); ++i)
-          renderAtomsList_[i].setMovable(false);
+        for (int i = 0; i < molecule_.atomsCount(); ++i)
+        {
+          molecule_.atom(i).setMovable(false);
+        }
         if (found)
         {
           movableIndex = selectedName();
-          renderAtomsList_[selectedName()].setMovable(true);
+          molecule_.atom(selectedName()).setMovable(true);
           updateGLList(Viewer::GLLIST_BALLS);
         }
       }
@@ -511,8 +525,8 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       else
       {
-        Chemistry::Atom chemistryAtom(atomicNumber_);
-        chemistryMolecule_.addAtom(chemistryAtom);
+        Render::Atom chemistryAtom(atomicNumber_);
+        molecule_.addAtom(chemistryAtom);
       }
       updateMolecule();
       if (!found)
@@ -545,17 +559,15 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
   if (movableIndex != -1)
   {
     Eigen::Vector3f p(manipulatedFrame()->position().x +
-                      renderAtomsList_[movableIndex].centre().x(),
+                      molecule_.atomAt(movableIndex).centre().x(),
                       manipulatedFrame()->position().y +
-                      renderAtomsList_[movableIndex].centre().y(),
+                      molecule_.atomAt(movableIndex).centre().y(),
                       manipulatedFrame()->position().z +
-                      renderAtomsList_[movableIndex].centre().z());
+                      molecule_.atomAt(movableIndex).centre().z());
     //      atomsQList_[movableIndex].setCentre(p);
     //      atomsQList_[movableIndex].setMovable(false);
 //    obmol_.GetAtom(movableIndex + 1)->SetVector(p.x(), p.y(), p.z());
     movableIndex = -1;
-    updateRenderAtoms();
-    updateRenderBonds();
     updateGLList(GLLIST_BALLS);
     updateGLList(GLLIST_STICKS);
   }
@@ -599,25 +611,5 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
     selectionsLow_ = makeSelections(QUALITY_LOW);
     selectionsHigh_ = makeSelections(QUALITY_HIGH);
     break;
-  }
-}
-
-void Render::Viewer::updateRenderAtoms()
-{
-  renderAtomsList_.clear();
-  for (quint16 i = 0; i < chemistryMolecule_.atomsCount(); ++i)
-  {
-    Render::Atom renderAtom(chemistryMolecule_.atomPointer(i));
-    addAtom(renderAtom);
-  }
-}
-
-void Render::Viewer::updateRenderBonds()
-{
-  renderBondsList_.clear();
-  for (quint16 i = 0; i < chemistryMolecule_.bondsCount(); ++i)
-  {
-    Render::Bond renderBond(chemistryMolecule_.bondPointer(i));
-    addBond(renderBond);
   }
 }
