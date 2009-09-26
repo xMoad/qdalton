@@ -20,8 +20,14 @@
  **********************************************************************/
 
 #include <cmath>
+
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QDebug>
+
+#include <openbabel/mol.h>
+#include <openbabel/forcefield.h>
+#include <openbabel/builder.h>
 
 #include "Render/RenderViewer.h"
 #include "Render/RenderSphere.h"
@@ -30,96 +36,49 @@
 #include "Render/RenderArrow.h"
 
 Render::Viewer::Viewer(QWidget* parent) :
-    QGLViewer(parent)
+    QGLViewer(parent),
+    view_(VIEW_BALLS_STICKS),
+    mode_(MODE_VIEW)
 {
-  view_ = VIEW_BALLS_STICKS;
-  mode_ = MODE_VIEW;
-  movableIndex = -1;
-  setMouseBinding(Qt::CTRL + Qt::LeftButton, FRAME, TRANSLATE);
   isAxesVisible_ = true;
   isDebugInfoVisible_ = false;
   axesSize_ = 1.0f;
   atomicNumber_ = 6;
+  currentOBAtom_ = 0;
+  newOBAtom_ = 0;
 }
 
 Render::Viewer::~Viewer()
 {
   //  makeCurrent();
-  glDeleteLists(mediumBallsLow_, 1);
-  glDeleteLists(mediumBallsHigh_, 1);
-  glDeleteLists(sticksLow_, 1);
-  glDeleteLists(sticksHigh_, 1);
   glDeleteLists(smallBallsLow_, 1);
   glDeleteLists(smallBallsHigh_, 1);
-}
-
-void Render::Viewer::init()
-{
-  float lightAmbient[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightDiffuse[]      = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightSpecular[]     = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float lightModelAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-  float fogColor[]          = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-  // This method is called from QGLViewer::initializeGL(),
-  // where GL_COLOR_MATERIAL is enabled. We don't need it!
-  glDisable(GL_COLOR_MATERIAL);
-
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  // Setup shading (filling) mode to smooth
-  glShadeModel(GL_SMOOTH);
-  // Enable the depth buffer updating
-  glEnable(GL_DEPTH_TEST);
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0f);
-  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightModelAmbient);
-
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHTING);
-
-  setSceneRadius(10.0f);
-  showEntireScene();
-
-  //    glEnable(GL_FOG);
-  //    glFogi(GL_FOG_MODE, GL_LINEAR);
-  //    glFogfv(GL_FOG_COLOR, fogColor);
-  //    glFogf(GL_FOG_DENSITY, 0.0001f);
-  //    glHint(GL_FOG_HINT, GL_NICEST);
-  //    glFogf(GL_FOG_START, -sceneRadius());
-  //    glFogf(GL_FOG_END, sceneRadius());
-
-  glEnable(GL_NORMALIZE);
-
-  updateGLList(Viewer::GLLIST_AXES);
-  setManipulatedFrame(new qglviewer::ManipulatedFrame());
+  glDeleteLists(mediumBallsLow_, 1);
+  glDeleteLists(mediumBallsHigh_, 1);
+  glDeleteLists(bigBallsLow_, 1);
+  glDeleteLists(bigBallsHigh_, 1);
+  glDeleteLists(bondsLow_, 1);
+  glDeleteLists(bondsHigh_, 1);
+  glDeleteLists(sticksLow_, 1);
+  glDeleteLists(sticksHigh_, 1);
 }
 
 void Render::Viewer::draw()
 {
-  // Place light at camera position
-  const qglviewer::Vec cameraPos = camera()->position();
-  const GLfloat lightPosition[4] = {cameraPos[0], cameraPos[1], cameraPos[2], 1.0};
-  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-
   if (isAxesVisible_)
   {
     glCallList(axesHigh_);
   }
-  glCallList(sticksHigh_);
+
   switch (view_)
   {
   case VIEW_BALLS_STICKS:
     glCallList(mediumBallsHigh_);
+    glCallList(bondsHigh_);
     break;
   case VIEW_STICKS:
     glCallList(smallBallsHigh_);
+    glCallList(sticksHigh_);
     break;
   case VIEW_VDW:
     glCallList(bigBallsHigh_);
@@ -139,65 +98,30 @@ void Render::Viewer::draw()
     font.setBold(true);
     renderText(10, 15, "Debug Info", font);
     font.setBold(false);
-    switch (mode_)
-    {
-    case MODE_VIEW:
-      renderText(20, 30, "Mode: View", font);
-      renderText(20, 45, QString("Molecule: %1").arg("Foo"), font);
-      renderText(20, 60, QString("Atoms: %1").arg(molecule_.atomsCount()), font);
-      renderText(20, 75, QString("Bonds: %1").arg(molecule_.bondsCount()), font);
-      switch (molecule_.unitOfLength())
-      {
-      case Render::Molecule::ANGSTROM:
-        renderText(20, 90, QString("Unit of length: angstrom"), font);
-        break;
-      case Render::Molecule::BOHR:
-        renderText(20, 90, QString("Unit of length: a.u."), font);
-        break;
-      }
 
-      break;
-    case MODE_ADD:
-      renderText(20, 30, "Mode: Add", font);
-      renderText(20, 45,
-                 QString("(%1, %2)").arg(lastMousePosition_.x()).arg(lastMousePosition_.y()),
-                 font);
-      //      qglviewer::Vec screen(lastMousePosition_.x(), lastMousePosition_.y(), 0.5f);
-      bool found;
-      qglviewer::Vec world = camera()->pointUnderPixel(lastMousePosition_, found);
-      if (found)
-        renderText(20, 60, QString("Something found! @(%1, %2, %3)").arg(world.x).arg(world.y).arg(world.z), font);
-      else
-        renderText(20, 60, QString("(%1, %2, %3)").arg(world.x).arg(world.y).arg(world.z), font);
-      break;
-    }
+    renderText(20, 30, "Mode: View", font);
+    renderText(20, 45,
+               QString("Molecule: %1 (%2 atoms)").arg(
+                   QString::fromStdString(obmol_.GetFormula()),
+                   QString::number(obmol_.NumAtoms())),
+               font);
+
     glColor4fv(color);
   }
 
   /* buggy code! =)
     glGetFloatv(GL_CURRENT_COLOR, color);
     glColor3f(0.0f, 1.0f, 0.0f);
-    for (int i = 0; i < atomsQList_.size(); i++)
+    for (int i = 0; i < atomsList_.size(); i++)
     {
-      renderText(atomsQList_[i].centre().x(),
-                 atomsQList_[i].centre().y(),
-                 atomsQList_[i].centre().z(),
-                 atomsQList_[i].label(),
+      renderText(atomsList_[i].centre().x(),
+                 atomsList_[i].centre().y(),
+                 atomsList_[i].centre().z(),
+                 atomsList_[i].label(),
                  QFont("Arial"));
     }
     glColor4fv(color);
 */
-  if (movableIndex != -1)
-  {
-    glPushMatrix();
-    {
-      // Multiply matrix to get in the frame coordinate system.
-      glMultMatrixd(manipulatedFrame()->matrix());
-      //      if (showAtoms_)
-//      molecule_.atoms_[movableIndex].draw(Atom::AS_ATOM, QUALITY_HIGH);
-    }
-    glPopMatrix();
-  }
 }
 
 void Render::Viewer::fastDraw()
@@ -206,53 +130,51 @@ void Render::Viewer::fastDraw()
   {
     glCallList(axesLow_);
   }
-  glCallList(sticksLow_);
+
   switch (view_)
   {
   case VIEW_BALLS_STICKS:
     glCallList(mediumBallsLow_);
+    glCallList(bondsLow_);
     break;
   case VIEW_STICKS:
     glCallList(smallBallsLow_);
+    glCallList(sticksLow_);
     break;
   case VIEW_VDW:
     glCallList(bigBallsLow_);
     break;
   }
   glCallList(selectionsLow_);
-  // Save the current model view matrix (not needed here in fact)
-  glPushMatrix();
-  // Multiply matrix to get in the frame coordinate system.
-  glMultMatrixd(manipulatedFrame()->matrix());
-  //  if (showAtoms_)
-  //    glCallList(selectedAtomsGLListHQ);
-  // Scale down the drawings
-  //  glScalef(0.3f, 0.3f, 0.3f);
-  // Draw an axis using the QGLViewer static function
-  //    drawAxis();
-  // Restore the original (world) coordinate system
-  glPopMatrix();
 }
 
 void Render::Viewer::drawWithNames()
 {
   glInitNames();
-  for (int i = 0; i < molecule_.atomsCount(); ++i)
+  for (int i = 0; i < atomsList_.size(); ++i)
   {
     glPushName(i);
     {
       switch (view_)
       {
       case VIEW_BALLS_STICKS:
-        molecule_.atomAt(i).draw(Atom::AS_ATOM, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_ATOM, QUALITY_LOW);
         break;
       case VIEW_STICKS:
-        molecule_.atomAt(i).draw(Atom::AS_CONNECTOR, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_CONNECTOR, QUALITY_LOW);
         break;
       case VIEW_VDW:
-        molecule_.atomAt(i).draw(Atom::AS_VDW, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_VDW, QUALITY_LOW);
         break;
       }
+    }
+    glPopName();
+  }
+
+  for (int i = 0; i < bondsList_.size(); ++i)
+  {
+    glPushName(i);
+    {
     }
     glPopName();
   }
@@ -263,11 +185,89 @@ void Render::Viewer::postSelection(const QPoint& point)
   bool found;
 
   selectedPoint = camera()->pointUnderPixel(point, found);
+
   if (selectedName() != -1)
   {
-    molecule_.atom(selectedName()).setSelected(!molecule_.atomAt(selectedName()).isSelected());
+    atomsList_[selectedName()].toggleSelected();
     updateGLList(Viewer::GLLIST_SELECTIONS);
   }
+}
+
+QString Render::Viewer::helpString() const
+{
+  QString text("<h2>QDalton \"Draft 1\"</h2>");
+  text += "Hi there! =)";
+  return text;
+}
+
+void Render::Viewer::init()
+{
+//  const float    LIGHT_AMBIENT[4]                  = {0.2f, 0.2f, 0.2f, 1.0f};
+  const float    LIGHT_AMBIENT[4]                  = {0.2f, 0.2f, 0.2f, 1.0f};
+
+  const float    LIGHT0_DIFFUSE[4]                 = {1.0f, 1.0f, 1.0f, 1.0f};
+  const float    LIGHT0_SPECULAR[4]                = {1.0f, 1.0f, 1.0f, 1.0f};
+  const float    LIGHT0_POSITION[4]                = {0.8f, 0.7f, 1.0f, 0.0f};
+
+  const float    LIGHT1_DIFFUSE[4]                 = {0.3f, 0.3f, 0.3f, 1.0f};
+  const float    LIGHT1_SPECULAR[4]                = {0.5f, 0.5f, 0.5f, 1.0f};
+  const float    LIGHT1_POSITION[4]                = {-0.8f, 0.7f, -0.5f, 0.0f};
+
+  // This method is called from QGLViewer::initializeGL(),
+  // where GL_COLOR_MATERIAL is enabled. We don't need it!
+  glDisable(GL_COLOR_MATERIAL);
+
+  // As mentioned in QGLViewer documentation for select() method,
+  // one can encounter problems with backface culling.
+  // If so one can try to glDisable(GL_CULL_FACE). It works!
+  glDisable(GL_CULL_FACE);
+
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+  // Setup shading (filling) mode to smooth
+  glShadeModel(GL_SMOOTH);
+  // Enable the depth buffer updating
+  glEnable(GL_DEPTH_TEST);
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+//  glLightModeli( GL_LIGHT_MODEL_COLOR_CONTROL_EXT,
+//                 GL_SEPARATE_SPECULAR_COLOR_EXT );
+
+  // Due to the bug found with Mesa 6.5.3 in the Radeon DRI driver
+  // in radeon_state.c in radeonUpdateSpecular(),
+  // it is important to set GL_SEPARATE_SPECULAR_COLOR_EXT
+  // _before_ enabling lighting
+  glEnable( GL_LIGHTING );
+
+  glLightfv( GL_LIGHT0, GL_AMBIENT, LIGHT_AMBIENT );
+  glLightfv( GL_LIGHT0, GL_DIFFUSE, LIGHT0_DIFFUSE );
+  glLightfv( GL_LIGHT0, GL_SPECULAR, LIGHT0_SPECULAR );
+  glLightfv( GL_LIGHT0, GL_POSITION, LIGHT0_POSITION );
+  glEnable( GL_LIGHT0 );
+
+  // Create a second light source to illuminate shadows a little better
+  glLightfv( GL_LIGHT1, GL_AMBIENT, LIGHT_AMBIENT );
+  glLightfv( GL_LIGHT1, GL_DIFFUSE, LIGHT1_DIFFUSE );
+  glLightfv( GL_LIGHT1, GL_SPECULAR, LIGHT1_SPECULAR );
+  glLightfv( GL_LIGHT1, GL_POSITION, LIGHT1_POSITION );
+  glEnable( GL_LIGHT1 );
+
+  setSceneRadius(10.0f);
+  showEntireScene();
+
+  //    glEnable(GL_FOG);
+  //    glFogi(GL_FOG_MODE, GL_LINEAR);
+  //    glFogfv(GL_FOG_COLOR, fogColor);
+  //    glFogf(GL_FOG_DENSITY, 0.0001f);
+  //    glHint(GL_FOG_HINT, GL_NICEST);
+  //    glFogf(GL_FOG_START, -sceneRadius());
+  //    glFogf(GL_FOG_END, sceneRadius());
+
+  glEnable(GL_NORMALIZE);
+
+  updateGLList(Viewer::GLLIST_AXES);
+  setManipulatedFrame(new qglviewer::ManipulatedFrame());
 }
 
 GLuint Render::Viewer::makeAxes(GLfloat size, Quality quality)
@@ -302,16 +302,8 @@ GLuint Render::Viewer::makeSmallBalls(Render::Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    /*
-    QListIterator<Render::Atom*> i(molecule_.atoms_);
-    while (i.hasNext())
-    {
-      i.next()->draw(Atom::AS_CONNECTOR, quality);
-    } */
-    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
-    {
-      molecule_.atomAt(i).draw(Render::Atom::AS_CONNECTOR, quality);
-    }
+    for (int i = 0; i < atomsList_.size(); ++i)
+      atomsList_[i].draw(Render::Atom::DRAW_STYLE_CONNECTOR, quality);
   }
   glEndList();
   return list;
@@ -322,16 +314,8 @@ GLuint Render::Viewer::makeMediumBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    /*
-    QListIterator<Render::Atom*> i(molecule_.atoms_);
-    while (i.hasNext())
-    {
-      i.next()->draw(Render::Atom::AS_ATOM, quality);
-    } */
-    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
-    {
-      molecule_.atomAt(i).draw(Render::Atom::AS_ATOM, quality);
-    }
+    for (int i = 0; i < atomsList_.size(); ++i)
+      atomsList_[i].draw(Render::Atom::DRAW_STYLE_ATOM, quality);
   }
   glEndList();
   return list;
@@ -342,36 +326,32 @@ GLuint Render::Viewer::makeBigBalls(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    /*
-    QListIterator<Render::Atom*> i(molecule_.atoms_);
-    while (i.hasNext())
-    {
-      i.next()->draw(Render::Atom::AS_VDW, quality);
-    } */
-    for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
-    {
-      molecule_.atomAt(i).draw(Render::Atom::AS_VDW, quality);
-    }
+    for (int i = 0; i < atomsList_.size(); ++i)
+      atomsList_[i].draw(Render::Atom::DRAW_STYLE_VDW, quality);
   }
   glEndList();
   return list;
 }
 
-GLuint Render::Viewer::makeSticks(Quality quality)
+GLuint Render::Viewer::makeBonds(Render::Quality quality)
 {
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    /*
-    QListIterator<Render::Bond*> i(molecule_.bonds_);
-    while (i.hasNext())
-    {
-      i.next()->draw(quality);
-    } */
-    for (quint16 i = 0; i < molecule_.bondsCount(); ++i)
-    {
-      molecule_.bondAt(i).draw(quality);
-    }
+    for (int i = 0; i < bondsList_.size(); ++i)
+      bondsList_[i].draw(Render::Bond::DRAW_STYLE_BOND, quality);
+  }
+  glEndList();
+  return list;
+}
+
+GLuint Render::Viewer::makeSticks(Render::Quality quality)
+{
+  GLuint list = glGenLists(1);
+  glNewList(list, GL_COMPILE);
+  {
+    for (int i = 0; i < bondsList_.size(); ++i)
+      bondsList_[i].draw(Render::Bond::DRAW_STYLE_STICK, quality);
   }
   glEndList();
   return list;
@@ -382,20 +362,20 @@ GLuint Render::Viewer::makeSelections(Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    for (int i = 0; i < molecule_.atomsCount(); i++)
+    for (int i = 0; i < atomsList_.size(); ++i)
     {
-      if (molecule_.atomAt(i).isSelected())
+      if (atomsList_[i].isSelected())
       {
         switch (view_)
         {
         case VIEW_BALLS_STICKS:
-          molecule_.atomAt(i).drawSelection(Atom::AS_ATOM, quality);
+          atomsList_[i].drawSelection(Render::Atom::DRAW_STYLE_ATOM, quality);
           break;
         case VIEW_STICKS:
-          molecule_.atomAt(i).drawSelection(Atom::AS_CONNECTOR, quality);
+          atomsList_[i].drawSelection(Render::Atom::DRAW_STYLE_CONNECTOR, quality);
           break;
         case VIEW_VDW:
-          molecule_.atomAt(i).drawSelection(Atom::AS_VDW, quality);
+          atomsList_[i].drawSelection(Render::Atom::DRAW_STYLE_VDW, quality);
           break;
         }
       }
@@ -405,17 +385,27 @@ GLuint Render::Viewer::makeSelections(Quality quality)
   return list;
 }
 
-void Render::Viewer::setView(Viewer::View view)
+void Render::Viewer::setView(Render::Viewer::View view)
 {
   view_ = view;
   updateGLList(GLLIST_SELECTIONS);
   updateGL();
 }
 
-void Render::Viewer::setMode(Mode mode)
+void Render::Viewer::setMode(Render::Viewer::Mode mode)
 {
   mode_ = mode;
-  updateGL();
+  switch (mode_)
+  {
+  case (MODE_VIEW):
+    setMouseBinding(Qt::LeftButton, CAMERA, ROTATE);
+//    setMouseBinding(Qt::CTRL + Qt::RightButton, FRAME, TRANSLATE);
+    break;
+  case (MODE_ADD):
+    setMouseBinding(Qt::LeftButton, FRAME, TRANSLATE);
+    break;
+  }
+//  updateGL();
 }
 
 void Render::Viewer::setAxes(bool visibility, GLfloat size)
@@ -432,10 +422,15 @@ void Render::Viewer::setDebugInfoVisibility(bool visibility)
   updateGL();
 }
 
-void Render::Viewer::setMolecule(const Render::Molecule& molecule)
+void Render::Viewer::setMolecule(const OpenBabel::OBMol& obmol)
 {
-  molecule_ = molecule;
+  obmol_ = obmol;
   updateMolecule();
+}
+
+bool Render::Viewer::isMoleculeEmpty() const
+{
+  return obmol_.NumAtoms() == 0;
 }
 
 void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
@@ -445,19 +440,64 @@ void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
 
 void Render::Viewer::updateMolecule()
 {
-  updateGLList(Viewer::GLLIST_BALLS);
-  updateGLList(Viewer::GLLIST_STICKS);
+  updateRenderAtoms();
+  updateGLList(Render::Viewer::GLLIST_ATOMS);
+  updateRenderBonds();
+  updateGLList(Render::Viewer::GLLIST_BONDS);
   updateGL();
+}
+
+void Render::Viewer::addAtom(const Atom& atom)
+{
+  atomsList_ << atom;
+}
+
+void Render::Viewer::addBond(const Bond& bond)
+{
+  bondsList_ << bond;
+}
+
+void Render::Viewer::build()
+{
+  OpenBabel::OBBuilder obbuilder;
+  obbuilder.Build(obmol_);
+  optimize(Render::Viewer::FF_UFF,
+           Render::Viewer::ALGORITHM_STEEPEST_DESCENT,
+           1.0e-7,
+           50,
+           0);
+  obmol_.Center();
+  updateMolecule();
+}
+
+void Render::Viewer::addHydrogensAndBuild()
+{
+  OpenBabel::OBBuilder obbuilder;
+  obbuilder.Build(obmol_);
+  obmol_.AddHydrogens();
+  obbuilder.Build(obmol_);
+  obmol_.Center();
+  updateMolecule();
+}
+
+void Render::Viewer::removeHydrogens()
+{
+  obmol_.DeleteHydrogens();
+  updateMolecule();
 }
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 {
+//  updateGL();
   switch (e->buttons())
   {
   case Qt::LeftButton:
-    switch (e->modifiers())
+    switch (mode_)
     {
-    case Qt::NoModifier:
+    case (MODE_VIEW):
+      QGLViewer::mouseMoveEvent(e);
+      break;
+    case (MODE_ADD):
       QGLViewer::mouseMoveEvent(e);
       break;
     default:
@@ -468,6 +508,9 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
     switch (e->modifiers())
     {
     case Qt::NoModifier:
+      QGLViewer::mouseMoveEvent(e);
+      break;
+    case Qt::MetaModifier:
       QGLViewer::mouseMoveEvent(e);
       break;
     default:
@@ -481,61 +524,52 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 
 void Render::Viewer::mousePressEvent(QMouseEvent* e)
 {
+  beginSelection(e->pos());
+  drawWithNames();
+  endSelection(e->pos());
+
+  // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
+  bool found;
+  selectedPoint = camera()->pointUnderPixel(e->pos(), found);
+
   switch (e->button())
   {
   case Qt::LeftButton:
-    beginSelection(e->pos());
-    drawWithNames();
-    endSelection(e->pos());
-    // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
-    bool found;
-    selectedPoint = camera()->pointUnderPixel(e->pos(), found);
     switch (mode_)
     {
     case MODE_VIEW:
       if (e->modifiers() == Qt::NoModifier)
       {
         if (found)
-          camera()->setRevolveAroundPoint(qglviewer::Vec(molecule_.atomAt(selectedName()).centre().x(),
-                                                         molecule_.atomAt(selectedName()).centre().y(),
-                                                         molecule_.atomAt(selectedName()).centre().z()));
+          camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
+                                                         atomsList_[selectedName()].centre().y(),
+                                                         atomsList_[selectedName()].centre().z()));
         else
           camera()->setRevolveAroundPoint(qglviewer::Vec());
-      }
-      else if (e->modifiers() == Qt::ControlModifier)
-      {
-        for (int i = 0; i < molecule_.atomsCount(); ++i)
-        {
-          molecule_.atom(i).setMovable(false);
-        }
-        if (found)
-        {
-          movableIndex = selectedName();
-          molecule_.atom(selectedName()).setMovable(true);
-          updateGLList(Viewer::GLLIST_BALLS);
-        }
       }
       QGLViewer::mousePressEvent(e);
       break;
     case MODE_ADD:
       if (found)
       {
-//        obatom = obmol_.GetAtom(selectedName()+1);
-//        obatom->SetAtomicNum(atomicNumber_);
+        currentOBAtom_ = obmol_.GetAtom(selectedName()+1);
+//        currentOBAtom_->SetAtomicNum(atomicNumber_);
+        newOBAtom_ = new OpenBabel::OBAtom();
+        newOBAtom_->SetAtomicNum(atomicNumber_);
+        newOBAtom_->SetVector(currentOBAtom_->GetVector());
       }
       else
       {
-        Render::Atom chemistryAtom(atomicNumber_);
-        molecule_.addAtom(chemistryAtom);
+        if (obmol_.NumAtoms() == 0)
+        {
+          obmol_.BeginModify();
+          newOBAtom_ = obmol_.NewAtom();
+          newOBAtom_->SetAtomicNum(atomicNumber_);
+          obmol_.EndModify();
+          updateMolecule();
+        }
       }
-      updateMolecule();
-      if (!found)
-      {
-        qglviewer::Vec v = camera()->projectedCoordinatesOf(qglviewer::Vec());
-        QPoint p((int) v.x, (int) v.y);
-        p = mapToGlobal(p);
-        cursor().setPos(p);
-      }
+      QGLViewer::mousePressEvent(e);
       break;
     }
     break;
@@ -546,6 +580,17 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       QGLViewer::mousePressEvent(e);
       break;
     case MODE_ADD:
+      switch (e->modifiers())
+      {
+      case (Qt::NoModifier):
+        obmol_.BeginModify();
+        obmol_.DeleteAtom(atomsList_[selectedName()].obatom());
+        obmol_.EndModify();
+        updateMolecule();
+        break;
+      case (Qt::MetaModifier):
+        QGLViewer::mousePressEvent(e);
+      }
       break;
     }
     break;
@@ -556,22 +601,75 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
 
 void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
 {
-  if (movableIndex != -1)
+  switch (e->button())
   {
-    Eigen::Vector3f p(manipulatedFrame()->position().x +
-                      molecule_.atomAt(movableIndex).centre().x(),
-                      manipulatedFrame()->position().y +
-                      molecule_.atomAt(movableIndex).centre().y(),
-                      manipulatedFrame()->position().z +
-                      molecule_.atomAt(movableIndex).centre().z());
-    //      atomsQList_[movableIndex].setCentre(p);
-    //      atomsQList_[movableIndex].setMovable(false);
-//    obmol_.GetAtom(movableIndex + 1)->SetVector(p.x(), p.y(), p.z());
-    movableIndex = -1;
-    updateGLList(GLLIST_BALLS);
-    updateGLList(GLLIST_STICKS);
+  case (Qt::LeftButton):
+    switch (mode_)
+    {
+    case (MODE_VIEW):
+      break;
+    case (MODE_ADD):
+      OpenBabel::OBBond* obbond;
+
+      beginSelection(e->pos());
+      drawWithNames();
+      endSelection(e->pos());
+
+      // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
+      bool found;
+      selectedPoint = camera()->pointUnderPixel(e->pos(), found);
+
+      obmol_.BeginModify();
+
+      if (currentOBAtom_ != 0)
+      {
+        qglviewer::Vec v(newOBAtom_->x(),
+                         newOBAtom_->y(),
+                         newOBAtom_->z());
+        if (manipulatedFrame()->position() == qglviewer::Vec())
+        {
+          currentOBAtom_->SetAtomicNum(newOBAtom_->GetAtomicNum());
+        }
+        else
+        {
+          if (!found)
+          {
+            OpenBabel::vector3 p(newOBAtom_->x() + manipulatedFrame()->position().x,
+                                 newOBAtom_->y() + manipulatedFrame()->position().y,
+                                 newOBAtom_->z() + manipulatedFrame()->position().z);
+            newOBAtom_->SetVector(p);
+#ifdef Q_CC_MSVC
+#undef AddAtom
+#endif
+            obmol_.AddAtom(*newOBAtom_);
+            obbond = obmol_.NewBond();
+            obbond->SetBegin(currentOBAtom_);
+            obbond->SetEnd(obmol_.GetAtom(obmol_.NumAtoms()));
+            obbond->SetBondOrder(1);
+            currentOBAtom_->AddBond(obbond);
+            obmol_.GetAtom(obmol_.NumAtoms())->AddBond(obbond);
+          }
+          else
+          {
+            obbond = obmol_.NewBond();
+            obbond->SetBegin(currentOBAtom_);
+            obbond->SetEnd(atomsList_[selectedName()].obatom());
+            obbond->SetBondOrder(1);
+            currentOBAtom_->AddBond(obbond);
+            atomsList_[selectedName()].obatom()->AddBond(obbond);
+          }
+        }
+        delete newOBAtom_;
+        currentOBAtom_ = 0;
+      }
+
+      obmol_.EndModify();
+      updateMolecule();
+      manipulatedFrame()->setPosition(0.0f, 0.0f, 0.0f);
+        break;
+    }
+    break;
   }
-  manipulatedFrame()->setPosition(0.0f, 0.0f, 0.0f);
   QGLViewer::mouseReleaseEvent(e);
 }
 
@@ -579,37 +677,138 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
 {
   switch (gllist)
   {
-  case Viewer::GLLIST_AXES:
+  case Render::Viewer::GLLIST_AXES:
     glDeleteLists(axesLow_, 1);
     glDeleteLists(axesHigh_, 1);
-    axesLow_ = makeAxes(axesSize_, QUALITY_LOW);
-    axesHigh_ = makeAxes(axesSize_, QUALITY_HIGH);
+    axesLow_ = makeAxes(axesSize_, Render::QUALITY_LOW);
+    axesHigh_ = makeAxes(axesSize_, Render::QUALITY_HIGH);
     break;
-  case Viewer::GLLIST_BALLS:
+  case Render::Viewer::GLLIST_ATOMS:
     glDeleteLists(smallBallsLow_, 1);
     glDeleteLists(smallBallsHigh_, 1);
-    smallBallsLow_ = makeSmallBalls(QUALITY_LOW);
-    smallBallsHigh_ = makeSmallBalls(QUALITY_HIGH);
+    smallBallsLow_ = makeSmallBalls(Render::QUALITY_LOW);
+    smallBallsHigh_ = makeSmallBalls(Render::QUALITY_HIGH);
     glDeleteLists(mediumBallsLow_, 1);
     glDeleteLists(mediumBallsHigh_, 1);
-    mediumBallsLow_ = makeMediumBalls(QUALITY_LOW);
-    mediumBallsHigh_ = makeMediumBalls(QUALITY_HIGH);
+    mediumBallsLow_ = makeMediumBalls(Render::QUALITY_LOW);
+    mediumBallsHigh_ = makeMediumBalls(Render::QUALITY_HIGH);
     glDeleteLists(bigBallsLow_, 1);
     glDeleteLists(bigBallsHigh_, 1);
-    bigBallsLow_ = makeBigBalls(QUALITY_LOW);
-    bigBallsHigh_ = makeBigBalls(QUALITY_HIGH);
+    bigBallsLow_ = makeBigBalls(Render::QUALITY_LOW);
+    bigBallsHigh_ = makeBigBalls(Render::QUALITY_HIGH);
     break;
-  case Viewer::GLLIST_STICKS:
+  case Render::Viewer::GLLIST_BONDS:
+    glDeleteLists(bondsLow_, 1);
+    glDeleteLists(bondsHigh_, 1);
+    bondsLow_ = makeBonds(Render::QUALITY_LOW);
+    bondsHigh_ = makeBonds(Render::QUALITY_HIGH);
     glDeleteLists(sticksLow_, 1);
     glDeleteLists(sticksHigh_, 1);
-    sticksLow_ = makeSticks(QUALITY_LOW);
-    sticksHigh_ = makeSticks(QUALITY_HIGH);
+    sticksLow_ = makeSticks(Render::QUALITY_LOW);
+    sticksHigh_ = makeSticks(Render::QUALITY_HIGH);
     break;
-  case Viewer::GLLIST_SELECTIONS:
+  case Render::Viewer::GLLIST_SELECTIONS:
     glDeleteLists(selectionsLow_, 1);
     glDeleteLists(selectionsHigh_, 1);
-    selectionsLow_ = makeSelections(QUALITY_LOW);
-    selectionsHigh_ = makeSelections(QUALITY_HIGH);
+    selectionsLow_ = makeSelections(Render::QUALITY_LOW);
+    selectionsHigh_ = makeSelections(Render::QUALITY_HIGH);
     break;
   }
+}
+
+void Render::Viewer::updateRenderAtoms()
+{
+  atomsList_.clear();
+  for(OpenBabel::OBMolAtomIter obatom(obmol_); obatom; ++obatom)
+  {
+    Atom atom(&*obatom);
+    addAtom(atom);
+  }
+}
+
+void Render::Viewer::updateRenderBonds()
+{
+  bondsList_.clear();
+  for(OpenBabel::OBMolBondIter obbond(obmol_); obbond; ++obbond)
+  {
+    Bond bond(&*obbond);
+    addBond(bond);
+  }
+}
+
+void Render::Viewer::optimize(ForceField forceField,
+                              Algorithm algorithm,
+                              double convergenceCriteria,
+                              quint16 maxSteps,
+                              quint8 stepsPerUpdate)
+{
+  OpenBabel::OBForceField* ff;
+
+  switch (forceField)
+  {
+  case (Render::Viewer::FF_GHEMICAL):
+    ff = OpenBabel::OBForceField::FindForceField("Ghemical");
+    break;
+  case (Render::Viewer::FF_MMFF94):
+    ff = OpenBabel::OBForceField::FindForceField("MMFF94");
+    break;
+  case (Render::Viewer::FF_MMFF94s):
+    ff = OpenBabel::OBForceField::FindForceField("MMFF94s");
+    break;
+  case (Render::Viewer::FF_UFF):
+    ff = OpenBabel::OBForceField::FindForceField("UFF");
+    break;
+  default:
+    break;
+  }
+
+  if (!ff)
+  {
+    std::cout << "No FF!";
+  }
+
+  if (!ff->Setup(obmol_))
+  {
+    std::cout << "Setup error!";
+  }
+
+  ff->SetLogFile(&std::cout);
+  ff->SetLogLevel(OBFF_LOGLVL_LOW);
+
+  switch (algorithm)
+  {
+  case (ALGORITHM_STEEPEST_DESCENT):
+    if (stepsPerUpdate != 0)
+    {
+      ff->SteepestDescentInitialize(maxSteps, convergenceCriteria);
+      while (ff->SteepestDescentTakeNSteps(stepsPerUpdate))
+      {
+        ff->GetCoordinates(obmol_);
+        updateMolecule();
+      }
+    }
+    else
+    {
+      ff->SteepestDescent(maxSteps, convergenceCriteria);
+      ff->GetCoordinates(obmol_);
+    }
+    break;
+  case (ALGORITHM_CONJUGATE_GRADIENTS):
+    if (stepsPerUpdate != 0)
+    {
+      ff->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
+      while (ff->ConjugateGradientsTakeNSteps(stepsPerUpdate))
+      {
+        ff->GetCoordinates(obmol_);
+        updateMolecule();
+      }
+    }
+    else
+    {
+      ff->ConjugateGradients(maxSteps, convergenceCriteria);
+      ff->GetCoordinates(obmol_);
+    }
+    break;
+  }
+  updateMolecule();
 }

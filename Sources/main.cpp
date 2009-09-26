@@ -18,6 +18,7 @@
   along with QDalton. If not, see <http://www.gnu.org/licenses/>.
 
  **********************************************************************/
+
 #include <QtGlobal>
 
 #ifdef Q_CC_MSVC
@@ -36,12 +37,13 @@ int main(int argc, char* argv[])
 #endif
 
   QCoreApplication::setApplicationName("QDalton");
-  QCoreApplication::setApplicationVersion("0.0.5.1");
+  QCoreApplication::setApplicationVersion("0.0.5.4");
   QCoreApplication::setOrganizationDomain("ctcc.no");
   QCoreApplication::setOrganizationName("CTCC");
 
   MainWindow w;
-  w.setWindowTitle(QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion());
+  w.setWindowTitle(QCoreApplication::applicationName() + " " +
+                   QCoreApplication::applicationVersion());
   w.show();
   return a.exec();
 }

@@ -24,17 +24,16 @@
 
 #include <QString>
 #include <Eigen/Array>
+#include <openbabel/atom.h>
 
-#include "Render/RenderAtom.h"
 #include "Render/RenderQuality.h"
 #include "Render/RenderGL.h"
 
 namespace Render
 {
   class Color;
-  class Molecule;
   /**
-   * @class Render::Atom RenderAtom.h "Render/RenderAtom.h"
+   * @class Atom Atom.h "Render/Atom.h"
    * @brief Represents and draw atom.
    * @author Anton Simakov
    * @version 0.1
@@ -44,68 +43,35 @@ namespace Render
   public:
     enum DrawStyle
     {
-      AS_ATOM,
-      AS_CONNECTOR,
-      AS_VDW
+      DRAW_STYLE_ATOM,
+      DRAW_STYLE_CONNECTOR,
+      DRAW_STYLE_VDW
     };
-
-    /** Constructor.
-     * @param chemistryAtom is a reference to Chemistry::Atom class instance.
-     * This is one and only one way to create Render::Atom object - from Chemistry::Atom instance that already exists.
-     */
-    Atom(quint8 protons,
-         quint8 neutrons = 0);
-
-    /** Copy constructor.
-     * @param renderAtom is a reference to Render::Atom class instance to copy from.
-     */
-    Atom(const Render::Atom& atom);
-
-    /**
-     * @return Draw radius for AS_ATOM DrawStyle.
-     */
+    Atom(const Atom& atom);
+    Atom(OpenBabel::OBAtom* obatom);
+    // Returns
     GLfloat drawRadius() const;
-
     GLfloat vanderwaalsRadius() const;
     Render::Color color() const;
-    const Eigen::Vector3f& centre() const;
+    Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
-    const QString& label() const;
-    void draw(DrawStyle style, Render::Quality quality) const;
-    void drawSelection(DrawStyle style, Render::Quality quality) const;
 
-    void setParentMolecule(Render::Molecule* molecule);
+    void draw(Render::Atom::DrawStyle style,
+              Render::Quality quality) const;
 
-    quint8 protons() const;
-    quint8 neutrons() const;
+    void drawSelection(Render::Atom::DrawStyle style,
+                       Render::Quality quality) const;
 
-    quint16 relativeAtomicMass() const;
+    OpenBabel::OBAtom* obatom() const;
 
     bool isSelected() const;
     void setSelected(bool selected);
+    void toggleSelected();
 
-    float covalentRadius() const;
-
-    bool isMovable() const;
-    void setMovable(bool movable);
     static const GLfloat SELECTON_RADIUS;
-    static quint8 atomicNumberFromSymbol(const QString& symbol);
   private:
-    Render::Molecule* molecule_;
-    quint8 protons_;
-    quint8 neutrons_;
-    Eigen::Vector3f centre_;
+    OpenBabel::OBAtom* obatom_;
     bool isSelected_;
-    bool isMovable_;
-    QString label_;
-
-    /** Default table of covalent Radii.
-     * Values (milliangstrom)  taken from <a href="http://openbabel.org/">OpenBabel</a>.
-     */
-    static const quint16 covalentRadii_[];
-    static const quint16 vanderwaalsRadii_[];
-    static const quint32 colors[];
-    static const QString symbols[];
   };
 }
 

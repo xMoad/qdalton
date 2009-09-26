@@ -42,7 +42,6 @@ namespace Render
       EMISSION,
       SPECULAR
     };
-    Material(const Material& material);
     Material();
     Material(const Color& ambient,
              const Color& diffuse,
@@ -50,6 +49,7 @@ namespace Render
              const Color& specular,
              GLfloat shininess);
     Material(const Color& ambient, bool optimal);
+    Material(const Material& material);
 
     Render::Color& ambient();
     Render::Color& diffuse();

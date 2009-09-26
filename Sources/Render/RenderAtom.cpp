@@ -19,8 +19,10 @@
 
  **********************************************************************/
 
+#include <QDebug>
 #include <cmath>
-#include <QColor>
+
+#include <openbabel/mol.h>
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderArrow.h"
@@ -29,104 +31,69 @@
 
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
-Render::Atom::Atom(quint8 protons, quint8 neutrons) :
-    molecule_(0),
-    protons_(protons),
-    centre_(),
-    isSelected_(false),
-    isMovable_(false),
-    label_()
+Render::Atom::Atom(const Render::Atom& atom) :
+    obatom_(atom.obatom_),
+    isSelected_(atom.isSelected_)
 {
-  // TODO If neutrons == 0 then take value from default isotope table! Not 1!
-  neutrons_ = (neutrons == 0) ? 1 : neutrons;
-  isSelected_ = false;
 }
 
-Render::Atom::Atom(const Render::Atom& atom) :
-    molecule_(atom.molecule_),
-    protons_(atom.protons_),
-    neutrons_(atom.neutrons_),
-    centre_(atom.centre_),
-    isSelected_(atom.isSelected_),
-    isMovable_ (atom.isMovable_),
-    label_(atom.label_)
+Render::Atom::Atom(OpenBabel::OBAtom* obatom) :
+    obatom_(obatom),
+    isSelected_(false)
 {
 }
 
 GLfloat Render::Atom::drawRadius() const
 {
 #ifdef Q_CC_MSVC
-  return pow(relativeAtomicMass(), 1.0/3.0) / 10.0f + 0.2f;
+  return pow(obatom_->GetExactMass(), 1.0/3.0) / 10.0f + 0.2f;
 #else
-  return cbrt(relativeAtomicMass()) / 10.0f + 0.2f;
+  return cbrt(obatom_->GetExactMass()) / 10.0f + 0.2f;
 #endif
 }
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) vanderwaalsRadii_[4 *(protons())] / 1000.0f;
+  return (GLfloat) OpenBabel::etab.GetVdwRad(obatom_->GetAtomicNum());
 }
 
 Render::Color Render::Atom::color() const
 {
-  QColor color(colors[protons()]);
-  return Render::Color(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+  std::vector<double> rgb = OpenBabel::etab.GetRGB(obatom_->GetAtomicNum());
+  return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
 void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) const
 {
   Material material(color(), true);
-  Sphere sphere(centre(), drawRadius(), material);
+  Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
+  Sphere sphere(centre, drawRadius(), material);
 
   switch (style)
   {
-  case AS_ATOM:
+  case Render::Atom::DRAW_STYLE_ATOM:
     break;
-  case AS_CONNECTOR:
-    sphere.setRadius(Bond::DEFAULT_THIKNESS);
+  case Render::Atom::DRAW_STYLE_CONNECTOR:
+    sphere.setRadius(Render::Bond::STICK_THIKNESS);
     break;
-  case AS_VDW:
+  case Render::Atom::DRAW_STYLE_VDW:
     sphere.setRadius(vanderwaalsRadius());
     break;
   }
 
   sphere.draw(STYLE_FILL, quality);
-
-  if (isMovable_)
-  {
-    GLfloat size = 1.0f;
-    glTranslatef(centre().x(),
-                 centre().y(),
-                 centre().z());
-    Arrow x(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(size, 0.0f, 0.0f),
-            0.04f,
-            Material::red());
-    x.draw(STYLE_FILL, QUALITY_LOW);
-
-    Arrow y(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(0.0f, size, 0.0f),
-            0.05f,
-            Material::green());
-    y.draw(Render::STYLE_FILL, QUALITY_LOW);
-
-    Arrow z(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(0.0f, 0.0f, size),
-            0.05f,
-            Material::blue());
-    z.draw(STYLE_FILL, QUALITY_LOW);
-  }
 }
 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
   Material material(Color::selection(), true);
-  Sphere sphere(centre(),
+  Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
+  Sphere sphere(centre,
                 drawRadius() + SELECTON_RADIUS,
                 material);
-  if (style == AS_CONNECTOR)
-    sphere.setRadius(Bond::DEFAULT_THIKNESS + SELECTON_RADIUS);
-  if (style == AS_VDW)
+  if (style == Render::Atom::DRAW_STYLE_CONNECTOR)
+    sphere.setRadius(Render::Bond::STICK_THIKNESS + SELECTON_RADIUS);
+  if (style == Render::Atom::DRAW_STYLE_VDW)
     sphere.setRadius(vanderwaalsRadius() + SELECTON_RADIUS * 2);
   // Enable blending
   glEnable(GL_BLEND);
@@ -136,57 +103,14 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
   //  glEnable(GL_DEPTH_TEST);
 }
 
-bool Render::Atom::isMovable() const
+Eigen::Vector3f Render::Atom::centre() const
 {
-  return isMovable_;
-}
-
-void Render::Atom::setMovable(bool movable)
-{
-  if (movable == true)
-    isMovable_ = true;
-  else
-    isMovable_ = false;
-}
-
-const QString& Render::Atom::label() const
-{
-  return label_;
-}
-
-void Render::Atom::setParentMolecule(Render::Molecule* molecule)
-{
-  molecule_ = molecule;
-}
-
-quint8 Render::Atom::protons() const
-{
-  return protons_;
-}
-
-quint8 Render::Atom::neutrons() const
-{
-  return neutrons_;
-}
-
-quint16 Render::Atom::relativeAtomicMass() const
-{
-  return protons_ + neutrons_;
-}
-
-const Eigen::Vector3f& Render::Atom::centre() const
-{
-  return centre_;
+  return Eigen::Vector3f(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());;
 }
 
 void Render::Atom::setCentre(const Eigen::Vector3f& point)
 {
-  centre_ = point;
-}
-
-float Render::Atom::covalentRadius() const
-{
-  return (float) covalentRadii_[protons_] / 1000.0f;
+  obatom_->SetVector(OpenBabel::vector3(point.x(), point.y(), point.z()));
 }
 
 bool Render::Atom::isSelected() const
@@ -196,488 +120,22 @@ bool Render::Atom::isSelected() const
 
 void Render::Atom::setSelected(bool selected)
 {
-  if (selected == true)
-    isSelected_ = true;
-  else
-    isSelected_ = false;
+  isSelected_ = selected;
 }
 
-quint8 Render::Atom::atomicNumberFromSymbol(const QString& symbol)
+void Render::Atom::toggleSelected()
 {
-  for (quint8 i = 0; i <= 110; ++i)
+  if (isSelected())
   {
-    if (symbols[i] == symbol)
-    {
-      return i;
-    }
+    setSelected(false);
   }
-  return 0;
+  else
+  {
+    setSelected(true);
+  }
 }
 
-const quint16 Render::Atom::covalentRadii_[] =
+OpenBabel::OBAtom* Render::Atom::obatom() const
 {
-    0,    //   0  Xx does not bond
-    310, //   1  H
-    280, //   2  He
-    1280, //   3  Li
-    960, //   4  Be
-    840, //   5  B
-    730, //   6  C
-    710, //   7  N
-    660, //   8  O
-    570, //   9  F
-    580, //  10  Ne
-    1660, //  11  Na
-    1410, //  12  Mg
-    1210, //  13  Al
-    1110, //  14  Si
-    1070, //  15  P
-    1050, //  16  S
-    1020, //  17  Cl
-    1060, //  18  Ar
-    2029, //  19  K
-    1760, //  20  Ca
-    1700, //  21  Sc
-    1600, //  22  Ti
-    1530, //  23  V
-    1390, //  24  Cr
-    1500, //  25  Mn
-    1400, //  26  Fe
-    1380, //  27  Co
-    1240, //  28  Ni
-    1320, //  29  Cu
-    1220, //  30  Zn
-    1220, //  31  Ga
-    1200, //  32  Ge
-    1190, //  33  As
-    1200, //  34  Se
-    1200, //  35  Br
-    1160, //  36  Kr
-    2200, //  37  Rb
-    1950, //  38  Sr
-    1900, //  39  Y
-    1750, //  40  Zr
-    1640, //  41  Nb
-    1540, //  42  Mo
-    1470, //  43  Tc
-    1460, //  44  Ru
-    1420, //  45  Rh
-    1390, //  46  Pd
-    1450, //  47  Ag
-    1440, //  48  Cd
-    1420, //  49  In
-    1390, //  50  Sn
-    1390, //  51  Sb
-    1380, //  52  Te
-    1390, //  53  I
-    1400, //  54  Xe
-    2440, //  55  Cs
-    2150, //  56  Ba
-    2070, //  57  La
-    2040, //  58  Ce
-    2029, //  59  Pr
-    2009, //  60  Nd
-    1990, //  61  Pm
-    1980, //  62  Sm
-    1980, //  63  Eu
-    1960, //  64  Gd
-    1940, //  65  Tb
-    1920, //  66  Dy
-    1920, //  67  Ho
-    1890, //  68  Er
-    1900, //  69  Tm
-    1870, //  70  Yb
-    1870, //  71  Lu
-    1750, //  72  Hf
-    1700, //  73  Ta
-    1620, //  74  W
-    1510, //  75  Re
-    1440, //  76  Os
-    1410, //  77  Ir
-    1360, //  78  Pt
-    1360, //  79  Au
-    1320, //  80  Hg
-    1450, //  81  Tl
-    1460, //  82  Pb
-    1480, //  83  Bi
-    1400, //  84  Po
-    1500, //  85  At
-    1500, //  86  Rn
-    2600, //  87  Fr
-    2210, //  88  Ra
-    2150, //  89  Ac
-    2060, //  90  Th
-    2000, //  91  Pa
-    1960, //  92  U
-    1900, //  93  Np
-    1870, //  94  Pu
-    1800, //  95  Am
-    1690, //  96  Cm last data from article!
-    1500, //  97  Bk
-    1500, //  98  Cf
-    1500, //  99  Es
-    1500, // 100  Fm
-    1500, // 101  Md
-    1500, // 102  No
-    1500, // 103  Lr
-    1600, // 104  Rf
-    1600, // 105  Db
-    1600, // 106  Sg
-    1600, // 107  Bh
-    1600, // 108  Hs
-    1600, // 109  Mt
-  };
-
-const quint16 Render::Atom::vanderwaalsRadii_[] =
-{
-  //Jmol,openBabel,openRasmol,reserved
-    1000,1000,1000,0, // XX 0
-    1200,1200,1100,0, // H 1
-    1400,1400,2200,0, // He 2
-    1820,2200,1220,0, // Li 3
-    1700,1900, 628,0, // Be 4
-    2080,1800,1548,0, // B 5
-    1950,1700,1548,0, // C 6
-    1850,1600,1400,0, // N 7
-    1700,1550,1348,0, // O 8
-    1730,1500,1300,0, // F 9
-    1540,1540,2020,0, // Ne 10
-    2270,2400,2200,0, // Na 11
-    1730,2200,1500,0, // Mg 12
-    2050,2100,1500,0, // Al 13
-    2100,2100,2200,0, // Si 14
-    2080,1950,1880,0, // P 15
-    2000,1800,1808,0, // S 16
-    1970,1800,1748,0, // Cl 17
-    1880,1880,2768,0, // Ar 18
-    2750,2800,2388,0, // K 19
-    1973,2400,1948,0, // Ca 20
-    1700,2300,1320,0, // Sc 21
-    1700,2150,1948,0, // Ti 22
-    1700,2050,1060,0, // V 23
-    1700,2050,1128,0, // Cr 24
-    1700,2050,1188,0, // Mn 25
-    1700,2050,1948,0, // Fe 26
-    1700,2000,1128,0, // Co 27
-    1630,2000,1240,0, // Ni 28
-    1400,2000,1148,0, // Cu 29
-    1390,2100,1148,0, // Zn 30
-    1870,2100,1548,0, // Ga 31
-    1700,2100,3996,0, // Ge 32
-    1850,2050, 828,0, // As 33
-    1900,1900, 900,0, // Se 34
-    2100,1900,1748,0, // Br 35
-    2020,2020,1900,0, // Kr 36
-    1700,2900,2648,0, // Rb 37
-    1700,2550,2020,0, // Sr 38
-    1700,2400,1608,0, // Y 39
-    1700,2300,1420,0, // Zr 40
-    1700,2150,1328,0, // Nb 41
-    1700,2100,1748,0, // Mo 42
-    1700,2050,1800,0, // Tc 43
-    1700,2050,1200,0, // Ru 44
-    1700,2000,1220,0, // Rh 45
-    1630,2050,1440,0, // Pd 46
-    1720,2100,1548,0, // Ag 47
-    1580,2200,1748,0, // Cd 48
-    1930,2200,1448,0, // In 49
-    2170,2250,1668,0, // Sn 50
-    2200,2200,1120,0, // Sb 51
-    2060,2100,1260,0, // Te 52
-    2150,2100,1748,0, // I 53
-    2160,2160,2100,0, // Xe 54
-    1700,3000,3008,0, // Cs 55
-    1700,2700,2408,0, // Ba 56
-    1700,2500,1828,0, // La 57
-    1700,2480,1860,0, // Ce 58
-    1700,2470,1620,0, // Pr 59
-    1700,2450,1788,0, // Nd 60
-    1700,2430,1760,0, // Pm 61
-    1700,2420,1740,0, // Sm 62
-    1700,2400,1960,0, // Eu 63
-    1700,2380,1688,0, // Gd 64
-    1700,2370,1660,0, // Tb 65
-    1700,2350,1628,0, // Dy 66
-    1700,2330,1608,0, // Ho 67
-    1700,2320,1588,0, // Er 68
-    1700,2300,1568,0, // Tm 69
-    1700,2280,1540,0, // Yb 70
-    1700,2270,1528,0, // Lu 71
-    1700,2250,1400,0, // Hf 72
-    1700,2200,1220,0, // Ta 73
-    1700,2100,1260,0, // W 74
-    1700,2050,1300,0, // Re 75
-    1700,2000,1580,0, // Os 76
-    1700,2000,1220,0, // Ir 77
-    1720,2050,1548,0, // Pt 78
-    1660,2100,1448,0, // Au 79
-    1550,2050,1980,0, // Hg 80
-    1960,2200,1708,0, // Tl 81
-    2020,2300,2160,0, // Pb 82
-    1700,2300,1728,0, // Bi 83
-    1700,2000,1208,0, // Po 84
-    1700,2000,1120,0, // At 85
-    1700,2000,2300,0, // Rn 86
-    1700,2000,3240,0, // Fr 87
-    1700,2000,2568,0, // Ra 88
-    1700,2000,2120,0, // Ac 89
-    1700,2400,1840,0, // Th 90
-    1700,2000,1600,0, // Pa 91
-    1860,2300,1748,0, // U 92
-    1700,2000,1708,0, // Np 93
-    1700,2000,1668,0, // Pu 94
-    1700,2000,1660,0, // Am 95
-    1700,2000,1648,0, // Cm 96
-    1700,2000,1640,0, // Bk 97
-    1700,2000,1628,0, // Cf 98
-    1700,2000,1620,0, // Es 99
-    1700,2000,1608,0, // Fm 100
-    1700,2000,1600,0, // Md 101
-    1700,2000,1588,0, // No 102
-    1700,2000,1580,0, // Lr 103
-    1700,2000,1600,0, // Rf 104
-    1700,2000,1600,0, // Db 105
-    1700,2000,1600,0, // Sg 106
-    1700,2000,1600,0, // Bh 107
-    1700,2000,1600,0, // Hs 108
-    1700,2000,1600,0, // Mt 109
-  };
-
-const quint32 Render::Atom::colors[] =
-{
-  0xFFFF1493, // Xx 0
-  0xFFFFFFFF, // H  1
-  0xFFD9FFFF, // He 2
-  0xFFCC80FF, // Li 3
-  0xFFC2FF00, // Be 4
-  0xFFFFB5B5, // B  5
-  0xFF909090, // C  6 - changed from ghemical
-  0xFF3050F8, // N  7 - changed from ghemical
-  0xFFFF0D0D, // O  8
-  0xFF90E050, // F  9 - changed from ghemical
-  0xFFB3E3F5, // Ne 10
-  0xFFAB5CF2, // Na 11
-  0xFF8AFF00, // Mg 12
-  0xFFBFA6A6, // Al 13
-  0xFFF0C8A0, // Si 14 - changed from ghemical
-  0xFFFF8000, // P  15
-  0xFFFFFF30, // S  16
-  0xFF1FF01F, // Cl 17
-  0xFF80D1E3, // Ar 18
-  0xFF8F40D4, // K  19
-  0xFF3DFF00, // Ca 20
-  0xFFE6E6E6, // Sc 21
-  0xFFBFC2C7, // Ti 22
-  0xFFA6A6AB, // V  23
-  0xFF8A99C7, // Cr 24
-  0xFF9C7AC7, // Mn 25
-  0xFFE06633, // Fe 26 - changed from ghemical
-  0xFFF090A0, // Co 27 - changed from ghemical
-  0xFF50D050, // Ni 28 - changed from ghemical
-  0xFFC88033, // Cu 29 - changed from ghemical
-  0xFF7D80B0, // Zn 30
-  0xFFC28F8F, // Ga 31
-  0xFF668F8F, // Ge 32
-  0xFFBD80E3, // As 33
-  0xFFFFA100, // Se 34
-  0xFFA62929, // Br 35
-  0xFF5CB8D1, // Kr 36
-  0xFF702EB0, // Rb 37
-  0xFF00FF00, // Sr 38
-  0xFF94FFFF, // Y  39
-  0xFF94E0E0, // Zr 40
-  0xFF73C2C9, // Nb 41
-  0xFF54B5B5, // Mo 42
-  0xFF3B9E9E, // Tc 43
-  0xFF248F8F, // Ru 44
-  0xFF0A7D8C, // Rh 45
-  0xFF006985, // Pd 46
-  0xFFC0C0C0, // Ag 47 - changed from ghemical
-  0xFFFFD98F, // Cd 48
-  0xFFA67573, // In 49
-  0xFF668080, // Sn 50
-  0xFF9E63B5, // Sb 51
-  0xFFD47A00, // Te 52
-  0xFF940094, // I  53
-  0xFF429EB0, // Xe 54
-  0xFF57178F, // Cs 55
-  0xFF00C900, // Ba 56
-  0xFF70D4FF, // La 57
-  0xFFFFFFC7, // Ce 58
-  0xFFD9FFC7, // Pr 59
-  0xFFC7FFC7, // Nd 60
-  0xFFA3FFC7, // Pm 61
-  0xFF8FFFC7, // Sm 62
-  0xFF61FFC7, // Eu 63
-  0xFF45FFC7, // Gd 64
-  0xFF30FFC7, // Tb 65
-  0xFF1FFFC7, // Dy 66
-  0xFF00FF9C, // Ho 67
-  0xFF00E675, // Er 68
-  0xFF00D452, // Tm 69
-  0xFF00BF38, // Yb 70
-  0xFF00AB24, // Lu 71
-  0xFF4DC2FF, // Hf 72
-  0xFF4DA6FF, // Ta 73
-  0xFF2194D6, // W  74
-  0xFF267DAB, // Re 75
-  0xFF266696, // Os 76
-  0xFF175487, // Ir 77
-  0xFFD0D0E0, // Pt 78 - changed from ghemical
-  0xFFFFD123, // Au 79 - changed from ghemical
-  0xFFB8B8D0, // Hg 80 - changed from ghemical
-  0xFFA6544D, // Tl 81
-  0xFF575961, // Pb 82
-  0xFF9E4FB5, // Bi 83
-  0xFFAB5C00, // Po 84
-  0xFF754F45, // At 85
-  0xFF428296, // Rn 86
-  0xFF420066, // Fr 87
-  0xFF007D00, // Ra 88
-  0xFF70ABFA, // Ac 89
-  0xFF00BAFF, // Th 90
-  0xFF00A1FF, // Pa 91
-  0xFF008FFF, // U  92
-  0xFF0080FF, // Np 93
-  0xFF006BFF, // Pu 94
-  0xFF545CF2, // Am 95
-  0xFF785CE3, // Cm 96
-  0xFF8A4FE3, // Bk 97
-  0xFFA136D4, // Cf 98
-  0xFFB31FD4, // Es 99
-  0xFFB31FBA, // Fm 100
-  0xFFB30DA6, // Md 101
-  0xFFBD0D87, // No 102
-  0xFFC70066, // Lr 103
-  0xFFCC0059, // Rf 104
-  0xFFD1004F, // Db 105
-  0xFFD90045, // Sg 106
-  0xFFE00038, // Bh 107
-  0xFFE6002E, // Hs 108
-  0xFFEB0026, // Mt 109
-};
-
-const QString Render::Atom::symbols[] =
-{
-  "Xx", // 0
-  "H",  // 1
-  "He", // 2
-  "Li", // 3
-  "Be", // 4
-  "B",  // 5
-  "C",  // 6
-  "N",  // 7
-  "O",  // 8
-  "F",  // 9
-  "Ne", // 10
-  "Na", // 11
-  "Mg", // 12
-  "Al", // 13
-  "Si", // 14
-  "P",  // 15
-  "S",  // 16
-  "Cl", // 17
-  "Ar", // 18
-  "K",  // 19
-  "Ca", // 20
-  "Sc", // 21
-  "Ti", // 22
-  "V",  // 23
-  "Cr", // 24
-  "Mn", // 25
-  "Fe", // 26
-  "Co", // 27
-  "Ni", // 28
-  "Cu", // 29
-  "Zn", // 30
-  "Ga", // 31
-  "Ge", // 32
-  "As", // 33
-  "Se", // 34
-  "Br", // 35
-  "Kr", // 36
-  "Rb", // 37
-  "Sr", // 38
-  "Y",  // 39
-  "Zr", // 40
-  "Nb", // 41
-  "Mo", // 42
-  "Tc", // 43
-  "Ru", // 44
-  "Rh", // 45
-  "Pd", // 46
-  "Ag", // 47
-  "Cd", // 48
-  "In", // 49
-  "Sn", // 50
-  "Sb", // 51
-  "Te", // 52
-  "I",  // 53
-  "Xe", // 54
-  "Cs", // 55
-  "Ba", // 56
-  "La", // 57
-  "Ce", // 58
-  "Pr", // 59
-  "Nd", // 60
-  "Pm", // 61
-  "Sm", // 62
-  "Eu", // 63
-  "Gd", // 64
-  "Tb", // 65
-  "Dy", // 66
-  "Ho", // 67
-  "Er", // 68
-  "Tm", // 69
-  "Yb", // 70
-  "Lu", // 71
-  "Hf", // 72
-  "Ta", // 73
-  "W",  // 74
-  "Re", // 75
-  "Os", // 76
-  "Ir", // 77
-  "Pt", // 78
-  "Au", // 79
-  "Hg", // 80
-  "Tl", // 81
-  "Pb", // 82
-  "Bi", // 83
-  "Po", // 84
-  "At", // 85
-  "Rn", // 86
-  "Fr", // 87
-  "Ra", // 88
-  "Ac", // 89
-  "Th", // 90
-  "Pa", // 91
-  "U",  // 92
-  "Np", // 93
-  "Pu", // 94
-  "Am", // 95
-  "Cm", // 96
-  "Bk", // 97
-  "Cf", // 98
-  "Es", // 99
-  "Fm", // 100
-  "Md", // 101
-  "No", // 102
-  "Lr", // 103
-  "Rf", // 104
-  "Db", // 105
-  "Sg", // 106
-  "Bh", // 107
-  "Hs", // 108
-  "Mt", // 109
-  /*
-    "Ds", // 110
-    "Uuu",// 111
-    "Uub",// 112
-    "Uut",// 113
-    "Uuq",// 114
-    "Uup",// 115
-    "Uuh",// 116
-    "Uus",// 117
-    "Uuo",// 118
-    */
-};
+  return obatom_;
+}

@@ -37,9 +37,12 @@ namespace Render
            GLfloat radius,
            const Render::Material& material);
     const Eigen::Vector3f& centre() const;
+
     GLfloat radius() const;
     void setRadius(GLfloat radius);
+
     void setMaterial(const Render::Material& material);
+
     void draw(Render::Style style, Render::Quality quality) const;
   private:
     Eigen::Vector3f centre_;

@@ -35,7 +35,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../rsrc/images.qrc">:/images/daltonlogo.gif</pixmap>
+        <pixmap resource="../Resources/images.qrc">:/images/daltonlogo.gif</pixmap>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -47,13 +47,17 @@
        <property name="text">
         <string>Based on:
 &lt;ul&gt;
-  &lt;li&gt;Qt 4.5.2
-  &lt;li&gt;libQGLViewer 2.3.4
-  &lt;li&gt;Eigen 2.0.5
+  &lt;li&gt;&lt;a href=&quot;http://openbabel.org&quot;&gt;Open Babel 2.2.3&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://qt.nokia.com&quot;&gt;Qt 4.5.2&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.libqglviewer.com&quot;&gt;libQGLViewer 2.3.4&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://eigen.tuxfamily.org&quot;&gt;Eigen 2.0.5&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -99,7 +103,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../rsrc/images.qrc"/>
+  <include location="../Resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

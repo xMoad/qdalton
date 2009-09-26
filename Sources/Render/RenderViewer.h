@@ -30,20 +30,14 @@
 
 #include <QMouseEvent>
 #include <QGLViewer/qglviewer.h>
+#include <openbabel/mol.h>
 
-#include "Render/RenderMolecule.h"
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderQuality.h"
 
 namespace Render
 {
-  /**
-   * @class Render::Viewer RenderViewer.h "Render/RenderViewer.h"
-   * @brief
-   * @author Anton Simakov
-   * @version 0.1
-   */
   class Viewer : public QGLViewer
   {
     Q_OBJECT
@@ -62,20 +56,46 @@ namespace Render
       MODE_ADD
     };
 
+    enum ForceField
+    {
+      FF_GHEMICAL,
+      FF_MMFF94,
+      FF_MMFF94s,
+      FF_UFF
+    };
+
+    enum Algorithm
+    {
+      ALGORITHM_STEEPEST_DESCENT,
+      ALGORITHM_CONJUGATE_GRADIENTS
+    };
+
     Viewer(QWidget* parent);
     ~Viewer();
 
-    /** Set Chemistry::Molecule instance to view.
-     * @param chemistryMolecule is
-     */
-    void setMolecule(const Render::Molecule& chemistryMolecule);
-
+    void setMolecule(const OpenBabel::OBMol& obmol);
+    bool isMoleculeEmpty() const;
     void updateMolecule();
+
     void setView(View view);
     void setMode(Mode mode);
+    void setAtomicNumber(quint8 atomicNumber);
+
     void setAxes(bool visibility, GLfloat size);
     void setDebugInfoVisibility(bool visibility);
-    void setAtomicNumber(quint8 atomicNumber);
+    void addAtom(const Render::Atom& atom);
+    void addBond(const Render::Bond& bond);
+
+    void optimize(ForceField forceField,
+                  Algorithm algorithm,
+                  double convergenceCriteria,
+                  quint16 maxSteps,
+                  quint8 stepsPerUpdate = 0);
+
+  public slots:
+    void build();
+    void addHydrogensAndBuild();
+    void removeHydrogens();
 
   protected:
     virtual void init();
@@ -83,6 +103,7 @@ namespace Render
     virtual void drawWithNames();
     virtual void fastDraw();
     virtual void postSelection(const QPoint& point);
+    virtual QString helpString() const;
 
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mousePressEvent(QMouseEvent* e);
@@ -92,51 +113,58 @@ namespace Render
     enum GLList
     {
       GLLIST_AXES,
-      GLLIST_BALLS,
-      GLLIST_STICKS,
+      GLLIST_ATOMS,
+      GLLIST_BONDS,
+//      GLLIST_STICKS,
       GLLIST_SELECTIONS
     };
 
-    Render::Molecule molecule_;
+    OpenBabel::OBMol obmol_;
     View view_;
     Mode mode_;
+    // added atom atomic number
+    quint8 atomicNumber_;
+    // visibility flags
+    bool isDebugInfoVisible_;
+    bool isAxesVisible_;
+    GLfloat axesSize_;
+    OpenBabel::OBAtom* currentOBAtom_;
+    OpenBabel::OBAtom* newOBAtom_;
+    QList<Render::Atom> atomsList_;
+    QList<Render::Bond> bondsList_;
+    qglviewer::Vec selectedPoint;
+
+    void updateGLList(GLList gllist);
+    void updateRenderAtoms();
+    void updateRenderBonds();
 
     // GLLists, Low & High Quality.
     GLuint axesLow_;
     GLuint axesHigh_;
+
     GLuint smallBallsLow_;
     GLuint smallBallsHigh_;
     GLuint mediumBallsLow_;
     GLuint mediumBallsHigh_;
     GLuint bigBallsLow_;
     GLuint bigBallsHigh_;
+
+    GLuint bondsLow_;
+    GLuint bondsHigh_;
+
     GLuint sticksLow_;
     GLuint sticksHigh_;
+
     GLuint selectionsLow_;
     GLuint selectionsHigh_;
-
-    void updateGLList(GLList gllist);
-
     // GLLists generators.
     GLuint makeAxes(GLfloat size, Quality quality);
     GLuint makeSmallBalls(Quality quality);
     GLuint makeMediumBalls(Quality quality);
     GLuint makeBigBalls(Quality quality);
+    GLuint makeBonds(Quality quality);
     GLuint makeSticks(Quality quality);
     GLuint makeSelections(Quality quality);
-
-    // visibility flags
-    bool isDebugInfoVisible_;
-    bool isAxesVisible_;
-    GLfloat axesSize_;
-
-    QPoint lastMousePosition_;
-
-    int movableIndex;
-
-    qglviewer::Vec selectedPoint;
-    // added atom atomic number
-    quint8 atomicNumber_;
   };
 }
 

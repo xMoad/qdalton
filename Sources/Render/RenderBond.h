@@ -22,36 +22,36 @@
 #ifndef RENDER_BOND_H
 #define RENDER_BOND_H
 
-#include "Render/RenderQuadric.h"
-#include "Render/RenderAtom.h"
+#include <Eigen/Array>
+#include "Render/RenderQuality.h"
+
+namespace OpenBabel
+{
+  class OBBond;
+}
 
 namespace Render
 {
   class Bond
   {
   public:
-    Bond(Render::Molecule* molecule,
-         quint16 beginIndex,
-         quint16 endIndex);
+    enum DrawStyle
+    {
+      DRAW_STYLE_BOND,
+      DRAW_STYLE_STICK
+    };
+    Bond(OpenBabel::OBBond* obbond);
 
-    Bond(const Render::Bond& bond);
+    void draw(Render::Bond::DrawStyle drawStyle,
+              Render::Quality quality) const;
 
-    const Render::Atom& beginAtom() const;
-    const Render::Atom& endAtom() const;
-
-    quint16 beginIndex() const;
-    quint16 endIndex() const;
-
-    Render::Molecule* molecule_;
-
-    void draw(Quality quality) const;
     void drawSelection(Quality quality) const;
     bool isSelected() const;
     void setSelected(bool selected);
-    static const GLfloat DEFAULT_THIKNESS;
+    static const GLfloat BOND_THIKNESS;
+    static const GLfloat STICK_THIKNESS;
   private:
-    quint16 beginIndex_;
-    quint16 endIndex_;
+    OpenBabel::OBBond* obbond_;
     bool isSelected_;
   };
 }

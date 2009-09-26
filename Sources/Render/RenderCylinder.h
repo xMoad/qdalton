@@ -41,8 +41,18 @@ namespace Render
     const Eigen::Vector3f& vertex1() const;
     const Eigen::Vector3f& vertex2() const;
     Eigen::Vector3f centre() const;
+
     GLfloat radius() const;
-    void draw(Render::Style style, Render::Quality quality) const;
+    void setRadius(GLfloat radius);
+
+    void draw(Render::Style style,
+              Render::Quality quality) const;
+
+    void drawMulti(Render::Style style,
+                   Render::Quality quality,
+                   quint8 order,
+                   float shift,
+                   const Eigen::Vector3f& planeNormalVector) const;
   private:
     Eigen::Vector3f vertex1_;
     Eigen::Vector3f vertex2_;

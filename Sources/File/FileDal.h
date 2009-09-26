@@ -50,7 +50,7 @@ namespace File
     bool isParallel_;
     bool isProperties_;
     JobType jobType_;
-    quint8 moduleIndex(const QString& moduleName);
+    char moduleIndex(const QString& moduleName);
     QString parametreValue(const QString& moduleName,
                            const QString& submoduleName,
                            const QString& parametreName);

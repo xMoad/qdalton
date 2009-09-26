@@ -154,16 +154,18 @@ Render::Color& Render::Material::optimalComponent(Component component)
   switch (component)
   {
   case AMBIENT:
+//    c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
     c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
     break;
   case DIFFUSE:
-    c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
+    c = new Color(0.4f, 0.4f, 0.4f, 1.0f);
     break;
   case EMISSION:
     c = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     break;
   case SPECULAR:
     c = new Color(0.6f, 0.6f, 0.6f, 1.0f);
+//    c = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     break;
   }
 
@@ -177,7 +179,7 @@ GLfloat Render::Material::defaultShininess()
 
 GLfloat Render::Material::optimalShininess()
 {
-  return 60.0f;
+  return 32.0f;
 }
 
 const Render::Material& Render::Material::blue()

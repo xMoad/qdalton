@@ -196,14 +196,8 @@
          <widget class="QToolBox" name="toolBox">
           <property name="minimumSize">
            <size>
-            <width>200</width>
+            <width>260</width>
             <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
            </size>
           </property>
           <widget class="QWidget" name="pageView">
@@ -211,15 +205,15 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>200</width>
-             <height>211</height>
+             <width>260</width>
+             <height>201</height>
             </rect>
            </property>
            <attribute name="label">
             <string>View</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="1" colspan="4">
+            <item row="1" column="1" colspan="2">
              <widget class="QCheckBox" name="checkBoxAxes">
               <property name="text">
                <string>Axes</string>
@@ -229,7 +223,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="5">
+            <item row="1" column="3">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxAxesSize">
               <property name="mouseTracking">
                <bool>false</bool>
@@ -260,7 +254,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1" colspan="5">
+            <item row="3" column="1" colspan="3">
              <widget class="QComboBox" name="viewQComboBox">
               <item>
                <property name="text">
@@ -279,12 +273,38 @@
               </item>
              </widget>
             </item>
-            <item row="1" column="1" colspan="5">
+            <item row="2" column="1" colspan="3">
              <widget class="QCheckBox" name="checkBoxDebugInfo">
               <property name="text">
                <string>Debug Info</string>
               </property>
              </widget>
+            </item>
+            <item row="0" column="1" colspan="3">
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="4" column="1" colspan="3">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -293,16 +313,24 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>200</width>
-             <height>211</height>
+             <width>104</width>
+             <height>57</height>
             </rect>
            </property>
            <attribute name="label">
             <string>Add</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="1">
-             <widget class="QComboBox" name="atomComboBox">
+            <item row="1" column="1">
+             <widget class="QComboBox" name="comboBoxAtom">
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>H</string>
+               </property>
+              </item>
               <item>
                <property name="text">
                 <string>C</string>
@@ -330,63 +358,207 @@
               </item>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_5">
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelAtom">
               <property name="text">
                <string>Atom:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QCheckBox" name="checkBoxImplicitH">
-              <property name="text">
-               <string>Implicit hydrogens</string>
+            <item row="0" column="0" colspan="2">
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-              <property name="checked">
-               <bool>true</bool>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
               </property>
-             </widget>
+             </spacer>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <spacer name="verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="pageAtoms">
+          <widget class="QWidget" name="pageMM">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>80</height>
+             <width>293</width>
+             <height>226</height>
             </rect>
            </property>
            <attribute name="label">
-            <string>Atoms</string>
+            <string>MM</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_9">
-            <item row="0" column="0">
-             <widget class="QTableWidget" name="atomsTableWidget">
-              <property name="mouseTracking">
-               <bool>true</bool>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelForceField">
+              <property name="text">
+               <string>Force field:</string>
               </property>
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <attribute name="verticalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="verticalHeaderDefaultSectionSize">
-               <number>18</number>
-              </attribute>
-              <column>
-               <property name="text">
-                <string>ID</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Element</string>
-               </property>
-              </column>
              </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="comboBoxForceField">
+              <property name="currentIndex">
+               <number>3</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Ghemical</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MMFF94</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MMFF94s</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>UFF</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QPushButton" name="pushButtonRun">
+              <property name="text">
+               <string>Run</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelAlgorithm">
+              <property name="text">
+               <string>Algorithm:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="comboBoxAlgorithm">
+              <item>
+               <property name="text">
+                <string>Steepest descent</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Conjugate gradient</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Convergence:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="spinBoxConvergence">
+              <property name="prefix">
+               <string>10e-</string>
+              </property>
+              <property name="minimum">
+               <number>2</number>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>7</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="labelMaxSteps">
+              <property name="text">
+               <string>Max steps:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QSpinBox" name="spinBoxMaxSteps">
+              <property name="minimum">
+               <number>100</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="labelStepsPerUpdate">
+              <property name="text">
+               <string>Steps per update:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QSpinBox" name="spinBoxStepsPerUpdate">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" colspan="2">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -400,7 +572,7 @@
      <widget class="QWidget" name="welcomeWidget" native="true">
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="labelWelcome">
          <property name="text">
           <string>Welcome to QDalton!
 
@@ -419,7 +591,7 @@ QDalton is powerful GUI for Dalton.</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -448,6 +620,9 @@ QDalton is powerful GUI for Dalton.</string>
      <property name="title">
       <string>Import</string>
      </property>
+     <addaction name="actionStructureImportSMILES"/>
+     <addaction name="actionStructureImportInChI"/>
+     <addaction name="actionStructureImportGaussianOutput"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
@@ -457,6 +632,10 @@ QDalton is powerful GUI for Dalton.</string>
     </widget>
     <addaction name="menuImport"/>
     <addaction name="menuExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionStructureBuild"/>
+    <addaction name="actionStructureAddHydrogens"/>
+    <addaction name="actionStructureRemoveHydrogens"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuStructure"/>
@@ -483,6 +662,7 @@ QDalton is powerful GUI for Dalton.</string>
    <addaction name="actionJobNew"/>
    <addaction name="actionJobImportDalton"/>
    <addaction name="separator"/>
+   <addaction name="actionStructureImportGaussianOutput"/>
    <addaction name="actionStructureExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionHelpHelp"/>
@@ -532,6 +712,18 @@ QDalton is powerful GUI for Dalton.</string>
     <string>Help</string>
    </property>
   </action>
+  <action name="actionStructureImportGaussianOutput">
+   <property name="icon">
+    <iconset resource="../Resources/icons.qrc">
+     <normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</iconset>
+   </property>
+   <property name="text">
+    <string>Gaussian Output</string>
+   </property>
+   <property name="toolTip">
+    <string>Import structure from Gaussian output file.</string>
+   </property>
+  </action>
   <action name="actionStructureExportImage">
    <property name="enabled">
     <bool>false</bool>
@@ -559,10 +751,38 @@ QDalton is powerful GUI for Dalton.</string>
   </action>
   <action name="actionHelpAbout">
    <property name="text">
-    <string>About</string>
+    <string>About...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+  <action name="actionStructureImportSMILES">
+   <property name="text">
+    <string>SMILES</string>
+   </property>
+  </action>
+  <action name="actionStructureAddHydrogens">
+   <property name="text">
+    <string>Add hydrogens and build</string>
+   </property>
+   <property name="toolTip">
+    <string>Add hydrogens and build</string>
+   </property>
+  </action>
+  <action name="actionStructureRemoveHydrogens">
+   <property name="text">
+    <string>Remove hydrogens</string>
+   </property>
+  </action>
+  <action name="actionStructureImportInChI">
+   <property name="text">
+    <string>InChI</string>
+   </property>
+  </action>
+  <action name="actionStructureBuild">
+   <property name="text">
+    <string>Build</string>
    </property>
   </action>
  </widget>
@@ -572,12 +792,63 @@ QDalton is powerful GUI for Dalton.</string>
    <extends></extends>
    <header>Render/RenderViewer.h</header>
    <slots>
-    <slot>slot1()</slot>
+    <slot>addHydrogensAndBuild()</slot>
+    <slot>removeHydrogens()</slot>
+    <slot>build()</slot>
    </slots>
   </customwidget>
  </customwidgets>
  <resources>
   <include location="../Resources/icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionStructureAddHydrogens</sender>
+   <signal>triggered()</signal>
+   <receiver>viewer</receiver>
+   <slot>addHydrogensAndBuild()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>265</x>
+     <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStructureRemoveHydrogens</sender>
+   <signal>triggered()</signal>
+   <receiver>viewer</receiver>
+   <slot>removeHydrogens()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>265</x>
+     <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStructureBuild</sender>
+   <signal>triggered()</signal>
+   <receiver>viewer</receiver>
+   <slot>build()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

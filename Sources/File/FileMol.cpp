@@ -1,39 +1,17 @@
-/**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
-
-  This file is part of QDalton.
-  For more information, see <http://code.google.com/p/qdalton/>
-
-  QDalton is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  QDalton is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
-
- **********************************************************************/
-
 #include <QTextStream>
 #include <QFile>
 
-#include "Render/RenderAtom.h"
 #include "File/FileMol.h"
 #include "File/FileText.h"
 
 File::Mol::Mol(const Mol& molFile):
-    Text(molFile)
+  Text(molFile)
 {
   parse(true);
 }
 
 File::Mol::Mol(QString fileName):
-    Text(fileName)
+  Text(fileName)
 {
 }
 
@@ -99,7 +77,7 @@ bool File::Mol::parse(bool doAutoRebond)
   {
     parseError_.index = generalStringIndex;
     parseError_.message = "Couldn't find Atomtypes keyword.\n\n"
-                          "Hint: QDalton recognize only full names of Dalton keywords!";
+      "Hint: QDalton recognize only full names of Dalton keywords!";
     return false;
   }
 
@@ -108,11 +86,11 @@ bool File::Mol::parse(bool doAutoRebond)
   n = regExp.indexIn(strings_[generalStringIndex]);
   if (n != -1)
   {
-    molecule_.setUnitOfLength(Render::Molecule::ANGSTROM);
+    setAngstrom(true);
   }
   else
   {
-    molecule_.setUnitOfLength(Render::Molecule::BOHR);
+    setAngstrom(false);
   }
 
   regExp.setPattern("Cartesian");
@@ -130,51 +108,50 @@ bool File::Mol::parse(bool doAutoRebond)
   n = regExp.indexIn(strings_[generalStringIndex]);
   if (n != -1)
   {
-    molecule_.setCharge(regExp.cap(1).toInt(&ok, 10));
+    obmol_.SetTotalCharge(regExp.cap(1).toInt(&ok, 10));
   }
   else
   {
-    molecule_.setCharge(0);
+    obmol_.SetTotalCharge(0);
   }
 
   // Extract info about atoms
-  regExp.setPattern("Charge=(\\d+\\.?\\d?) Atoms=(\\d+)");
+  regExp.setPattern("Charge=(\\d+) Atoms=(\\d+)");
   int i = generalStringIndex;
   for (int a = 0; a < atomTypes(); a++)
   {
     i++;
     if (regExp.indexIn(this->strings_[i]) != -1)
     {
-      quint8 protons = (quint8) regExp.cap(1).toFloat(&ok);
-      quint8 count = regExp.cap(2).toInt(&ok, 10);
+      int protons = regExp.cap(1).toInt(&ok, 10);
+      int count = regExp.cap(2).toInt(&ok, 10);
       QRegExp regExpAtom("(\\w+)\\s+(-?\\d?\\.\\d+)\\s+(-?\\d?\\.\\d+)\\s+(-?\\d?\\.\\d+)");
       for (int j = 0; j < count; j++)
       {
         i++;
         if (regExpAtom.indexIn(this->strings_[i]) != -1)
         {
-          Render::Atom atom(protons);
-          //          obatom.SetIsotope(0); !!!
+          OpenBabel::OBAtom obatom;
+          obatom.SetAtomicNum(protons);
+          obatom.SetIsotope(0);
           // TODO Fix label!
           QString label = regExpAtom.cap(1);
-          float x = regExpAtom.cap(2).toFloat(&ok);
-          float y = regExpAtom.cap(3).toFloat(&ok);
-          float z = regExpAtom.cap(4).toFloat(&ok);
-          Eigen::Vector3f p(x, y, z);
-          atom.setCentre(p);
-          molecule_.addAtom(atom);
+          obatom.SetVector(regExpAtom.cap(2).toFloat(&ok),
+                           regExpAtom.cap(3).toFloat(&ok),
+                           regExpAtom.cap(4).toFloat(&ok));
+          obmol_.AddAtom(obatom);
         }
       }
     }
   }
   if (doAutoRebond)
-    molecule_.rebond();
+    obmol_.ConnectTheDots();
   return true;
 }
 
-const Render::Molecule& File::Mol::molecule() const
+const OpenBabel::OBMol& File::Mol::obmol() const
 {
-  return molecule_;
+  return obmol_;
 }
 
 File::Mol::BasisType File::Mol::basisType() const
@@ -187,14 +164,24 @@ const QString& File::Mol::comment() const
   return comment_;
 }
 
-quint8 File::Mol::atomTypes() const
+int File::Mol::atomTypes() const
 {
   return atomTypes_;
 }
 
-void File::Mol::setAtomTypes(quint8 atomTypes)
+void File::Mol::setAtomTypes(int atomTypes)
 {
   atomTypes_ = atomTypes;
+}
+
+bool File::Mol::isAngstrom() const
+{
+  return isAngstrom_;
+}
+
+void File::Mol::setAngstrom(bool isAngstrom)
+{
+  isAngstrom_ = isAngstrom;
 }
 
 bool File::Mol::isCartesian() const

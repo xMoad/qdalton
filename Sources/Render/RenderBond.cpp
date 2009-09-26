@@ -19,54 +19,26 @@
 
  **********************************************************************/
 
+#include <openbabel/mol.h>
+
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
-#include "Render/RenderMolecule.h"
 #include "Render/RenderCylinder.h"
 
-const GLfloat Render::Bond::DEFAULT_THIKNESS = 0.15f;
+const GLfloat Render::Bond::BOND_THIKNESS = 0.05f;
+const GLfloat Render::Bond::STICK_THIKNESS = 0.15f;
 
-Render::Bond::Bond(Render::Molecule* molecule,
-                      quint16 beginIndex,
-                      quint16 endIndex):
+Render::Bond::Bond(OpenBabel::OBBond* obbond):
+    obbond_(obbond),
     isSelected_(false)
 {
-  molecule_ = molecule;
-  beginIndex_ = beginIndex;
-  endIndex_ = endIndex;
 }
 
-Render::Bond::Bond(const Render::Bond& bond) :
-    molecule_(bond.molecule_),
-    beginIndex_(bond.beginIndex_),
-    endIndex_(bond.endIndex_)
+void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
+                        Render::Quality quality) const
 {
-}
-
-const Render::Atom& Render::Bond::beginAtom() const
-{
-  return molecule_->atomAt(beginIndex_);
-}
-
-const Render::Atom& Render::Bond::endAtom() const
-{
-  return molecule_->atomAt(endIndex_);
-}
-
-quint16 Render::Bond::beginIndex() const
-{
-  return beginIndex_;
-}
-
-quint16 Render::Bond::endIndex() const
-{
-  return endIndex_;
-}
-
-void Render::Bond::draw(Quality quality) const
-{
-  Render::Atom atom1 = beginAtom();
-  Render::Atom atom2 = endAtom();
+  Render::Atom atom1(obbond_->GetParent()->GetAtom(obbond_->GetBeginAtomIdx()));
+  Render::Atom atom2(obbond_->GetParent()->GetAtom(obbond_->GetEndAtomIdx()));
   Render::Material material1(atom1.color(), true);
   Render::Material material2(atom2.color(), true);
 
@@ -79,16 +51,45 @@ void Render::Bond::draw(Quality quality) const
   vec2 = vec2 + atom2.centre();
   Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
 
-  Render::Cylinder cylinder1(atom1.centre(), vMiddle, DEFAULT_THIKNESS, material1);
-  Render::Cylinder cylinder2(vMiddle, atom2.centre(), DEFAULT_THIKNESS, material2);
-  cylinder1.draw(STYLE_FILL, quality);
-  cylinder2.draw(STYLE_FILL, quality);
+  Render::Cylinder cylinder1(atom1.centre(),
+                             vMiddle,
+                             Render::Bond::BOND_THIKNESS,
+                             material1);
+  Render::Cylinder cylinder2(vMiddle,
+                             atom2.centre(),
+                             Render::Bond::BOND_THIKNESS,
+                             material2);
+
+  if (drawStyle == Render::Bond::DRAW_STYLE_STICK)
+  {
+    cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
+    cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
+  }
+
+  if (drawStyle == Render::Bond::DRAW_STYLE_BOND)
+  {
+    cylinder1.drawMulti(Render::STYLE_FILL,
+                        quality,
+                        obbond_->GetBondOrder(),
+                        0.1f,
+                        Eigen::Vector3f(0.0f, 0.0f, 1.0f));
+    cylinder2.drawMulti(Render::STYLE_FILL,
+                        quality,
+                        obbond_->GetBondOrder(),
+                        0.1f,
+                        Eigen::Vector3f(0.0f, 0.0f, 1.0f));
+  }
+  else
+  {
+    cylinder1.draw(Render::STYLE_FILL, quality);
+    cylinder2.draw(Render::STYLE_FILL, quality);
+  }
 }
 
 void Render::Bond::drawSelection(Render::Quality quality) const
 {
-  Eigen::Vector3f point1;
-  Eigen::Vector3f point2;
+  /*  Stereometry::Point* point1;
+  Stereometry::Point* point2;
   // Enable blending
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
@@ -98,24 +99,19 @@ void Render::Bond::drawSelection(Render::Quality quality) const
                     Material::defaultComponent(Material::EMISSION),
                     Material::defaultComponent(Material::SPECULAR),
                     Material::defaultShininess());
-  Eigen::Vector3f v = endAtom().centre() -
-                      beginAtom().centre();
-  if (beginAtom().isSelected())
-  {
-    point1 = -v * (v.norm() - beginAtom().drawRadius() + 0.05f) +
-             endAtom().centre();
-  }
+  Stereometry::Vector v(atom1_->centre(), atom2_->centre());
+  if (atom1_->isSelected())
+    point1 = new Stereometry::Point(v.pointAt(atom1_->radius() + 0.05f));
   else
-    point1 = beginAtom().centre();
-  if (endAtom().isSelected())
-    point2 = v * (v.norm() - endAtom().drawRadius() + 0.05f) +
-             beginAtom().centre();
+    point1 = new Stereometry::Point(v.origin());
+  if (atom2_->isSelected())
+    point2 = new Stereometry::Point(v.pointAt(v.modulus() - (atom2_->radius() + 0.05f)));
   else
-    point2 = endAtom().centre();
-  Cylinder cylinder(point1, point2, DEFAULT_THIKNESS + 0.1f, material);
-  cylinder.draw(STYLE_FILL, quality);
+    point2 = new Stereometry::Point(v.terminus());
+  Cylinder cylinderRender(*point1, *point2, DEFAULT_THIKNESS + 0.1f, material);
+  cylinderRender.draw(STYLE_FILL, quality);
   glDepthMask(GL_TRUE);
-  glDisable(GL_BLEND);
+  glDisable(GL_BLEND);*/
 }
 
 bool Render::Bond::isSelected() const

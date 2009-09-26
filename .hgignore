@@ -6,3 +6,5 @@ glob:object_script*
 glob:.DS_Store
 glob:.project
 glob:.cproject
+glob:vc90.pdb
+glob:QDalton.suo

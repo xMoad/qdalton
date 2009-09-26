@@ -1,28 +1,14 @@
-/**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
-
-  This file is part of QDalton.
-  For more information, see <http://code.google.com/p/qdalton/>
-
-  QDalton is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  QDalton is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
-
- **********************************************************************/
-
 #include "MainWindow.h"
 
+#include <iostream>
+
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMessageBox>
+
+#include <openbabel/mol.h>
+#include <openbabel/obconversion.h>
+#include <openbabel/builder.h>
 
 #include "AboutDialog.h"
 #include "Render/RenderAtom.h"
@@ -37,6 +23,9 @@ MainWindow::MainWindow(QWidget* parent):
     molFile_(0)
 {
   ui->setupUi(this);
+  //  QActionGroup* toolsQActionGroup = new QActionGroup(this);
+  //  toolsQActionGroup->addAction(ui->actionNavigate);
+  //  toolsQActionGroup->addAction(ui->actionSelect);
   // Hide all tabs
   ui->tabWidget->hide();
   workDir_ = QDir::currentPath();
@@ -81,7 +70,22 @@ void MainWindow::on_doubleSpinBoxAxesSize_valueChanged(double value)
 
 void MainWindow::on_actionJobImportDalton_triggered()
 {
-  QString fileName = "";
+  QString fileName;
+
+  if (!ui->viewer->isMoleculeEmpty())
+  {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,
+                                  QCoreApplication::applicationName(),
+                                  tr("Molecule is not empty. Proceed?"),
+                                  QMessageBox::Yes | QMessageBox::No,
+                                  QMessageBox::No);
+    if (reply == QMessageBox::No)
+    {
+      return;
+    }
+  }
+
   // Ask user to choose Dalton input file
   fileName = QFileDialog::getOpenFileName(this, "Choose Dalton input file",
                                           getWorkDir(), "Dalton input files (*.dal *.inp)");
@@ -148,7 +152,7 @@ void MainWindow::on_actionJobImportDalton_triggered()
           ui->tabWidget->show();
 
           ui->tabWidget->setCurrentIndex(3);
-          ui->viewer->setMolecule(molFile.molecule());
+          ui->viewer->setMolecule(molFile.obmol());
           ui->actionStructureExportImage->setEnabled(true);
           //          ui->atomsTableWidget->setRowCount(molFile_->molecule().nucleiCount());
           //          for (int i = 0; i < molFile.molecule().nucleiCount(); ++i)
@@ -231,6 +235,37 @@ void MainWindow::on_actionJobNew_triggered()
   ui->tabWidget->show();
 }
 
+void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
+{
+  QByteArray byteArray = s.toLatin1();
+  const char* s_char = byteArray.data();
+  ui->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
+}
+
+void MainWindow::on_actionStructureImportGaussianOutput_triggered()
+{
+  QString fileName = QFileDialog::getOpenFileName(this,
+                                                  "Choose Gaussian output file",
+                                                  getWorkDir(),
+                                                  "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
+  if (!fileName.isEmpty())
+  {
+    OpenBabel::OBMol obmol;
+    OpenBabel::OBConversion conv;
+    conv.SetInFormat("g03");
+    if (conv.ReadFile(&obmol, fileName.toStdString()))
+    {
+      ui->welcomeWidget->hide();
+      ui->tabWidget->show();
+      ui->tabWidget->setCurrentIndex(3);
+      ui->viewer->setMolecule(obmol);
+      ui->actionStructureExportImage->setEnabled(true);
+    }
+    else
+      QMessageBox::critical(this, QCoreApplication::applicationName(), "Can't import file " + fileName);
+  }
+}
+
 void MainWindow::on_actionStructureExportImage_triggered()
 {
   ui->viewer->saveSnapshot(false, false);
@@ -285,12 +320,77 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 void MainWindow::on_actionHelpAbout_triggered()
 {
   AboutDialog dialog;
-  dialog.setHeaderLabelText("<h2>" + QCoreApplication::applicationName() +
-                            " " + QCoreApplication::applicationVersion() + "</h2>");
+  dialog.setHeaderLabelText("<h1>" + QCoreApplication::applicationName() +
+                            " " + QCoreApplication::applicationVersion() + "</h1>");
   dialog.exec();
 }
 
-void MainWindow::on_atomComboBox_currentIndexChanged(QString symbol)
+void MainWindow::on_pushButtonRun_clicked()
 {
-  ui->viewer->setAtomicNumber(Render::Atom::atomicNumberFromSymbol(symbol));
+  setCursor(Qt::WaitCursor);
+  ui->pushButtonRun->setText(tr("Running..."));
+  qApp->processEvents();
+//  ui->pushButtonRun->setEnabled(false);
+  ui->viewer->optimize((Render::Viewer::ForceField)ui->comboBoxForceField->currentIndex(),
+                       (Render::Viewer::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
+                       powf(10, -ui->spinBoxConvergence->value()),
+                       ui->spinBoxMaxSteps->value(),
+                       ui->spinBoxStepsPerUpdate->value());
+//  ui->pushButtonRun->setEnabled(true);
+  ui->pushButtonRun->setText(tr("Run"));
+  setCursor(Qt::ArrowCursor);
+}
+
+void MainWindow::on_actionStructureImportSMILES_triggered()
+{
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("QDalton"), tr("Input SMILES:"), QLineEdit::Normal,
+                                       "", &ok);
+  if (ok)
+  {
+    std::string smiles = text.toStdString();
+    OpenBabel::OBMol obmol;
+    std::stringstream ss(smiles);
+    OpenBabel::OBConversion conv(&ss);
+    if (conv.SetInFormat("smi") && conv.Read(&obmol))
+    {
+      OpenBabel::OBBuilder obbuilder;
+
+      obmol.AddHydrogens();
+      obbuilder.Build(obmol);
+      obmol.Center();
+      ui->welcomeWidget->hide();
+      ui->tabWidget->show();
+      ui->tabWidget->setCurrentIndex(3);
+      ui->viewer->setMolecule(obmol);
+      ui->actionStructureExportImage->setEnabled(true);
+    }
+  }
+}
+
+void MainWindow::on_actionStructureImportInChI_triggered()
+{
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("QDalton"), tr("Input InChI:"), QLineEdit::Normal,
+                                       "", &ok);
+  if (ok)
+  {
+    std::string inchi = text.toStdString();
+    OpenBabel::OBMol obmol;
+    std::stringstream ss(inchi);
+    OpenBabel::OBConversion conv(&ss);
+    if (conv.SetInFormat("inchi") && conv.Read(&obmol))
+    {
+      OpenBabel::OBBuilder obbuilder;
+
+      obmol.AddHydrogens();
+      obbuilder.Build(obmol);
+      obmol.Center();
+      ui->welcomeWidget->hide();
+      ui->tabWidget->show();
+      ui->tabWidget->setCurrentIndex(3);
+      ui->viewer->setMolecule(obmol);
+      ui->actionStructureExportImage->setEnabled(true);
+    }
+  }
 }
