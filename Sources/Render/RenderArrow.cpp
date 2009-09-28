@@ -19,31 +19,21 @@
 
  **********************************************************************/
 
-/** Copyright (C) 2009 Anton Simakov
- *
- */
-
 #include "Render/RenderArrow.h"
 #include "Render/RenderCylinder.h"
 #include "Render/RenderCone.h"
 
-Render::Arrow::Arrow(const Eigen::Vector3f& origin,
-                     const Eigen::Vector3f& terminus,
-                     GLfloat radius,
-                     const Render::Material& material):
-origin_(origin), terminus_(terminus), radius_(radius), material_(material)
+Render::Arrow::Arrow():
+    origin_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    terminus_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    radius_(0.0f),
+    material_(Render::Material())
 {
 }
 
-void Render::Arrow::draw(Render::Style style, Render::Quality quality) const
+const Eigen::Vector3f& Render::Arrow::origin() const
 {
-  Eigen::Vector3f point = terminus_ - origin_;
-  point = point * (point.norm() - 0.3f) / point.norm();
-  point = point + origin_;
-  Render::Cylinder cylinder(origin_, point, radius_, material_);
-  cylinder.draw(style, quality);
-  Render::Cone cone(point, terminus_, radius_ * 2, material_);
-  cone.draw(style, quality);
+  return origin_;
 }
 
 void Render::Arrow::setOrigin(const Eigen::Vector3f& origin)
@@ -51,7 +41,55 @@ void Render::Arrow::setOrigin(const Eigen::Vector3f& origin)
   origin_ = origin;
 }
 
+const Eigen::Vector3f& Render::Arrow::terminus() const
+{
+  return terminus_;
+}
+
 void Render::Arrow::setTerminus(const Eigen::Vector3f& terminus)
 {
   terminus_ = terminus;
+}
+
+GLfloat Render::Arrow::radius() const
+{
+  return radius_;
+}
+
+void Render::Arrow::setRadius(GLfloat radius)
+{
+  radius_ = radius;
+}
+
+const Render::Material& Render::Arrow::material() const
+{
+  return material_;
+}
+
+void Render::Arrow::setMaterial(const Render::Material& material)
+{
+  material_ = material;
+}
+
+void Render::Arrow::draw(Render::Style style, Render::Quality quality) const
+{
+  Eigen::Vector3f point;
+  Render::Cylinder cylinder;
+  Render::Cone cone;
+
+  point = terminus_ - origin_;
+  point = point * (point.norm() - 0.3f) / point.norm();
+  point = point + origin_;
+
+  cylinder.setVertex1(origin_);
+  cylinder.setVertex2(point);
+  cylinder.setRadius(radius_);
+  cylinder.setMaterial(material_);
+  cylinder.draw(style, quality);
+
+  cone.setVertex1(point);
+  cone.setVertex2(terminus_);
+  cone.setRadius(radius_ * 2);
+  cone.setMaterial(material_);
+  cone.draw(style, quality);
 }

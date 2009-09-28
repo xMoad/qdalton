@@ -344,18 +344,24 @@ void MainWindow::on_pushButtonRun_clicked()
 void MainWindow::on_actionStructureImportSMILES_triggered()
 {
   bool ok;
-  QString text = QInputDialog::getText(this, tr("QDalton"), tr("Input SMILES:"), QLineEdit::Normal,
-                                       "", &ok);
+  std::string smiles;
+  std::stringstream ss;
+  OpenBabel::OBBuilder obbuilder;
+  OpenBabel::OBMol obmol;
+
+  QString text = QInputDialog::getText(this,
+                                       tr("QDalton"),
+                                       tr("Input SMILES:"),
+                                       QLineEdit::Normal,
+                                       "",
+                                       &ok);
   if (ok)
   {
-    std::string smiles = text.toStdString();
-    OpenBabel::OBMol obmol;
-    std::stringstream ss(smiles);
+    smiles = text.toStdString();
+    ss.str(smiles);
     OpenBabel::OBConversion conv(&ss);
     if (conv.SetInFormat("smi") && conv.Read(&obmol))
     {
-      OpenBabel::OBBuilder obbuilder;
-
       obmol.AddHydrogens();
       obbuilder.Build(obmol);
       obmol.Center();

@@ -39,11 +39,21 @@ namespace Render
   class Arrow
   {
   public:
-    Arrow(const Eigen::Vector3f& origin, const Eigen::Vector3f& terminus,
-          GLfloat radius, const Material& material);
-    void draw(Style style, Render::Quality quality) const;
+    Arrow();
+
+    const Eigen::Vector3f& origin() const;
     void setOrigin(const Eigen::Vector3f& origin);
+
+    const Eigen::Vector3f& terminus() const;
     void setTerminus(const Eigen::Vector3f& terminus);
+
+    GLfloat radius() const;
+    void setRadius(GLfloat radius);
+
+    const Render::Material& material() const;
+    void setMaterial(const Render::Material& material);
+
+    void draw(Style style, Render::Quality quality) const;    
   private:
     Eigen::Vector3f origin_;
     Eigen::Vector3f terminus_;

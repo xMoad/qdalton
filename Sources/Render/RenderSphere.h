@@ -33,14 +33,15 @@ namespace Render
   class Sphere
   {
   public:
-    Sphere(const Eigen::Vector3f& centre,
-           GLfloat radius,
-           const Render::Material& material);
+    Sphere();
+
     const Eigen::Vector3f& centre() const;
+    void setCentre(const Eigen::Vector3f& centre);
 
     GLfloat radius() const;
     void setRadius(GLfloat radius);
 
+    const Render::Material& material() const;
     void setMaterial(const Render::Material& material);
 
     void draw(Render::Style style, Render::Quality quality) const;

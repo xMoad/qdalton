@@ -34,7 +34,7 @@ namespace Render
     ~Quadric();
     void prepare(Render::Style style) const;
 
-    GLUquadricObj* GLUquadric_;
+    GLUquadricObj* gluQuadricObj_;
   };
 }
 

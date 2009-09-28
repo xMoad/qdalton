@@ -25,11 +25,25 @@
 
 const double PI = 4.0 * atan(1.0);
 
-Render::Cylinder::Cylinder(const Eigen::Vector3f& vertex1,
-                           const Eigen::Vector3f& vertex2,
-                           GLfloat radius,
-                           const Render::Material& material):
-vertex1_(vertex1), vertex2_(vertex2), radius_(radius), material_(material)
+void drawGlu(GLUquadricObj* gluQuadric, GLint slices)
+{
+  // First draw the lateral surface.
+  gluQuadricOrientation(gluQuadric, GLU_OUTSIDE);
+  gluCylinder(gluQuadric, 1.0f, 1.0f, 1.0f, slices, 1);
+  // Next draw the first base.
+  gluQuadricOrientation(gluQuadric, GLU_INSIDE);
+  gluDisk(gluQuadric, 0.0, 1.0f, slices, 1);
+  glTranslatef(0, 0, 1);
+  // Finally draw the second base.
+  gluQuadricOrientation(gluQuadric, GLU_OUTSIDE);
+  gluDisk(gluQuadric, 0.0, 1.0f, slices, 1);
+}
+
+Render::Cylinder::Cylinder():
+    vertex1_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    vertex2_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    radius_(0.0f),
+    material_(Render::Material())
 {
 }
 
@@ -54,17 +68,8 @@ void Render::Cylinder::draw(Render::Style style, Render::Quality quality) const
   //now we can do the actual drawing !
   glPushMatrix();
   {
-    glMultMatrixf( matrix.data() );
-    //draw the cylinder
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-    gluCylinder(quadric_.GLUquadric_, 1.0f, 1.0f, 1.0, slices, 1);
-    //draw the first cap
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_INSIDE);
-    gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
-    glTranslatef(0, 0, 1);
-    //draw the second cap
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-    gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
+    glMultMatrixf(matrix.data());
+    drawGlu(quadric_.gluQuadricObj_, slices);
   }
   glPopMatrix();
 }
@@ -102,16 +107,7 @@ void Render::Cylinder::drawMulti(Render::Style style,
   glMultMatrixf( matrix.data() );
   if( order == 1 )
   {
-    //draw the cylinder
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-    gluCylinder(quadric_.GLUquadric_, 1.0f, 1.0f, 1.0, slices, 1);
-    //draw the first cap
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_INSIDE);
-    gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
-    glTranslatef(0, 0, 1);
-    //draw the second cap
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-    gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
+    drawGlu(quadric_.gluQuadricObj_, slices);
   }
   else
   {
@@ -126,20 +122,11 @@ void Render::Cylinder::drawMulti(Render::Style style,
     for( int i = 0; i < order; i++)
     {
       glPushMatrix();
-      glRotated( angleOffset + 360.0 * i / order,
-                 0.0, 0.0, 1.0 );
-      glTranslated( displacementFactor, 0.0, 0.0 );
       {
-        //draw the cylinder
-        gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-        gluCylinder(quadric_.GLUquadric_, 1.0f, 1.0f, 1.0, slices, 1);
-        //draw the first cap
-        gluQuadricOrientation(quadric_.GLUquadric_, GLU_INSIDE);
-        gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
-        glTranslatef(0, 0, 1);
-        //draw the second cap
-        gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-        gluDisk(quadric_.GLUquadric_, 0.0, 1.0f, slices, 1);
+        glRotated( angleOffset + 360.0 * i / order,
+                   0.0, 0.0, 1.0 );
+        glTranslated( displacementFactor, 0.0, 0.0 );
+        drawGlu(quadric_.gluQuadricObj_, slices);
       }
       glPopMatrix();
     }
@@ -152,9 +139,19 @@ const Eigen::Vector3f& Render::Cylinder::vertex1() const
   return vertex1_;
 }
 
+void Render::Cylinder::setVertex1(const Eigen::Vector3f& vertex1)
+{
+  vertex1_ = vertex1;
+}
+
 const Eigen::Vector3f& Render::Cylinder::vertex2() const
 {
   return vertex2_;
+}
+
+void Render::Cylinder::setVertex2(const Eigen::Vector3f& vertex2)
+{
+  vertex2_ = vertex2;
 }
 
 GLfloat Render::Cylinder::radius() const
@@ -165,6 +162,16 @@ GLfloat Render::Cylinder::radius() const
 void Render::Cylinder::setRadius(GLfloat radius)
 {
   radius_ = radius;
+}
+
+const Render::Material& Render::Cylinder::material() const
+{
+  return material_;
+}
+
+void Render::Cylinder::setMaterial(const Render::Material& material)
+{
+  material_ = material;
 }
 
 Eigen::Vector3f Render::Cylinder::centre() const

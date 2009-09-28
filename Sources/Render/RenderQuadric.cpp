@@ -23,12 +23,12 @@
 
 Render::Quadric::Quadric()
 {
-  GLUquadric_ = gluNewQuadric();
+  gluQuadricObj_ = gluNewQuadric();
 }
 
 Render::Quadric::~Quadric()
 {
-  gluDeleteQuadric(GLUquadric_);
+  gluDeleteQuadric(gluQuadricObj_);
 }
 
 void Render::Quadric::prepare(Style style) const
@@ -36,17 +36,17 @@ void Render::Quadric::prepare(Style style) const
   switch (style)
   {
   case STYLE_FILL:
-    gluQuadricDrawStyle(GLUquadric_, GLU_FILL);
+    gluQuadricDrawStyle(gluQuadricObj_, GLU_FILL);
     break;
   case STYLE_LINE:
-    gluQuadricDrawStyle(GLUquadric_, GLU_LINE);
+    gluQuadricDrawStyle(gluQuadricObj_, GLU_LINE);
     break;
   case STYLE_POINT:
-    gluQuadricDrawStyle(GLUquadric_, GLU_POINT);
+    gluQuadricDrawStyle(gluQuadricObj_, GLU_POINT);
     break;
   case STYLE_SILHOUETTE:
-    gluQuadricDrawStyle(GLUquadric_, GLU_SILHOUETTE);
+    gluQuadricDrawStyle(gluQuadricObj_, GLU_SILHOUETTE);
     break;
   }
-  gluQuadricNormals(GLUquadric_, GLU_SMOOTH);
+  gluQuadricNormals(gluQuadricObj_, GLU_SMOOTH);
 }

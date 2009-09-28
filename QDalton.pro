@@ -86,6 +86,6 @@ macx {
 }
 
 linux-g++ { 
-    DESTDIR = Build/Binaries/Linux
-    LIBS *= -lQGLViewer -lopenbabel
+  DESTDIR = Build/Binaries/Linux
+  LIBS *= -lQGLViewer -lopenbabel
 }

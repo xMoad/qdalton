@@ -63,15 +63,19 @@ Render::Color Render::Atom::color() const
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) const
+void Render::Atom::draw(Render::Atom::DrawStyle style,
+                        Render::Quality quality) const
 {
-  Material material(color(), true);
+  Render::Sphere sphere;
+  Render::Material material(color(), true);
   Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
-  Sphere sphere(centre, drawRadius(), material);
+
+  sphere.setCentre(centre);
 
   switch (style)
   {
   case Render::Atom::DRAW_STYLE_ATOM:
+    sphere.setRadius(drawRadius());
     break;
   case Render::Atom::DRAW_STYLE_CONNECTOR:
     sphere.setRadius(Render::Bond::STICK_THIKNESS);
@@ -81,20 +85,34 @@ void Render::Atom::draw(Render::Atom::DrawStyle style, Render::Quality quality) 
     break;
   }
 
+  sphere.setMaterial(material);
+
   sphere.draw(STYLE_FILL, quality);
 }
 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
-  Material material(Color::selection(), true);
+  Render::Sphere sphere;
+  Render::Material material(Color::selection(), true);
   Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
-  Sphere sphere(centre,
-                drawRadius() + SELECTON_RADIUS,
-                material);
-  if (style == Render::Atom::DRAW_STYLE_CONNECTOR)
+
+  sphere.setCentre(centre);
+
+  switch (style)
+  {
+  case Render::Atom::DRAW_STYLE_ATOM:
+    sphere.setRadius(drawRadius() + SELECTON_RADIUS);
+    break;
+  case Render::Atom::DRAW_STYLE_CONNECTOR:
     sphere.setRadius(Render::Bond::STICK_THIKNESS + SELECTON_RADIUS);
-  if (style == Render::Atom::DRAW_STYLE_VDW)
+    break;
+  case Render::Atom::DRAW_STYLE_VDW:
     sphere.setRadius(vanderwaalsRadius() + SELECTON_RADIUS * 2);
+    break;
+  }
+
+  sphere.setMaterial(material);
+
   // Enable blending
   glEnable(GL_BLEND);
   //  glDisable(GL_DEPTH_TEST);

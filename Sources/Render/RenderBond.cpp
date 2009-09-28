@@ -37,6 +37,9 @@ Render::Bond::Bond(OpenBabel::OBBond* obbond):
 void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
                         Render::Quality quality) const
 {
+  Render::Cylinder cylinder1;
+  Render::Cylinder cylinder2;
+
   Render::Atom atom1(obbond_->GetParent()->GetAtom(obbond_->GetBeginAtomIdx()));
   Render::Atom atom2(obbond_->GetParent()->GetAtom(obbond_->GetEndAtomIdx()));
   Render::Material material1(atom1.color(), true);
@@ -51,23 +54,19 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
   vec2 = vec2 + atom2.centre();
   Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
 
-  Render::Cylinder cylinder1(atom1.centre(),
-                             vMiddle,
-                             Render::Bond::BOND_THIKNESS,
-                             material1);
-  Render::Cylinder cylinder2(vMiddle,
-                             atom2.centre(),
-                             Render::Bond::BOND_THIKNESS,
-                             material2);
+  cylinder1.setVertex1(atom1.centre());
+  cylinder1.setVertex2(vMiddle);
+  cylinder1.setMaterial(material1);
 
-  if (drawStyle == Render::Bond::DRAW_STYLE_STICK)
-  {
-    cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
-    cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
-  }
+  cylinder2.setVertex1(vMiddle);
+  cylinder2.setVertex2(atom2.centre());
+  cylinder2.setMaterial(material2);
 
   if (drawStyle == Render::Bond::DRAW_STYLE_BOND)
   {
+    cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
+    cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
+
     cylinder1.drawMulti(Render::STYLE_FILL,
                         quality,
                         obbond_->GetBondOrder(),
@@ -81,6 +80,9 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
   }
   else
   {
+    cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
+    cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
+
     cylinder1.draw(Render::STYLE_FILL, quality);
     cylinder2.draw(Render::STYLE_FILL, quality);
   }

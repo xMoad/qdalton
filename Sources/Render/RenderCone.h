@@ -34,10 +34,20 @@ namespace Render
   class Cone
   {
   public:
-    Cone(const Eigen::Vector3f& vertex1,
-         const Eigen::Vector3f& vertex2,
-         GLfloat radius,
-         const Render::Material& material);
+    Cone();
+
+    const Eigen::Vector3f& vertex1() const;
+    void setVertex1(const Eigen::Vector3f& vertex1);
+
+    const Eigen::Vector3f& vertex2() const;
+    void setVertex2(const Eigen::Vector3f& vertex2);
+
+    GLfloat radius() const;
+    void setRadius(GLfloat radius);
+
+    const Render::Material& material() const;
+    void setMaterial(const Render::Material& material);
+
     void draw(Render::Style style, Render::Quality quality) const;
   private:
     Eigen::Vector3f vertex1_;

@@ -21,11 +21,31 @@
 
 #include "Render/RenderSphere.h"
 
-Render::Sphere::Sphere(const Eigen::Vector3f& centre,
-                       GLfloat radius,
-                       const Render::Material& material):
-centre_(centre), radius_(radius), material_(material)
+Render::Sphere::Sphere():
+    centre_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    radius_(0.0f),
+    material_(Render::Material())
 {
+}
+
+const Eigen::Vector3f& Render::Sphere::centre() const
+{
+  return centre_;
+}
+
+void Render::Sphere::setCentre(const Eigen::Vector3f& centre)
+{
+  centre_ = centre;
+}
+
+GLfloat Render::Sphere::radius() const
+{
+  return radius_;
+}
+
+void Render::Sphere::setRadius(GLfloat radius)
+{
+  radius_ = radius;
 }
 
 void Render::Sphere::setMaterial(const Render::Material& material)
@@ -42,23 +62,8 @@ void Render::Sphere::draw(Render::Style style, Render::Quality quality) const
   glPushMatrix();
   {
     glTranslatef(centre_.x(), centre_.y(), centre_.z());
-    gluSphere(quadric_.GLUquadric_, radius_, slices, stacks);
+    gluSphere(quadric_.gluQuadricObj_, radius_, slices, stacks);
   }
   glPopMatrix();
   glFlush();
-}
-
-const Eigen::Vector3f& Render::Sphere::centre() const
-{
-  return centre_;
-}
-
-GLfloat Render::Sphere::radius() const
-{
-  return radius_;
-}
-
-void Render::Sphere::setRadius(GLfloat radius)
-{
-  radius_ = radius;
 }

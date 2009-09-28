@@ -158,13 +158,16 @@ void Render::Viewer::drawWithNames()
       switch (view_)
       {
       case VIEW_BALLS_STICKS:
-        atomsList_[i].draw(Render::Atom::DRAW_STYLE_ATOM, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_ATOM,
+                           Render::QUALITY_LOW);
         break;
       case VIEW_STICKS:
-        atomsList_[i].draw(Render::Atom::DRAW_STYLE_CONNECTOR, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_CONNECTOR,
+                           Render::QUALITY_LOW);
         break;
       case VIEW_VDW:
-        atomsList_[i].draw(Render::Atom::DRAW_STYLE_VDW, QUALITY_LOW);
+        atomsList_[i].draw(Render::Atom::DRAW_STYLE_VDW,
+                           Render::QUALITY_LOW);
         break;
       }
     }
@@ -219,7 +222,7 @@ void Render::Viewer::init()
 
   // As mentioned in QGLViewer documentation for select() method,
   // one can encounter problems with backface culling.
-  // If so one can try to glDisable(GL_CULL_FACE). It works!
+  // If so one can try to glDisable(GL_CULL_FACE). It works! Not always. =(
   glDisable(GL_CULL_FACE);
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -238,20 +241,20 @@ void Render::Viewer::init()
   // in radeon_state.c in radeonUpdateSpecular(),
   // it is important to set GL_SEPARATE_SPECULAR_COLOR_EXT
   // _before_ enabling lighting
-  glEnable( GL_LIGHTING );
+  glEnable(GL_LIGHTING);
 
-  glLightfv( GL_LIGHT0, GL_AMBIENT, LIGHT_AMBIENT );
-  glLightfv( GL_LIGHT0, GL_DIFFUSE, LIGHT0_DIFFUSE );
-  glLightfv( GL_LIGHT0, GL_SPECULAR, LIGHT0_SPECULAR );
-  glLightfv( GL_LIGHT0, GL_POSITION, LIGHT0_POSITION );
-  glEnable( GL_LIGHT0 );
+  glLightfv(GL_LIGHT0, GL_AMBIENT, LIGHT_AMBIENT);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, LIGHT0_DIFFUSE);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, LIGHT0_SPECULAR);
+  glLightfv(GL_LIGHT0, GL_POSITION, LIGHT0_POSITION);
+  glEnable(GL_LIGHT0);
 
   // Create a second light source to illuminate shadows a little better
-  glLightfv( GL_LIGHT1, GL_AMBIENT, LIGHT_AMBIENT );
-  glLightfv( GL_LIGHT1, GL_DIFFUSE, LIGHT1_DIFFUSE );
-  glLightfv( GL_LIGHT1, GL_SPECULAR, LIGHT1_SPECULAR );
-  glLightfv( GL_LIGHT1, GL_POSITION, LIGHT1_POSITION );
-  glEnable( GL_LIGHT1 );
+  glLightfv(GL_LIGHT1, GL_AMBIENT, LIGHT_AMBIENT);
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, LIGHT1_DIFFUSE);
+  glLightfv(GL_LIGHT1, GL_SPECULAR, LIGHT1_SPECULAR);
+  glLightfv(GL_LIGHT1, GL_POSITION, LIGHT1_POSITION);
+  glEnable(GL_LIGHT1);
 
   setSceneRadius(10.0f);
   showEntireScene();
@@ -272,28 +275,34 @@ void Render::Viewer::init()
 
 GLuint Render::Viewer::makeAxes(GLfloat size, Quality quality)
 {
+  Render::Arrow x;
+  Render::Arrow y;
+  Render::Arrow z;
+
+  x.setOrigin(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+  x.setTerminus(Eigen::Vector3f(size, 0.0f, 0.0f));
+  x.setRadius(0.04f);
+  x.setMaterial(Render::Material::red());
+
+  y.setOrigin(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+  y.setTerminus(Eigen::Vector3f(0.0f, size, 0.0f));
+  y.setRadius(0.04f);
+  y.setMaterial(Render::Material::green());
+
+  z.setOrigin(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+  z.setTerminus(Eigen::Vector3f(0.0f, 0.0f, size));
+  z.setRadius(0.04f);
+  z.setMaterial(Render::Material::blue());
+
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    Arrow x(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(size, 0.0f, 0.0f),
-            0.04f,
-            Material::red());
     x.draw(STYLE_FILL, quality);
-
-    Arrow y(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(0.0f, size, 0.0f),
-            0.05f,
-            Material::green());
     y.draw(Render::STYLE_FILL, quality);
-
-    Arrow z(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-            Eigen::Vector3f(0.0f, 0.0f, size),
-            0.05f,
-            Material::blue());
     z.draw(STYLE_FILL, quality);
   }
   glEndList();
+
   return list;
 }
 

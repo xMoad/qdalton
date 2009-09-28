@@ -31,19 +31,38 @@
 
 namespace Render
 {
+  /**
+   * @class Render::Cylinder RenderCylinder.h "Render/RenderCylinder.h"
+   * @brief Represents cylinder.
+   * @author Anton Simakov
+   * @version 0.1
+   *
+   * Render::Cylinder class is responsible for drawing cylinders in OpenGL scene.
+   */
   class Cylinder
   {
   public:
-    Cylinder(const Eigen::Vector3f& vertex1,
-             const Eigen::Vector3f& vertex2,
-             GLfloat radius,
-             const Render::Material& material);
+    /** Default constructor.
+     *
+     */
+    Cylinder();
+
+    /** Return the first vertex.
+     *
+     */
     const Eigen::Vector3f& vertex1() const;
+    void setVertex1(const Eigen::Vector3f& vertex1);
+
     const Eigen::Vector3f& vertex2() const;
-    Eigen::Vector3f centre() const;
+    void setVertex2(const Eigen::Vector3f& vertex2);
 
     GLfloat radius() const;
     void setRadius(GLfloat radius);
+
+    const Render::Material& material() const;
+    void setMaterial(const Render::Material& material);
+
+    Eigen::Vector3f centre() const;
 
     void draw(Render::Style style,
               Render::Quality quality) const;

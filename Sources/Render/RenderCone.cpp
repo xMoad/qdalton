@@ -20,51 +20,87 @@
  **********************************************************************/
 
 #include <cmath>
-
+#include <Eigen/Geometry>
 #include "Render/RenderCone.h"
 
 const double PI = 4.0 * atan(1.0);
 
-Render::Cone::Cone(const Eigen::Vector3f& vertex1,
-                   const Eigen::Vector3f& vertex2,
-                   GLfloat radius,
-                   const Render::Material& material):
-vertex1_(vertex1), vertex2_(vertex2), radius_(radius), material_(material)
+Render::Cone::Cone():
+    vertex1_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    vertex2_(Eigen::Vector3f(0.0f, 0.0f, 0.0f)),
+    radius_(0.0f),
+    material_(Render::Material())
 {
 }
 
-void Render::Cone::draw(Render::Style style, Render::Quality quality) const
+const Eigen::Vector3f& Render::Cone::vertex1() const
+{
+  return vertex1_;
+}
+
+void Render::Cone::setVertex1(const Eigen::Vector3f& vertex1)
+{
+  vertex1_ = vertex1;
+}
+
+const Eigen::Vector3f& Render::Cone::vertex2() const
+{
+  return vertex2_;
+}
+
+void Render::Cone::setVertex2(const Eigen::Vector3f& vertex2)
+{
+  vertex2_ = vertex2;
+}
+
+GLfloat Render::Cone::radius() const
+{
+  return radius_;
+}
+
+void Render::Cone::setRadius(GLfloat radius)
+{
+  radius_ = radius;
+}
+
+const Render::Material& Render::Cone::material() const
+{
+  return material_;
+}
+
+void Render::Cone::setMaterial(const Render::Material& material)
+{
+  material_ = material;
+}
+
+void Render::Cone::draw(Render::Style style,
+                        Render::Quality quality) const
 {
   material_.prepare();
   quadric_.prepare(style);
   GLint slices = quality;
-  GLfloat vx = vertex2_.x() - vertex1_.x();
-  GLfloat vy = vertex2_.y() - vertex1_.y();
-  GLfloat vz = vertex2_.z() - vertex1_.z();
-  // Handle the degenerate case with an approximation.
-  if (fabs(vz) < 0.001f)
-  {
-    vz = 0.001f;
-  }
-  GLfloat v = sqrt(vx * vx + vy * vy + vz * vz);
-  GLfloat ax = (GLfloat)(180.0f / PI * acos(vz / v));
-  if (vz < 0.0)
-  {
-    ax = -ax;
-  }
-  GLfloat rx = -vy * vz;
-  GLfloat ry = vx * vz;
+
+  // construct the 4D transformation matrix
+  Eigen::Matrix4f matrix;
+  matrix.row(3) << 0, 0, 0, 1;
+  matrix.block<3,1>(0,2) = vertex2() - vertex1(); // the axis
+
+  // construct an orthogonal basis whose first vector is the axis, and whose other vectors
+  // have norm equal to 'radius'.
+  Eigen::Vector3f axisNormalized = matrix.block<3,1>(0,2).normalized();
+  matrix.block<3,1>(0,0) = axisNormalized.unitOrthogonal() * radius();
+  matrix.block<3,1>(0,1) = axisNormalized.cross(matrix.block<3,1>(0,0));
+  matrix.block<3,1>(0,3) = vertex1();
 
   glPushMatrix();
   {
-    glTranslatef(vertex1_.x(), vertex1_.y(), vertex1_.z());
-    glRotatef(ax, rx, ry, 0.0f);
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_OUTSIDE);
-    gluCylinder(quadric_.GLUquadric_, radius_, 0.0f, v, slices, 1);
-    //draw the cap
-    gluQuadricOrientation(quadric_.GLUquadric_, GLU_INSIDE);
-    gluDisk(quadric_.GLUquadric_, 0.0, radius_, slices, 1);
-    glTranslatef(0, 0, v);
+    glMultMatrixf(matrix.data());
+    // First draw the lateral surface.
+    gluQuadricOrientation(quadric_.gluQuadricObj_, GLU_OUTSIDE);
+    gluCylinder(quadric_.gluQuadricObj_, 1.0f, 0.0f, 1.0f, slices, 1);
+    // Next draw the cone base.
+    gluQuadricOrientation(quadric_.gluQuadricObj_, GLU_INSIDE);
+    gluDisk(quadric_.gluQuadricObj_, 0.0, 1.0f, slices, 1);
   }
   glPopMatrix();
 }
