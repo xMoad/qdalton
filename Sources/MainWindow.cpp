@@ -1,14 +1,8 @@
 #include "MainWindow.h"
 
-#include <iostream>
-
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
-
-#include <openbabel/mol.h>
-#include <openbabel/obconversion.h>
-#include <openbabel/builder.h>
 
 #include "AboutDialog.h"
 #include "Render/RenderAtom.h"
@@ -152,7 +146,7 @@ void MainWindow::on_actionJobImportDalton_triggered()
           ui->tabWidget->show();
 
           ui->tabWidget->setCurrentIndex(3);
-          ui->viewer->setMolecule(molFile.obmol());
+          ui->viewer->setMolecule(molFile.molecule());
           ui->actionStructureExportImage->setEnabled(true);
           //          ui->atomsTableWidget->setRowCount(molFile_->molecule().nucleiCount());
           //          for (int i = 0; i < molFile.molecule().nucleiCount(); ++i)
@@ -201,13 +195,16 @@ void MainWindow::on_viewQComboBox_currentIndexChanged(int index)
   switch (index)
   {
   case 0:
-    ui->viewer->setView(ui->viewer->VIEW_BALLS_STICKS);
+    ui->viewer->setView(Render::Viewer::VIEW_BALLS_BONDS);
     break;
   case 1:
-    ui->viewer->setView(ui->viewer->VIEW_STICKS);
+    ui->viewer->setView(Render::Viewer::VIEW_BALLS_STICKS);
     break;
   case 2:
-    ui->viewer->setView(ui->viewer->VIEW_VDW);
+    ui->viewer->setView(Render::Viewer::VIEW_STICKS);
+    break;
+  case 3:
+    ui->viewer->setView(Render::Viewer::VIEW_VDW);
     break;
   }
 }
@@ -244,21 +241,22 @@ void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
 
 void MainWindow::on_actionStructureImportGaussianOutput_triggered()
 {
-  QString fileName = QFileDialog::getOpenFileName(this,
-                                                  "Choose Gaussian output file",
-                                                  getWorkDir(),
-                                                  "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
+  Render::Molecule molecule;
+  QString fileName;
+
+  fileName = QFileDialog::getOpenFileName(this,
+                                          "Choose Gaussian output file",
+                                          getWorkDir(),
+                                          "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
   if (!fileName.isEmpty())
   {
-    OpenBabel::OBMol obmol;
-    OpenBabel::OBConversion conv;
-    conv.SetInFormat("g03");
-    if (conv.ReadFile(&obmol, fileName.toStdString()))
+    if (molecule.importFromFile(Render::FORMAT_GAUSSIAN_OUTPUT,
+                                fileName))
     {
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(obmol);
+      ui->viewer->setMolecule(molecule);
       ui->actionStructureExportImage->setEnabled(true);
     }
     else
@@ -331,11 +329,11 @@ void MainWindow::on_pushButtonRun_clicked()
   ui->pushButtonRun->setText(tr("Running..."));
   qApp->processEvents();
 //  ui->pushButtonRun->setEnabled(false);
-  ui->viewer->optimize((Render::Viewer::ForceField)ui->comboBoxForceField->currentIndex(),
-                       (Render::Viewer::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
-                       powf(10, -ui->spinBoxConvergence->value()),
-                       ui->spinBoxMaxSteps->value(),
-                       ui->spinBoxStepsPerUpdate->value());
+//  ui->viewer->optimize((Render::Viewer::ForceField)ui->comboBoxForceField->currentIndex(),
+//                       (Render::Viewer::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
+//                       powf(10, -ui->spinBoxConvergence->value()),
+//                       ui->spinBoxMaxSteps->value(),
+//                       ui->spinBoxStepsPerUpdate->value());
 //  ui->pushButtonRun->setEnabled(true);
   ui->pushButtonRun->setText(tr("Run"));
   setCursor(Qt::ArrowCursor);
@@ -344,31 +342,24 @@ void MainWindow::on_pushButtonRun_clicked()
 void MainWindow::on_actionStructureImportSMILES_triggered()
 {
   bool ok;
-  std::string smiles;
-  std::stringstream ss;
-  OpenBabel::OBBuilder obbuilder;
-  OpenBabel::OBMol obmol;
+  QString text;
+  Render::Molecule molecule;
 
-  QString text = QInputDialog::getText(this,
-                                       tr("QDalton"),
-                                       tr("Input SMILES:"),
-                                       QLineEdit::Normal,
-                                       "",
-                                       &ok);
+  text = QInputDialog::getText(this,
+                               tr("QDalton"),
+                               tr("Input SMILES:"),
+                               QLineEdit::Normal,
+                               "",
+                               &ok);
   if (ok)
   {
-    smiles = text.toStdString();
-    ss.str(smiles);
-    OpenBabel::OBConversion conv(&ss);
-    if (conv.SetInFormat("smi") && conv.Read(&obmol))
+    if (molecule.importFromString(Render::FORMAT_SMILES,
+                                  text))
     {
-      obmol.AddHydrogens();
-      obbuilder.Build(obmol);
-      obmol.Center();
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(obmol);
+      ui->viewer->setMolecule(molecule);
       ui->actionStructureExportImage->setEnabled(true);
     }
   }
@@ -377,25 +368,24 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
 void MainWindow::on_actionStructureImportInChI_triggered()
 {
   bool ok;
-  QString text = QInputDialog::getText(this, tr("QDalton"), tr("Input InChI:"), QLineEdit::Normal,
-                                       "", &ok);
+  QString text;
+  Render::Molecule molecule;
+
+  text = QInputDialog::getText(this,
+                               tr("QDalton"),
+                               tr("Input InChI:"),
+                               QLineEdit::Normal,
+                               "",
+                               &ok);
   if (ok)
   {
-    std::string inchi = text.toStdString();
-    OpenBabel::OBMol obmol;
-    std::stringstream ss(inchi);
-    OpenBabel::OBConversion conv(&ss);
-    if (conv.SetInFormat("inchi") && conv.Read(&obmol))
+    if (molecule.importFromString(Render::FORMAT_INCHI,
+                                  text))
     {
-      OpenBabel::OBBuilder obbuilder;
-
-      obmol.AddHydrogens();
-      obbuilder.Build(obmol);
-      obmol.Center();
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(obmol);
+      ui->viewer->setMolecule(molecule);
       ui->actionStructureExportImage->setEnabled(true);
     }
   }

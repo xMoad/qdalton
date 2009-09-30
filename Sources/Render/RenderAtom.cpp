@@ -32,13 +32,13 @@
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
 Render::Atom::Atom(const Render::Atom& atom) :
-    obatom_(atom.obatom_),
+    obAtom_(atom.obAtom_),
     isSelected_(atom.isSelected_)
 {
 }
 
-Render::Atom::Atom(OpenBabel::OBAtom* obatom) :
-    obatom_(obatom),
+Render::Atom::Atom(OpenBabel::OBAtom* obAtom) :
+    obAtom_(obAtom),
     isSelected_(false)
 {
 }
@@ -46,20 +46,20 @@ Render::Atom::Atom(OpenBabel::OBAtom* obatom) :
 GLfloat Render::Atom::drawRadius() const
 {
 #ifdef Q_CC_MSVC
-  return pow(obatom_->GetExactMass(), 1.0/3.0) / 10.0f + 0.2f;
+  return pow(obAtom_->GetExactMass(), 1.0/3.0) / 10.0f + 0.2f;
 #else
-  return cbrt(obatom_->GetExactMass()) / 10.0f + 0.2f;
+  return cbrt(obAtom_->GetExactMass()) / 10.0f + 0.2f;
 #endif
 }
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) OpenBabel::etab.GetVdwRad(obatom_->GetAtomicNum());
+  return (GLfloat) OpenBabel::etab.GetVdwRad(obAtom_->GetAtomicNum());
 }
 
 Render::Color Render::Atom::color() const
 {
-  std::vector<double> rgb = OpenBabel::etab.GetRGB(obatom_->GetAtomicNum());
+  std::vector<double> rgb = OpenBabel::etab.GetRGB(obAtom_->GetAtomicNum());
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
@@ -68,7 +68,7 @@ void Render::Atom::draw(Render::Atom::DrawStyle style,
 {
   Render::Sphere sphere;
   Render::Material material(color(), true);
-  Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
+  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
 
   sphere.setCentre(centre);
 
@@ -94,7 +94,7 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 {
   Render::Sphere sphere;
   Render::Material material(Color::selection(), true);
-  Eigen::Vector3f centre(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());
+  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
 
   sphere.setCentre(centre);
 
@@ -123,12 +123,12 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 
 Eigen::Vector3f Render::Atom::centre() const
 {
-  return Eigen::Vector3f(obatom_->GetX(), obatom_->GetY(), obatom_->GetZ());;
+  return Eigen::Vector3f(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());;
 }
 
 void Render::Atom::setCentre(const Eigen::Vector3f& point)
 {
-  obatom_->SetVector(OpenBabel::vector3(point.x(), point.y(), point.z()));
+  obAtom_->SetVector(OpenBabel::vector3(point.x(), point.y(), point.z()));
 }
 
 bool Render::Atom::isSelected() const
@@ -153,7 +153,7 @@ void Render::Atom::toggleSelected()
   }
 }
 
-OpenBabel::OBAtom* Render::Atom::obatom() const
+OpenBabel::OBAtom* Render::Atom::obAtom() const
 {
-  return obatom_;
+  return obAtom_;
 }

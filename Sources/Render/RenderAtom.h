@@ -47,12 +47,15 @@ namespace Render
       DRAW_STYLE_CONNECTOR,
       DRAW_STYLE_VDW
     };
+
     Atom(const Atom& atom);
-    Atom(OpenBabel::OBAtom* obatom);
-    // Returns
+    Atom(OpenBabel::OBAtom* obAtom);
+
     GLfloat drawRadius() const;
     GLfloat vanderwaalsRadius() const;
+
     Render::Color color() const;
+
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
 
@@ -62,7 +65,7 @@ namespace Render
     void drawSelection(Render::Atom::DrawStyle style,
                        Render::Quality quality) const;
 
-    OpenBabel::OBAtom* obatom() const;
+    OpenBabel::OBAtom* obAtom() const;
 
     bool isSelected() const;
     void setSelected(bool selected);
@@ -70,7 +73,7 @@ namespace Render
 
     static const GLfloat SELECTON_RADIUS;
   private:
-    OpenBabel::OBAtom* obatom_;
+    OpenBabel::OBAtom* obAtom_;
     bool isSelected_;
   };
 }

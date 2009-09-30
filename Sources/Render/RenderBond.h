@@ -40,18 +40,23 @@ namespace Render
       DRAW_STYLE_BOND,
       DRAW_STYLE_STICK
     };
-    Bond(OpenBabel::OBBond* obbond);
+
+    Bond(const Render::Bond& bond);
+    Bond(OpenBabel::OBBond* obBond);
 
     void draw(Render::Bond::DrawStyle drawStyle,
               Render::Quality quality) const;
 
     void drawSelection(Quality quality) const;
+
     bool isSelected() const;
     void setSelected(bool selected);
+    void toggleSelected();
+
     static const GLfloat BOND_THIKNESS;
     static const GLfloat STICK_THIKNESS;
   private:
-    OpenBabel::OBBond* obbond_;
+    OpenBabel::OBBond* obBond_;
     bool isSelected_;
   };
 }

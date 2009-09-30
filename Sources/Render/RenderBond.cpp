@@ -25,11 +25,17 @@
 #include "Render/RenderBond.h"
 #include "Render/RenderCylinder.h"
 
-const GLfloat Render::Bond::BOND_THIKNESS = 0.05f;
+const GLfloat Render::Bond::BOND_THIKNESS = 0.075f;
 const GLfloat Render::Bond::STICK_THIKNESS = 0.15f;
 
-Render::Bond::Bond(OpenBabel::OBBond* obbond):
-    obbond_(obbond),
+Render::Bond::Bond(const Render::Bond& bond) :
+    obBond_(bond.obBond_),
+    isSelected_(bond.isSelected_)
+{
+}
+
+Render::Bond::Bond(OpenBabel::OBBond* obBond) :
+    obBond_(obBond),
     isSelected_(false)
 {
 }
@@ -40,8 +46,8 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
   Render::Cylinder cylinder1;
   Render::Cylinder cylinder2;
 
-  Render::Atom atom1(obbond_->GetParent()->GetAtom(obbond_->GetBeginAtomIdx()));
-  Render::Atom atom2(obbond_->GetParent()->GetAtom(obbond_->GetEndAtomIdx()));
+  Render::Atom atom1(obBond_->GetParent()->GetAtom(obBond_->GetBeginAtomIdx()));
+  Render::Atom atom2(obBond_->GetParent()->GetAtom(obBond_->GetEndAtomIdx()));
   Render::Material material1(atom1.color(), true);
   Render::Material material2(atom2.color(), true);
 
@@ -69,13 +75,13 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
 
     cylinder1.drawMulti(Render::STYLE_FILL,
                         quality,
-                        obbond_->GetBondOrder(),
-                        0.1f,
+                        obBond_->GetBondOrder(),
+                        0.125f,
                         Eigen::Vector3f(0.0f, 0.0f, 1.0f));
     cylinder2.drawMulti(Render::STYLE_FILL,
                         quality,
-                        obbond_->GetBondOrder(),
-                        0.1f,
+                        obBond_->GetBondOrder(),
+                        0.125f,
                         Eigen::Vector3f(0.0f, 0.0f, 1.0f));
   }
   else
@@ -90,6 +96,28 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
 
 void Render::Bond::drawSelection(Render::Quality quality) const
 {
+  OpenBabel::OBAtom* obAtomPtr;
+  Render::Cylinder cylinder;
+  Render::Material material(Color::selection(), true);
+
+  obAtomPtr = obBond_->GetBeginAtom();
+  cylinder.setVertex1(Eigen::Vector3f(obAtomPtr->GetX(),
+                                      obAtomPtr->GetY(),
+                                      obAtomPtr->GetZ()));
+  obAtomPtr = obBond_->GetEndAtom();
+  cylinder.setVertex2(Eigen::Vector3f(obAtomPtr->GetX(),
+                                      obAtomPtr->GetY(),
+                                      obAtomPtr->GetZ()));
+
+  cylinder.setRadius(0.2f);
+  cylinder.setMaterial(material);
+  // Enable blending
+  glEnable(GL_BLEND);
+  //  glDisable(GL_DEPTH_TEST);
+  cylinder.draw(STYLE_FILL, quality);
+  glDisable(GL_BLEND);
+  //  glEnable(GL_DEPTH_TEST);
+
   /*  Stereometry::Point* point1;
   Stereometry::Point* point2;
   // Enable blending
@@ -123,8 +151,17 @@ bool Render::Bond::isSelected() const
 
 void Render::Bond::setSelected(bool selected)
 {
-  if (selected == true)
-    isSelected_ = true;
+  isSelected_ = selected;
+}
+
+void Render::Bond::toggleSelected()
+{
+  if (isSelected())
+  {
+    setSelected(false);
+  }
   else
-    isSelected_ = false;
+  {
+    setSelected(true);
+  }
 }

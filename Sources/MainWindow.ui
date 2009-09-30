@@ -206,7 +206,7 @@
              <x>0</x>
              <y>0</y>
              <width>260</width>
-             <height>201</height>
+             <height>211</height>
             </rect>
            </property>
            <attribute name="label">
@@ -256,6 +256,11 @@
             </item>
             <item row="3" column="1" colspan="3">
              <widget class="QComboBox" name="viewQComboBox">
+              <item>
+               <property name="text">
+                <string>Balls &amp; Bonds</string>
+               </property>
+              </item>
               <item>
                <property name="text">
                 <string>Balls &amp; Sticks</string>
@@ -313,8 +318,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>104</width>
-             <height>57</height>
+             <width>98</width>
+             <height>50</height>
             </rect>
            </property>
            <attribute name="label">
@@ -398,8 +403,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>293</width>
-             <height>226</height>
+             <width>231</width>
+             <height>183</height>
             </rect>
            </property>
            <attribute name="label">
@@ -591,7 +596,7 @@ QDalton is powerful GUI for Dalton.</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

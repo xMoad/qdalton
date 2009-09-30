@@ -30,10 +30,11 @@
 
 #include <QMouseEvent>
 #include <QGLViewer/qglviewer.h>
-#include <openbabel/mol.h>
+
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
+#include "Render/RenderMolecule.h"
 #include "Render/RenderQuality.h"
 
 namespace Render
@@ -45,6 +46,7 @@ namespace Render
   public:
     enum View
     {
+      VIEW_BALLS_BONDS,
       VIEW_BALLS_STICKS,
       VIEW_STICKS,
       VIEW_VDW
@@ -56,24 +58,10 @@ namespace Render
       MODE_ADD
     };
 
-    enum ForceField
-    {
-      FF_GHEMICAL,
-      FF_MMFF94,
-      FF_MMFF94s,
-      FF_UFF
-    };
-
-    enum Algorithm
-    {
-      ALGORITHM_STEEPEST_DESCENT,
-      ALGORITHM_CONJUGATE_GRADIENTS
-    };
-
     Viewer(QWidget* parent);
     ~Viewer();
 
-    void setMolecule(const OpenBabel::OBMol& obmol);
+    void setMolecule(const Render::Molecule& molecule);
     bool isMoleculeEmpty() const;
     void updateMolecule();
 
@@ -85,12 +73,6 @@ namespace Render
     void setDebugInfoVisibility(bool visibility);
     void addAtom(const Render::Atom& atom);
     void addBond(const Render::Bond& bond);
-
-    void optimize(ForceField forceField,
-                  Algorithm algorithm,
-                  double convergenceCriteria,
-                  quint16 maxSteps,
-                  quint8 stepsPerUpdate = 0);
 
   public slots:
     void build();
@@ -115,11 +97,10 @@ namespace Render
       GLLIST_AXES,
       GLLIST_ATOMS,
       GLLIST_BONDS,
-//      GLLIST_STICKS,
       GLLIST_SELECTIONS
     };
 
-    OpenBabel::OBMol obmol_;
+    Render::Molecule molecule_;
     View view_;
     Mode mode_;
     // added atom atomic number
@@ -128,10 +109,13 @@ namespace Render
     bool isDebugInfoVisible_;
     bool isAxesVisible_;
     GLfloat axesSize_;
+
     OpenBabel::OBAtom* currentOBAtom_;
     OpenBabel::OBAtom* newOBAtom_;
+
     QList<Render::Atom> atomsList_;
     QList<Render::Bond> bondsList_;
+
     qglviewer::Vec selectedPoint;
 
     void updateGLList(GLList gllist);

@@ -1,8 +1,18 @@
-QT *= core gui opengl xml
+QT *= core \
+    gui \
+    opengl \
+    xml
 
 # QMAKE_CXXFLAGS *= -Wold-style-cast -Wfloat-equal -Woverloaded-virtual -Wshadow -Wundef
 TEMPLATE = app
-CONFIG += debug_and_release qt opengl warn_on thread rtti console embed_manifest_exe
+CONFIG += debug_and_release \
+    qt \
+    opengl \
+    warn_on \
+    thread \
+    rtti \
+    console \
+    embed_manifest_exe
 INCLUDEPATH += Sources \
     Include
 HEADERS += Sources/MainWindow.h \
@@ -27,7 +37,8 @@ HEADERS += Sources/MainWindow.h \
     Sources/File/FileParametre.h \
     Sources/File/FileModule.h \
     Sources/File/FileDal.h \
-    Sources/AboutDialog.h
+    Sources/AboutDialog.h \
+    Sources/Render/RenderMolecule.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -47,45 +58,48 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileParametre.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
-    Sources/AboutDialog.cpp
+    Sources/AboutDialog.cpp \
+    Sources/Render/RenderMolecule.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
 CONFIG(debug, debug|release) { 
-  MOC_DIR = Build/Temp/debug
-  RCC_DIR = Build/Temp/debug
-  UI_DIR = Build/Temp/debug
-  OBJECTS_DIR = Build/Objects/debug
+    MOC_DIR = Build/Temp/debug
+    RCC_DIR = Build/Temp/debug
+    UI_DIR = Build/Temp/debug
+    OBJECTS_DIR = Build/Objects/debug
 }
 else { 
-  CONFIG -= console
-  MOC_DIR = Build/Temp/release
-  RCC_DIR = Build/Temp/release
-  UI_DIR = Build/Temp/release
-  OBJECTS_DIR = Build/Objects/release
+    CONFIG -= console
+    MOC_DIR = Build/Temp/release
+    RCC_DIR = Build/Temp/release
+    UI_DIR = Build/Temp/release
+    OBJECTS_DIR = Build/Objects/release
 }
-
-win32 {
-  CONFIG(debug, debug|release) {
-    DESTDIR = Build/Binaries/Windows/debug
-    LIBS += -LLibraries/Windows -ldQGLViewer2 -ldopenbabel-2
-  }
-  else {
-    DESTDIR = Build/Binaries/Windows/release
-    LIBS += -LLibraries/Windows -lQGLViewer2 -lopenbabel-2
-  }
+win32 { 
+    CONFIG(debug, debug|release) { 
+        DESTDIR = Build/Binaries/Windows/debug
+        LIBS += -LLibraries/Windows \
+            -ldQGLViewer2 \
+            -ldopenbabel-2
+    }
+    else { 
+        DESTDIR = Build/Binaries/Windows/release
+        LIBS += -LLibraries/Windows \
+            -lQGLViewer2 \
+            -lopenbabel-2
+    }
 }
-
 macx { 
-  DESTDIR = Build/Binaries/MacOS
-  LIBS += -framework QGLViewer -lopenbabel
-  CONFIG(debug, debug|release) {   
-    DYLD_IMAGE_SUFFIX = _debug
-  }
+    DESTDIR = Build/Binaries/MacOS
+    LIBS += -framework \
+        QGLViewer \
+        -lopenbabel
+    CONFIG(debug, debug|release):DYLD_IMAGE_SUFFIX = _debug
 }
-
 linux-g++ { 
-  DESTDIR = Build/Binaries/Linux
-  LIBS *= -lQGLViewer -lopenbabel
+    DESTDIR = Build/Binaries/Linux
+    LIBS *= -lQGLViewer \
+        -lopenbabel
 }

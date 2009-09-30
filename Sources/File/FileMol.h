@@ -1,9 +1,8 @@
 #ifndef FILE_MOL_H
 #define FILE_MOL_H
 
-#include <openbabel/mol.h>
-
 #include "File/FileText.h"
+#include "Render/RenderMolecule.h"
 
 namespace File
 {
@@ -21,7 +20,7 @@ namespace File
     Mol(const File::Mol& molFile);
     Mol(QString fileName);
     bool parse(bool doAutoRebond);
-    const OpenBabel::OBMol& obmol() const;
+    const Render::Molecule& molecule() const;
     BasisType basisType() const;
     BasisSet basisSet();
     const QString& comment() const;
@@ -32,7 +31,7 @@ namespace File
     bool isCartesian() const;
     void setCartesian(bool isCartesian);
   private:
-    OpenBabel::OBMol obmol_;
+    Render::Molecule molecule_;
     BasisType basisType_;
     BasisSet basisSet_;
     QString comment_;

@@ -108,11 +108,11 @@ bool File::Mol::parse(bool doAutoRebond)
   n = regExp.indexIn(strings_[generalStringIndex]);
   if (n != -1)
   {
-    obmol_.SetTotalCharge(regExp.cap(1).toInt(&ok, 10));
+    molecule_.setCharge(regExp.cap(1).toInt(&ok, 10));
   }
   else
   {
-    obmol_.SetTotalCharge(0);
+    molecule_.setCharge(0);
   }
 
   // Extract info about atoms
@@ -139,19 +139,21 @@ bool File::Mol::parse(bool doAutoRebond)
           obatom.SetVector(regExpAtom.cap(2).toFloat(&ok),
                            regExpAtom.cap(3).toFloat(&ok),
                            regExpAtom.cap(4).toFloat(&ok));
-          obmol_.AddAtom(obatom);
+          molecule_.addObAtom(obatom);
         }
       }
     }
   }
   if (doAutoRebond)
-    obmol_.ConnectTheDots();
+  {
+    molecule_.rebond();
+  }
   return true;
 }
 
-const OpenBabel::OBMol& File::Mol::obmol() const
+const Render::Molecule& File::Mol::molecule() const
 {
-  return obmol_;
+  return molecule_;
 }
 
 File::Mol::BasisType File::Mol::basisType() const
