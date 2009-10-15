@@ -36,6 +36,8 @@ private:
   QLabel statusLabel_;
 
 private slots:
+  void on_conformersTableWidget_cellClicked(int row, int column);
+  void on_actionStructureConformations_triggered();
   void on_actionStructureImportInChI_triggered();
   void on_actionStructureImportSMILES_triggered();
   void on_pushButtonRun_clicked();

@@ -151,7 +151,7 @@ bool File::Mol::parse(bool doAutoRebond)
   return true;
 }
 
-const Render::Molecule& File::Mol::molecule() const
+const Chemistry::Molecule& File::Mol::molecule() const
 {
   return molecule_;
 }

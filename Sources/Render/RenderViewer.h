@@ -29,12 +29,12 @@
 #endif
 
 #include <QMouseEvent>
+#include <QTableWidget>
 #include <QGLViewer/qglviewer.h>
 
-
+#include "Chemistry/ChemistryMolecule.h"
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
-#include "Render/RenderMolecule.h"
 #include "Render/RenderQuality.h"
 
 namespace Render
@@ -61,9 +61,8 @@ namespace Render
     Viewer(QWidget* parent);
     ~Viewer();
 
-    void setMolecule(const Render::Molecule& molecule);
+    void setMolecule(const Chemistry::Molecule& molecule);
     bool isMoleculeEmpty() const;
-    void updateMolecule();
 
     void setView(View view);
     void setMode(Mode mode);
@@ -74,17 +73,25 @@ namespace Render
     void addAtom(const Render::Atom& atom);
     void addBond(const Render::Bond& bond);
 
+    void optimize(Chemistry::ForceField forceField,
+                  Chemistry::Algorithm algorithm,
+                  double convergenceCriteria,
+                  quint16 maxSteps,
+                  quint8 stepsPerUpdate = 0);
+    void conformationalSearch(QTableWidget* targetTableWidget);
+    void displayConformer(quint16 index);
+
   public slots:
     void build();
     void addHydrogensAndBuild();
     void removeHydrogens();
+    void updateMolecule();
 
   protected:
     virtual void init();
     virtual void draw();
     virtual void drawWithNames();
     virtual void fastDraw();
-    virtual void postSelection(const QPoint& point);
     virtual QString helpString() const;
 
     virtual void mouseMoveEvent(QMouseEvent* e);
@@ -100,7 +107,7 @@ namespace Render
       GLLIST_SELECTIONS
     };
 
-    Render::Molecule molecule_;
+    Chemistry::Molecule molecule_;
     View view_;
     Mode mode_;
     // added atom atomic number

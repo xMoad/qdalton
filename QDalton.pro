@@ -12,7 +12,8 @@ CONFIG += debug_and_release \
     thread \
     rtti \
     console \
-    embed_manifest_exe
+    embed_manifest_exe \
+    cocoa
 INCLUDEPATH += Sources \
     Include
 HEADERS += Sources/MainWindow.h \
@@ -38,7 +39,9 @@ HEADERS += Sources/MainWindow.h \
     Sources/File/FileModule.h \
     Sources/File/FileDal.h \
     Sources/AboutDialog.h \
-    Sources/Render/RenderMolecule.h
+    Sources/Chemistry/ChemistryMolecule.h \
+    Sources/Chemistry/ChemistryForceField.h \
+    Sources/Chemistry/ChemistryFormat.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -59,7 +62,7 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
-    Sources/Render/RenderMolecule.cpp
+    Sources/Chemistry/ChemistryMolecule.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui
 RESOURCES += Resources/icons.qrc \

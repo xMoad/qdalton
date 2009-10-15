@@ -2,7 +2,7 @@
 #define FILE_MOL_H
 
 #include "File/FileText.h"
-#include "Render/RenderMolecule.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 namespace File
 {
@@ -20,7 +20,8 @@ namespace File
     Mol(const File::Mol& molFile);
     Mol(QString fileName);
     bool parse(bool doAutoRebond);
-    const Render::Molecule& molecule() const;
+
+    const Chemistry::Molecule& molecule() const;
     BasisType basisType() const;
     BasisSet basisSet();
     const QString& comment() const;
@@ -31,7 +32,7 @@ namespace File
     bool isCartesian() const;
     void setCartesian(bool isCartesian);
   private:
-    Render::Molecule molecule_;
+    Chemistry::Molecule molecule_;
     BasisType basisType_;
     BasisSet basisSet_;
     QString comment_;

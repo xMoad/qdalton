@@ -25,7 +25,7 @@
 #include "Render/RenderBond.h"
 #include "Render/RenderCylinder.h"
 
-const GLfloat Render::Bond::BOND_THIKNESS = 0.075f;
+const GLfloat Render::Bond::BOND_THIKNESS = 0.05f;
 const GLfloat Render::Bond::STICK_THIKNESS = 0.15f;
 
 Render::Bond::Bond(const Render::Bond& bond) :
@@ -41,8 +41,10 @@ Render::Bond::Bond(OpenBabel::OBBond* obBond) :
 }
 
 void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
+                        const Eigen::Vector3f& planeNormalVector,
                         Render::Quality quality) const
 {
+  float shift;
   Render::Cylinder cylinder1;
   Render::Cylinder cylinder2;
 
@@ -73,16 +75,25 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
     cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
     cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
 
+    if (obBond_->GetBondOrder() < 3)
+    {
+      shift = 0.1f;
+    }
+    else
+    {
+      shift = 0.2f;
+    }
+
     cylinder1.drawMulti(Render::STYLE_FILL,
                         quality,
                         obBond_->GetBondOrder(),
-                        0.125f,
-                        Eigen::Vector3f(0.0f, 0.0f, 1.0f));
+                        shift,
+                        planeNormalVector);
     cylinder2.drawMulti(Render::STYLE_FILL,
                         quality,
                         obBond_->GetBondOrder(),
-                        0.125f,
-                        Eigen::Vector3f(0.0f, 0.0f, 1.0f));
+                        shift,
+                        planeNormalVector);
   }
   else
   {
@@ -117,31 +128,6 @@ void Render::Bond::drawSelection(Render::Quality quality) const
   cylinder.draw(STYLE_FILL, quality);
   glDisable(GL_BLEND);
   //  glEnable(GL_DEPTH_TEST);
-
-  /*  Stereometry::Point* point1;
-  Stereometry::Point* point2;
-  // Enable blending
-  glEnable(GL_BLEND);
-  glDepthMask(GL_FALSE);
-  glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
-  Material material(Color::selection(),
-                    Material::defaultComponent(Material::DIFFUSE),
-                    Material::defaultComponent(Material::EMISSION),
-                    Material::defaultComponent(Material::SPECULAR),
-                    Material::defaultShininess());
-  Stereometry::Vector v(atom1_->centre(), atom2_->centre());
-  if (atom1_->isSelected())
-    point1 = new Stereometry::Point(v.pointAt(atom1_->radius() + 0.05f));
-  else
-    point1 = new Stereometry::Point(v.origin());
-  if (atom2_->isSelected())
-    point2 = new Stereometry::Point(v.pointAt(v.modulus() - (atom2_->radius() + 0.05f)));
-  else
-    point2 = new Stereometry::Point(v.terminus());
-  Cylinder cylinderRender(*point1, *point2, DEFAULT_THIKNESS + 0.1f, material);
-  cylinderRender.draw(STYLE_FILL, quality);
-  glDepthMask(GL_TRUE);
-  glDisable(GL_BLEND);*/
 }
 
 bool Render::Bond::isSelected() const
@@ -163,5 +149,18 @@ void Render::Bond::toggleSelected()
   else
   {
     setSelected(true);
+  }
+}
+
+void Render::Bond::cycleOrder()
+{
+  quint8 order = obBond_->GetBondOrder();
+  if (order == 3)
+  {
+    obBond_->SetBondOrder(1);
+  }
+  else
+  {
+    obBond_->SetBondOrder(order + 1);
   }
 }

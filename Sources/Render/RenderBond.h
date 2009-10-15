@@ -45,6 +45,7 @@ namespace Render
     Bond(OpenBabel::OBBond* obBond);
 
     void draw(Render::Bond::DrawStyle drawStyle,
+              const Eigen::Vector3f& planeNormalVector,
               Render::Quality quality) const;
 
     void drawSelection(Quality quality) const;
@@ -52,6 +53,8 @@ namespace Render
     bool isSelected() const;
     void setSelected(bool selected);
     void toggleSelected();
+
+    void cycleOrder();
 
     static const GLfloat BOND_THIKNESS;
     static const GLfloat STICK_THIKNESS;

@@ -26,6 +26,11 @@ MainWindow::MainWindow(QWidget* parent):
   //
   ui->statusbar->addWidget(&statusLabel_, 1);
   statusLabel_.setText(workDir_);
+
+  QStringList headerLabels;
+  headerLabels << " Number" << "Energy";
+  ui->conformersTableWidget->setHorizontalHeaderLabels(headerLabels);
+  ui->conformersTableWidget->horizontalHeader()->setVisible(true);
 }
 
 MainWindow::~MainWindow()
@@ -241,7 +246,7 @@ void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
 
 void MainWindow::on_actionStructureImportGaussianOutput_triggered()
 {
-  Render::Molecule molecule;
+  Chemistry::Molecule molecule;
   QString fileName;
 
   fileName = QFileDialog::getOpenFileName(this,
@@ -250,7 +255,7 @@ void MainWindow::on_actionStructureImportGaussianOutput_triggered()
                                           "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
   if (!fileName.isEmpty())
   {
-    if (molecule.importFromFile(Render::FORMAT_GAUSSIAN_OUTPUT,
+    if (molecule.importFromFile(Chemistry::FORMAT_GAUSSIAN_OUTPUT,
                                 fileName))
     {
       ui->welcomeWidget->hide();
@@ -328,13 +333,13 @@ void MainWindow::on_pushButtonRun_clicked()
   setCursor(Qt::WaitCursor);
   ui->pushButtonRun->setText(tr("Running..."));
   qApp->processEvents();
-//  ui->pushButtonRun->setEnabled(false);
-//  ui->viewer->optimize((Render::Viewer::ForceField)ui->comboBoxForceField->currentIndex(),
-//                       (Render::Viewer::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
-//                       powf(10, -ui->spinBoxConvergence->value()),
-//                       ui->spinBoxMaxSteps->value(),
-//                       ui->spinBoxStepsPerUpdate->value());
-//  ui->pushButtonRun->setEnabled(true);
+  ui->pushButtonRun->setEnabled(false);
+  ui->viewer->optimize((Chemistry::ForceField)ui->comboBoxForceField->currentIndex(),
+                       (Chemistry::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
+                       powf(10, -ui->spinBoxConvergence->value()),
+                       ui->spinBoxMaxSteps->value(),
+                       ui->spinBoxStepsPerUpdate->value());
+  ui->pushButtonRun->setEnabled(true);
   ui->pushButtonRun->setText(tr("Run"));
   setCursor(Qt::ArrowCursor);
 }
@@ -343,7 +348,7 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
 {
   bool ok;
   QString text;
-  Render::Molecule molecule;
+  Chemistry::Molecule molecule;
 
   text = QInputDialog::getText(this,
                                tr("QDalton"),
@@ -353,7 +358,7 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule.importFromString(Render::FORMAT_SMILES,
+    if (molecule.importFromString(Chemistry::FORMAT_SMILES,
                                   text))
     {
       ui->welcomeWidget->hide();
@@ -369,7 +374,7 @@ void MainWindow::on_actionStructureImportInChI_triggered()
 {
   bool ok;
   QString text;
-  Render::Molecule molecule;
+  Chemistry::Molecule molecule;
 
   text = QInputDialog::getText(this,
                                tr("QDalton"),
@@ -379,7 +384,7 @@ void MainWindow::on_actionStructureImportInChI_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule.importFromString(Render::FORMAT_INCHI,
+    if (molecule.importFromString(Chemistry::FORMAT_INCHI,
                                   text))
     {
       ui->welcomeWidget->hide();
@@ -388,5 +393,21 @@ void MainWindow::on_actionStructureImportInChI_triggered()
       ui->viewer->setMolecule(molecule);
       ui->actionStructureExportImage->setEnabled(true);
     }
+  }
+}
+
+void MainWindow::on_actionStructureConformations_triggered()
+{
+  ui->viewer->conformationalSearch(ui->conformersTableWidget);
+}
+
+void MainWindow::on_conformersTableWidget_cellClicked(int row, int column)
+{
+  bool ok;
+
+  quint16 n = ui->conformersTableWidget->item(row, 0)->text().toUInt(&ok);
+  if (ok)
+  {
+    ui->viewer->displayConformer(n - 1);
   }
 }
