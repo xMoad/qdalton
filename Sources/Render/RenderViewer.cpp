@@ -33,7 +33,7 @@
 
 Render::Viewer::Viewer(QWidget* parent) :
     QGLViewer(parent),
-    molecule_(),
+    molecule_(0),
     view_(Render::Viewer::VIEW_BALLS_BONDS),
     mode_(Render::Viewer::MODE_VIEW)
 {
@@ -43,8 +43,6 @@ Render::Viewer::Viewer(QWidget* parent) :
   atomicNumber_ = 6;
   currentOBAtom_ = 0;
   newOBAtom_ = 0;
-  connect(&molecule_, SIGNAL(geometryChanged()),
-          this, SLOT(updateMolecule()));
 }
 
 Render::Viewer::~Viewer()
@@ -105,8 +103,8 @@ void Render::Viewer::draw()
     renderText(20, 30, "Mode: View", font);
     renderText(20, 45,
                QString("Molecule: %1 (%2 atoms)").arg(
-                   molecule_.formula(),
-                   QString::number(molecule_.atomsCount())),
+                   molecule_->formula(),
+                   QString::number(molecule_->atomsCount())),
                font);
 
     glColor4fv(color);
@@ -481,7 +479,7 @@ void Render::Viewer::setDebugInfoVisibility(bool visibility)
   updateGL();
 }
 
-void Render::Viewer::setMolecule(const Chemistry::Molecule& molecule)
+void Render::Viewer::setMolecule(Chemistry::Molecule* molecule)
 {
   molecule_ = molecule;
   updateMolecule();
@@ -489,7 +487,7 @@ void Render::Viewer::setMolecule(const Chemistry::Molecule& molecule)
 
 bool Render::Viewer::isMoleculeEmpty() const
 {
-  return molecule_.atomsCount() == 0;
+  return molecule_->atomsCount() == 0;
 }
 
 void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
@@ -518,40 +516,31 @@ void Render::Viewer::addBond(const Bond& bond)
 
 void Render::Viewer::build()
 {
-  molecule_.build();
+  molecule_->build();
   updateMolecule();
 }
 
 void Render::Viewer::addHydrogensAndBuild()
 {
-  molecule_.addHydrogensAndBuild();
+  molecule_->addHydrogensAndBuild();
   updateMolecule();
 }
 
 void Render::Viewer::removeHydrogens()
 {
-  molecule_.removeHydrogens();
+  molecule_->removeHydrogens();
   updateMolecule();
-}
-
-void Render::Viewer::optimize(Chemistry::ForceField forceField,
-                              Chemistry::Algorithm algorithm,
-                              double convergenceCriteria,
-                              quint16 maxSteps,
-                              quint8 stepsPerUpdate)
-{
-  molecule_.optimize(forceField, algorithm, convergenceCriteria, maxSteps, stepsPerUpdate);
 }
 
 void Render::Viewer::conformationalSearch(QTableWidget* targetTableWidget)
 {
-  molecule_.conformationalSearch();
-  targetTableWidget->setRowCount(molecule_.conformersCount());
-  for (int i = 0; i < molecule_.conformersCount(); ++i)
+  molecule_->conformationalSearch();
+  targetTableWidget->setRowCount(molecule_->conformersCount());
+  for (int i = 0; i < molecule_->conformersCount(); ++i)
   {
     QTableWidgetItem* newItem = new QTableWidgetItem(QString::number(i + 1).rightJustified(3, '0'));
     targetTableWidget->setItem(i, 0, newItem);
-    newItem = new QTableWidgetItem(QString::number(molecule_.conformerEnergy(i)));
+    newItem = new QTableWidgetItem(QString::number(molecule_->conformerEnergy(i)));
     targetTableWidget->setItem(i, 1, newItem);
   }
   displayConformer(0);
@@ -559,7 +548,7 @@ void Render::Viewer::conformationalSearch(QTableWidget* targetTableWidget)
 
 void Render::Viewer::displayConformer(quint16 index)
 {
-  molecule_.setConformer(index);
+  molecule_->setConformer(index);
   updateMolecule();
 }
 
@@ -656,7 +645,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       {
         if (selectedName() < atomsList_.size())
         {
-          currentOBAtom_ = molecule_.obAtom(selectedName());
+          currentOBAtom_ = molecule_->obAtom(selectedName());
           //        currentOBAtom_->SetAtomicNum(atomicNumber_);
           newOBAtom_ = new OpenBabel::OBAtom();
           newOBAtom_->SetAtomicNum(atomicNumber_);
@@ -669,9 +658,9 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       else
       {
-        if (molecule_.atomsCount() == 0)
+        if (molecule_->atomsCount() == 0)
         {
-          molecule_.addAtom(atomicNumber_);
+          molecule_->addAtom(atomicNumber_);
           updateMolecule();
         }
       }
@@ -689,7 +678,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       switch (e->modifiers())
       {
       case (Qt::NoModifier):
-        molecule_.deleteAtom(atomsList_[selectedName()].obAtom());
+        molecule_->deleteAtom(atomsList_[selectedName()].obAtom());
         updateMolecule();
         break;
       case (Qt::MetaModifier):
@@ -740,14 +729,14 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
                                  newOBAtom_->y() + manipulatedFrame()->position().y,
                                  newOBAtom_->z() + manipulatedFrame()->position().z);
             newOBAtom_->SetVector(p);
-            molecule_.addObAtom(*newOBAtom_);
-            molecule_.addBond(currentOBAtom_,
-                              molecule_.obAtom(molecule_.atomsCount() - 1),
+            molecule_->addObAtom(*newOBAtom_);
+            molecule_->addBond(currentOBAtom_,
+                              molecule_->obAtom(molecule_->atomsCount() - 1),
                               1);
           }
           else
           {
-            molecule_.addBond(currentOBAtom_,
+            molecule_->addBond(currentOBAtom_,
                               atomsList_[selectedName()].obAtom(),
                               1);
           }
@@ -811,9 +800,9 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
 void Render::Viewer::updateRenderAtoms()
 {
   atomsList_.clear();
-  for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
+  for (quint16 i = 0; i < molecule_->atomsCount(); ++i)
   {
-    Atom atom(molecule_.obAtom(i));
+    Atom atom(molecule_->obAtom(i));
     addAtom(atom);
   }
 }
@@ -821,9 +810,9 @@ void Render::Viewer::updateRenderAtoms()
 void Render::Viewer::updateRenderBonds()
 {
   bondsList_.clear();
-  for (quint16 i = 0; i < molecule_.bondsCount(); ++i)
+  for (quint16 i = 0; i < molecule_->bondsCount(); ++i)
   {
-    Bond bond(molecule_.obBond(i));
+    Bond bond(molecule_->obBond(i));
     addBond(bond);
   }
 }

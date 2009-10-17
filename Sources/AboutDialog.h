@@ -32,13 +32,14 @@ namespace Ui
 class AboutDialog : public QDialog
 {
   Q_OBJECT
+
 public:
   AboutDialog(QWidget* parent = 0);
   ~AboutDialog();
   void setHeaderLabelText(const QString& text);
 
 private:
-  Ui::AboutDialog* ui;
+  Ui::AboutDialog* ui_;
 };
 
 #endif // ABOUTDIALOG_H

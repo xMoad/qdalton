@@ -183,7 +183,8 @@ void Chemistry::Molecule::build()
            Chemistry::ALGORITHM_STEEPEST_DESCENT,
            1.0e-7,
            50,
-           0);
+           0,
+           &std::cout);
   obMol_.Center();
 }
 
@@ -206,7 +207,8 @@ void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
                                    Chemistry::Algorithm algorithm,
                                    double convergenceCriteria,
                                    quint16 maxSteps,
-                                   quint8 stepsPerUpdate)
+                                   quint8 stepsPerUpdate,
+                                   std::ostream* logOstream)
 {
   OpenBabel::OBForceField* ff;
 
@@ -237,7 +239,7 @@ void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
     std::cout << "Setup error!";
   }
 
-  ff->SetLogFile(&std::cout);
+  ff->SetLogFile(logOstream);
   ff->SetLogLevel(OBFF_LOGLVL_LOW);
 
   /*

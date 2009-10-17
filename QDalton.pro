@@ -41,7 +41,8 @@ HEADERS += Sources/MainWindow.h \
     Sources/AboutDialog.h \
     Sources/Chemistry/ChemistryMolecule.h \
     Sources/Chemistry/ChemistryForceField.h \
-    Sources/Chemistry/ChemistryFormat.h
+    Sources/Chemistry/ChemistryFormat.h \
+    Sources/LogDialog.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -62,9 +63,11 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
-    Sources/Chemistry/ChemistryMolecule.cpp
+    Sources/Chemistry/ChemistryMolecule.cpp \
+    Sources/LogDialog.cpp
 FORMS += Sources/MainWindow.ui \
-    Sources/AboutDialog.ui
+    Sources/AboutDialog.ui \
+    Sources/LogDialog.ui
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
 CONFIG(debug, debug|release) { 

@@ -60,7 +60,8 @@ namespace Chemistry
                   Chemistry::Algorithm algorithm,
                   double convergenceCriteria,
                   quint16 maxSteps,
-                  quint8 stepsPerUpdate = 0);
+                  quint8 stepsPerUpdate,
+                  std::ostream* logOstream);
     void conformationalSearch();
     void setConformer(quint16 index);
     qreal conformerEnergy(quint16 index);

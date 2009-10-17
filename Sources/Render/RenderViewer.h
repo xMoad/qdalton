@@ -32,10 +32,10 @@
 #include <QTableWidget>
 #include <QGLViewer/qglviewer.h>
 
-#include "Chemistry/ChemistryMolecule.h"
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderQuality.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 namespace Render
 {
@@ -61,7 +61,7 @@ namespace Render
     Viewer(QWidget* parent);
     ~Viewer();
 
-    void setMolecule(const Chemistry::Molecule& molecule);
+    void setMolecule(Chemistry::Molecule* molecule);
     bool isMoleculeEmpty() const;
 
     void setView(View view);
@@ -73,11 +73,6 @@ namespace Render
     void addAtom(const Render::Atom& atom);
     void addBond(const Render::Bond& bond);
 
-    void optimize(Chemistry::ForceField forceField,
-                  Chemistry::Algorithm algorithm,
-                  double convergenceCriteria,
-                  quint16 maxSteps,
-                  quint8 stepsPerUpdate = 0);
     void conformationalSearch(QTableWidget* targetTableWidget);
     void displayConformer(quint16 index);
 
@@ -107,7 +102,7 @@ namespace Render
       GLLIST_SELECTIONS
     };
 
-    Chemistry::Molecule molecule_;
+    Chemistry::Molecule* molecule_;
     View view_;
     Mode mode_;
     // added atom atomic number

@@ -13,8 +13,10 @@
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    molecule_(),
     dalFile_(0),
-    molFile_(0)
+    molFile_(0),
+    logDialog(new LogDialog(this))
 {
   ui->setupUi(this);
   //  QActionGroup* toolsQActionGroup = new QActionGroup(this);
@@ -31,6 +33,9 @@ MainWindow::MainWindow(QWidget* parent):
   headerLabels << " Number" << "Energy";
   ui->conformersTableWidget->setHorizontalHeaderLabels(headerLabels);
   ui->conformersTableWidget->horizontalHeader()->setVisible(true);
+
+  connect(&molecule_, SIGNAL(geometryChanged()),
+          ui->viewer, SLOT(updateMolecule()));
 }
 
 MainWindow::~MainWindow()
@@ -151,7 +156,8 @@ void MainWindow::on_actionJobImportDalton_triggered()
           ui->tabWidget->show();
 
           ui->tabWidget->setCurrentIndex(3);
-          ui->viewer->setMolecule(molFile.molecule());
+          molecule_ = molFile.molecule();
+          ui->viewer->setMolecule(&molecule_);
           ui->actionStructureExportImage->setEnabled(true);
           //          ui->atomsTableWidget->setRowCount(molFile_->molecule().nucleiCount());
           //          for (int i = 0; i < molFile.molecule().nucleiCount(); ++i)
@@ -235,6 +241,7 @@ void MainWindow::on_actionJobNew_triggered()
   ui->tabWidget->setTabText(3, QString("Viewer (%1)").arg("Input geometry"));
   ui->welcomeWidget->hide();
   ui->tabWidget->show();
+  ui->viewer->setMolecule(&molecule_);
 }
 
 void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
@@ -246,7 +253,6 @@ void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
 
 void MainWindow::on_actionStructureImportGaussianOutput_triggered()
 {
-  Chemistry::Molecule molecule;
   QString fileName;
 
   fileName = QFileDialog::getOpenFileName(this,
@@ -255,13 +261,13 @@ void MainWindow::on_actionStructureImportGaussianOutput_triggered()
                                           "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
   if (!fileName.isEmpty())
   {
-    if (molecule.importFromFile(Chemistry::FORMAT_GAUSSIAN_OUTPUT,
+    if (molecule_.importFromFile(Chemistry::FORMAT_GAUSSIAN_OUTPUT,
                                 fileName))
     {
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(molecule);
+      ui->viewer->setMolecule(&molecule_);
       ui->actionStructureExportImage->setEnabled(true);
     }
     else
@@ -330,15 +336,20 @@ void MainWindow::on_actionHelpAbout_triggered()
 
 void MainWindow::on_pushButtonRun_clicked()
 {
+  std::ostringstream os;
+
   setCursor(Qt::WaitCursor);
   ui->pushButtonRun->setText(tr("Running..."));
   qApp->processEvents();
   ui->pushButtonRun->setEnabled(false);
-  ui->viewer->optimize((Chemistry::ForceField)ui->comboBoxForceField->currentIndex(),
+  molecule_.optimize((Chemistry::ForceField)ui->comboBoxForceField->currentIndex(),
                        (Chemistry::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
                        powf(10, -ui->spinBoxConvergence->value()),
                        ui->spinBoxMaxSteps->value(),
-                       ui->spinBoxStepsPerUpdate->value());
+                       ui->spinBoxStepsPerUpdate->value(),
+                       &os);
+  logDialog->show();
+  logDialog->addToLog(QString::fromStdString(os.str()));
   ui->pushButtonRun->setEnabled(true);
   ui->pushButtonRun->setText(tr("Run"));
   setCursor(Qt::ArrowCursor);
@@ -348,7 +359,6 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
 {
   bool ok;
   QString text;
-  Chemistry::Molecule molecule;
 
   text = QInputDialog::getText(this,
                                tr("QDalton"),
@@ -358,13 +368,13 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule.importFromString(Chemistry::FORMAT_SMILES,
+    if (molecule_.importFromString(Chemistry::FORMAT_SMILES,
                                   text))
     {
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(molecule);
+      ui->viewer->setMolecule(&molecule_);
       ui->actionStructureExportImage->setEnabled(true);
     }
   }
@@ -374,7 +384,6 @@ void MainWindow::on_actionStructureImportInChI_triggered()
 {
   bool ok;
   QString text;
-  Chemistry::Molecule molecule;
 
   text = QInputDialog::getText(this,
                                tr("QDalton"),
@@ -384,13 +393,13 @@ void MainWindow::on_actionStructureImportInChI_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule.importFromString(Chemistry::FORMAT_INCHI,
+    if (molecule_.importFromString(Chemistry::FORMAT_INCHI,
                                   text))
     {
       ui->welcomeWidget->hide();
       ui->tabWidget->show();
       ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(molecule);
+      ui->viewer->setMolecule(&molecule_);
       ui->actionStructureExportImage->setEnabled(true);
     }
   }
@@ -409,5 +418,17 @@ void MainWindow::on_conformersTableWidget_cellClicked(int row, int column)
   if (ok)
   {
     ui->viewer->displayConformer(n - 1);
+  }
+}
+
+void MainWindow::on_actionViewLog_toggled(bool checked)
+{
+  if (checked)
+  {
+    logDialog->show();
+  }
+  else
+  {
+    logDialog->hide();
   }
 }

@@ -4,6 +4,8 @@
 #include <QtGui/QMainWindow>
 
 #include "ui_MainWindow.h"
+#include "LogDialog.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 namespace File
 {
@@ -30,12 +32,15 @@ public:
 
 private:
   Ui::MainWindow* ui;
+  Chemistry::Molecule molecule_;
   QString workDir_;
   File::Dal* dalFile_;
   File::Mol* molFile_;
   QLabel statusLabel_;
+  LogDialog* logDialog;
 
 private slots:
+  void on_actionViewLog_toggled(bool );
   void on_conformersTableWidget_cellClicked(int row, int column);
   void on_actionStructureConformations_triggered();
   void on_actionStructureImportInChI_triggered();
