@@ -62,7 +62,6 @@ namespace Render
     ~Viewer();
 
     void setMolecule(Chemistry::Molecule* molecule);
-    bool isMoleculeEmpty() const;
 
     void setView(View view);
     void setMode(Mode mode);

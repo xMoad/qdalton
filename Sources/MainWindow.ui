@@ -16,7 +16,7 @@
     <height>600</height>
    </size>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="_2">
     <item row="2" column="0" rowspan="2" colspan="2">
      <widget class="QTabWidget" name="tabWidget">
@@ -188,9 +188,15 @@
        <attribute name="title">
         <string>Viewer</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_10">
+       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,1,0">
         <item row="0" column="0">
-         <widget class="QTableWidget" name="conformersTableWidget">
+         <widget class="QTableWidget" name="tableWidgetConformers">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
@@ -235,12 +241,18 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="2" rowspan="2">
          <widget class="QToolBox" name="toolBox">
           <property name="minimumSize">
            <size>
-            <width>260</width>
+            <width>320</width>
             <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>320</width>
+            <height>16777215</height>
            </size>
           </property>
           <widget class="QWidget" name="pageView">
@@ -248,7 +260,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>273</width>
+             <width>320</width>
              <height>321</height>
             </rect>
            </property>
@@ -298,7 +310,7 @@
              </widget>
             </item>
             <item row="3" column="1" colspan="3">
-             <widget class="QComboBox" name="viewQComboBox">
+             <widget class="QComboBox" name="comboBoxView">
               <item>
                <property name="text">
                 <string>Balls &amp; Bonds</string>
@@ -329,7 +341,7 @@
              </widget>
             </item>
             <item row="0" column="1" colspan="3">
-             <spacer name="verticalSpacer_3">
+             <spacer name="verticalSpacerUpView">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -342,7 +354,7 @@
              </spacer>
             </item>
             <item row="6" column="1" colspan="3">
-             <spacer name="verticalSpacer_4">
+             <spacer name="verticalSpacerDownView">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -355,7 +367,7 @@
              </spacer>
             </item>
             <item row="5" column="1" colspan="3">
-             <widget class="QLabel" name="label_4">
+             <widget class="QLabel" name="labelHelpView">
               <property name="text">
                <string>&lt;b&gt;Mouse&lt;/b&gt; 
 &lt;hr&gt;
@@ -386,7 +398,7 @@
              </widget>
             </item>
             <item row="4" column="1" colspan="3">
-             <spacer name="verticalSpacer_7">
+             <spacer name="verticalSpacerMiddleView">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -405,8 +417,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>50</height>
+             <width>320</width>
+             <height>307</height>
             </rect>
            </property>
            <attribute name="label">
@@ -458,7 +470,20 @@
              </widget>
             </item>
             <item row="0" column="0" colspan="2">
-             <spacer name="verticalSpacer_5">
+             <spacer name="verticalSpacerUpAdd">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <spacer name="verticalSpacerDownAdd">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -471,10 +496,7 @@
              </spacer>
             </item>
             <item row="2" column="0" colspan="2">
-             <spacer name="verticalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
+             <spacer name="verticalSpacerMiddleAdd">
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
@@ -482,6 +504,26 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="labelHelpAdd">
+              <property name="text">
+               <string>&lt;b&gt;Mouse&lt;/b&gt; 
+&lt;hr&gt;
+&lt;u&gt;To add atom&lt;/u&gt; left click on the scene. First atom goes to the origin of axes. For next atoms: left click on existing atom and drag.
+&lt;br&gt;
+&lt;u&gt;To cycle bond order (1-2-3)&lt;/u&gt;: left click on it.
+&lt;br&gt;
+&lt;u&gt;To delete atom / bond&lt;/u&gt;: right click on it.
+</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::RichText</enum>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -656,6 +698,9 @@
           </widget>
          </widget>
         </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QPlainTextEdit" name="logPlainTextEdit"/>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -735,7 +780,9 @@ QDalton is powerful GUI for Dalton.</string>
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionViewConformersTable"/>
     <addaction name="actionViewLog"/>
+    <addaction name="actionViewToolbox"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuStructure"/>
@@ -769,6 +816,9 @@ QDalton is powerful GUI for Dalton.</string>
    <addaction name="actionHelpHelp"/>
   </widget>
   <action name="actionJobOpen">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobOpen.png</normaloff>:/icons/16x16/actionJobOpen.png</iconset>
@@ -791,6 +841,9 @@ QDalton is powerful GUI for Dalton.</string>
    <property name="toolTip">
     <string>Import existing Dalton input file(s)</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionJobNew">
    <property name="icon">
@@ -805,6 +858,9 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
   </action>
   <action name="actionHelpHelp">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionHelpHelp.png</normaloff>:/icons/16x16/actionHelpHelp.png</iconset>
@@ -864,6 +920,9 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
   </action>
   <action name="actionStructureAddHydrogens">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Add hydrogens and build</string>
    </property>
@@ -872,6 +931,9 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
   </action>
   <action name="actionStructureRemoveHydrogens">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Remove hydrogens</string>
    </property>
@@ -882,11 +944,17 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
   </action>
   <action name="actionStructureBuild">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Build</string>
    </property>
   </action>
   <action name="actionStructureConformations">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Conformations</string>
    </property>
@@ -897,6 +965,34 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
    <property name="text">
     <string>Log</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionViewToolbox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toolbox</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionViewConformersTable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Conformers table</string>
    </property>
   </action>
  </widget>

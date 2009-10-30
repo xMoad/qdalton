@@ -4,7 +4,6 @@
 #include <QtGui/QMainWindow>
 
 #include "ui_MainWindow.h"
-#include "LogDialog.h"
 #include "Chemistry/ChemistryMolecule.h"
 
 namespace File
@@ -29,19 +28,25 @@ public:
   void setMolFile(File::Mol& molFile);
   void setWorkDir(const QString& work_dir);
   QString& getWorkDir();
+  void addToLog(const QString& string);
+
+public slots:
+  void updateActions();
 
 private:
-  Ui::MainWindow* ui;
+  Ui::MainWindow* ui_;
   Chemistry::Molecule molecule_;
-  QString workDir_;
+
   File::Dal* dalFile_;
   File::Mol* molFile_;
   QLabel statusLabel_;
-  LogDialog* logDialog;
+  QString workDir_;
 
 private slots:
-  void on_actionViewLog_toggled(bool );
-  void on_conformersTableWidget_cellClicked(int row, int column);
+  void on_actionViewConformersTable_toggled(bool );
+  void on_actionViewToolbox_toggled(bool );
+  void on_actionViewLog_toggled(bool checked);
+  void on_tableWidgetConformers_cellClicked(int row, int column);
   void on_actionStructureConformations_triggered();
   void on_actionStructureImportInChI_triggered();
   void on_actionStructureImportSMILES_triggered();
@@ -57,7 +62,7 @@ private slots:
   void on_comboBoxAtom_currentIndexChanged(QString );
   void on_actionJobNew_triggered();
   void on_toolBox_currentChanged(int index);
-  void on_viewQComboBox_currentIndexChanged(int index);
+  void on_comboBoxView_currentIndexChanged(int index);
   void on_actionJobImportDalton_triggered();
   void on_doubleSpinBoxAxesSize_valueChanged(double);
 };

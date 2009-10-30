@@ -38,6 +38,7 @@ namespace Chemistry
     void addAtom(quint8 atomicNumber);
     void addObAtom(OpenBabel::OBAtom& obAtom);
     void deleteAtom(OpenBabel::OBAtom* obAtom);
+    void deleteBond(OpenBabel::OBBond* obBond);
 
     void addBond(OpenBabel::OBAtom* beginObAtom,
                  OpenBabel::OBAtom* endObAtom,
@@ -67,6 +68,7 @@ namespace Chemistry
     qreal conformerEnergy(quint16 index);
 
   signals:
+    void formulaChanged();
     void geometryChanged();
 
   private:

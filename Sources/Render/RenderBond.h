@@ -44,6 +44,8 @@ namespace Render
     Bond(const Render::Bond& bond);
     Bond(OpenBabel::OBBond* obBond);
 
+    OpenBabel::OBBond* obBond() const;
+
     void draw(Render::Bond::DrawStyle drawStyle,
               const Eigen::Vector3f& planeNormalVector,
               Render::Quality quality) const;

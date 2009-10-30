@@ -194,18 +194,18 @@ void Render::Viewer::drawWithNames()
       glPushName(i);
       {
         Render::Bond bond(b.next());
-        if (view_ == Render::Viewer::VIEW_BALLS_BONDS)
-        {
-          bond.draw(Render::Bond::DRAW_STYLE_BOND,
-                    Eigen::Vector3f(0.0f, 0.0f, 1.0f),
-                    Render::QUALITY_LOW);
-        }
-        else
-        {
+//        if (view_ == Render::Viewer::VIEW_BALLS_BONDS)
+//        {
+//          bond.draw(Render::Bond::DRAW_STYLE_BOND,
+//                    Eigen::Vector3f(0.0f, 0.0f, 1.0f),
+//                    Render::QUALITY_LOW);
+//        }
+//        else
+//        {
           bond.draw(Render::Bond::DRAW_STYLE_STICK,
                     Eigen::Vector3f(0.0f, 0.0f, 1.0f),
                     Render::QUALITY_LOW);
-        }
+//        }
       }
       glPopName();
       i++;
@@ -222,15 +222,15 @@ QString Render::Viewer::helpString() const
 
 void Render::Viewer::init()
 {
-  const float    LIGHT_AMBIENT[4]                  = {0.2f, 0.2f, 0.2f, 1.0f};
+  const float LIGHT_AMBIENT[4] = {0.2f, 0.2f, 0.2f, 1.0f};
 
-  const float    LIGHT0_DIFFUSE[4]                 = {1.0f, 1.0f, 1.0f, 1.0f};
-  const float    LIGHT0_SPECULAR[4]                = {1.0f, 1.0f, 1.0f, 1.0f};
-  const float    LIGHT0_POSITION[4]                = {0.8f, 0.7f, 1.0f, 0.0f};
+  const float LIGHT0_DIFFUSE[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  const float LIGHT0_SPECULAR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  const float LIGHT0_POSITION[4] = {0.8f, 0.7f, 1.0f, 0.0f};
 
-  const float    LIGHT1_DIFFUSE[4]                 = {0.3f, 0.3f, 0.3f, 1.0f};
-  const float    LIGHT1_SPECULAR[4]                = {0.5f, 0.5f, 0.5f, 1.0f};
-  const float    LIGHT1_POSITION[4]                = {-0.8f, 0.7f, -0.5f, 0.0f};
+  const float LIGHT1_DIFFUSE[4] = {0.3f, 0.3f, 0.3f, 1.0f};
+  const float LIGHT1_SPECULAR[4] = {0.5f, 0.5f, 0.5f, 1.0f};
+  const float LIGHT1_POSITION[4] = {-0.8f, 0.7f, -0.5f, 0.0f};
 
   // This method is called from QGLViewer::initializeGL(),
   // where GL_COLOR_MATERIAL is enabled. We don't need it!
@@ -485,11 +485,6 @@ void Render::Viewer::setMolecule(Chemistry::Molecule* molecule)
   updateMolecule();
 }
 
-bool Render::Viewer::isMoleculeEmpty() const
-{
-  return molecule_->atomsCount() == 0;
-}
-
 void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
 {
   atomicNumber_ = atomicNumber;
@@ -590,6 +585,7 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 
 void Render::Viewer::mousePressEvent(QMouseEvent* e)
 {
+  glCallList(sticksLow_);
   beginSelection(e->pos());
   drawWithNames();
   endSelection(e->pos());
@@ -607,11 +603,14 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       switch (e->modifiers())
       {
       case Qt::NoModifier:
-        if (found)
+        if (selectedName() != -1)
         {
-          camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
-                                                         atomsList_[selectedName()].centre().y(),
-                                                         atomsList_[selectedName()].centre().z()));
+          if (selectedName() < atomsList_.size())
+          {
+            camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
+                                                           atomsList_[selectedName()].centre().y(),
+                                                           atomsList_[selectedName()].centre().z()));
+          }
         }
         else
         {
@@ -678,7 +677,14 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       switch (e->modifiers())
       {
       case (Qt::NoModifier):
-        molecule_->deleteAtom(atomsList_[selectedName()].obAtom());
+        if (selectedName() < atomsList_.size())
+        {
+          molecule_->deleteAtom(atomsList_[selectedName()].obAtom());
+        }
+        else
+        {
+          molecule_->deleteBond(bondsList_[selectedName() - atomsList_.size()].obBond());
+        }
         updateMolecule();
         break;
       case (Qt::MetaModifier):

@@ -40,6 +40,11 @@ Render::Bond::Bond(OpenBabel::OBBond* obBond) :
 {
 }
 
+OpenBabel::OBBond* Render::Bond::obBond() const
+{
+  return obBond_;
+}
+
 void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
                         const Eigen::Vector3f& planeNormalVector,
                         Render::Quality quality) const

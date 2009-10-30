@@ -20,6 +20,7 @@ Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
 Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
 {
   obMol_ = molecule.obMol_;
+  emit formulaChanged();
   return *this;
 }
 
@@ -39,6 +40,7 @@ bool Chemistry::Molecule::importFromFile(Chemistry::Format format,
 
   if (conv.ReadFile(&obMol_, fileName.toStdString()))
   {
+    emit formulaChanged();
     return true;
   }
   else
@@ -76,6 +78,7 @@ bool Chemistry::Molecule::importFromString(Chemistry::Format format,
     obMol_.AddHydrogens();
     obbuilder.Build(obMol_);
     obMol_.Center();
+    emit formulaChanged();
     return true;
   }
   else
@@ -102,12 +105,15 @@ OpenBabel::OBBond* Chemistry::Molecule::obBond(quint16 index) const
 void Chemistry::Molecule::addAtom(quint8 atomicNumber)
 {
   OpenBabel::OBAtom* obAtom;
+
   obMol_.BeginModify();
   {
     obAtom = obMol_.NewAtom();
     obAtom->SetAtomicNum(atomicNumber);
   }
   obMol_.EndModify();
+
+  emit formulaChanged();
 }
 
 void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
@@ -120,6 +126,8 @@ void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
     obMol_.AddAtom(obAtom);
   }
   obMol_.EndModify();
+
+  emit formulaChanged();
 }
 
 void Chemistry::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
@@ -127,6 +135,17 @@ void Chemistry::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
   obMol_.BeginModify();
   {
     obMol_.DeleteAtom(obAtom);
+  }
+  obMol_.EndModify();
+
+  emit formulaChanged();
+}
+
+void Chemistry::Molecule::deleteBond(OpenBabel::OBBond* obBond)
+{
+  obMol_.BeginModify();
+  {
+    obMol_.DeleteBond(obBond);
   }
   obMol_.EndModify();
 }
@@ -172,6 +191,7 @@ quint16 Chemistry::Molecule::conformersCount()
 void Chemistry::Molecule::rebond()
 {
   obMol_.ConnectTheDots();
+  obMol_.PerceiveBondOrders();
 }
 
 void Chemistry::Molecule::build()
@@ -196,11 +216,15 @@ void Chemistry::Molecule::addHydrogensAndBuild()
   obMol_.AddHydrogens();
   obbuilder.Build(obMol_);
   obMol_.Center();
+
+  emit formulaChanged();
 }
 
 void Chemistry::Molecule::removeHydrogens()
 {
   obMol_.DeleteHydrogens();
+
+  emit formulaChanged();
 }
 
 void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,

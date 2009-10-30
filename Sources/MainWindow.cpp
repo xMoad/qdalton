@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QSplitter>
 
 #include "AboutDialog.h"
 #include "Render/RenderAtom.h"
@@ -12,35 +13,37 @@
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    ui_(new Ui::MainWindow),
     molecule_(),
     dalFile_(0),
     molFile_(0),
-    logDialog(new LogDialog(this))
+    workDir_(QDir::currentPath())
 {
-  ui->setupUi(this);
-  //  QActionGroup* toolsQActionGroup = new QActionGroup(this);
-  //  toolsQActionGroup->addAction(ui->actionNavigate);
-  //  toolsQActionGroup->addAction(ui->actionSelect);
+  ui_->setupUi(this);
+
   // Hide all tabs
-  ui->tabWidget->hide();
-  workDir_ = QDir::currentPath();
-  //
-  ui->statusbar->addWidget(&statusLabel_, 1);
+  ui_->tabWidget->hide();
+
+  ui_->logPlainTextEdit->hide();
+  ui_->tableWidgetConformers->hide();
+
+  ui_->statusbar->addWidget(&statusLabel_, 1);
   statusLabel_.setText(workDir_);
 
   QStringList headerLabels;
   headerLabels << " Number" << "Energy";
-  ui->conformersTableWidget->setHorizontalHeaderLabels(headerLabels);
-  ui->conformersTableWidget->horizontalHeader()->setVisible(true);
+  ui_->tableWidgetConformers->setHorizontalHeaderLabels(headerLabels);
+  ui_->tableWidgetConformers->horizontalHeader()->setVisible(true);
 
+  connect(&molecule_, SIGNAL(formulaChanged()),
+          this, SLOT(updateActions()));
   connect(&molecule_, SIGNAL(geometryChanged()),
-          ui->viewer, SLOT(updateMolecule()));
+          ui_->viewer, SLOT(updateMolecule()));
 }
 
 MainWindow::~MainWindow()
 {
-  delete ui;
+  delete ui_;
 }
 
 void MainWindow::setDalFile(File::Dal& dalFile)
@@ -67,16 +70,46 @@ QString& MainWindow::getWorkDir()
   return workDir_;
 }
 
+void MainWindow::addToLog(const QString& string)
+{
+  QDateTime dateTime_ = QDateTime::currentDateTime();
+  ui_->logPlainTextEdit->appendHtml(QString("<b>%1</b>").arg(dateTime_.time().toString()));
+  ui_->logPlainTextEdit->appendPlainText(string);
+  ui_->logPlainTextEdit->appendPlainText("");
+}
+
+void MainWindow::updateActions()
+{
+  if (molecule_.atomsCount() != 0)
+  {
+    ui_->actionStructureBuild->setEnabled(true);
+    ui_->actionStructureAddHydrogens->setEnabled(true);
+    ui_->actionStructureRemoveHydrogens->setEnabled(true);
+    ui_->actionStructureBuild->setEnabled(true);
+    ui_->actionStructureConformations->setEnabled(true);
+    ui_->actionStructureExportImage->setEnabled(true);
+  }
+  else
+  {
+    ui_->actionStructureBuild->setEnabled(false);
+    ui_->actionStructureAddHydrogens->setEnabled(false);
+    ui_->actionStructureRemoveHydrogens->setEnabled(false);
+    ui_->actionStructureBuild->setEnabled(false);
+    ui_->actionStructureConformations->setEnabled(false);
+    ui_->actionStructureExportImage->setEnabled(false);
+  }
+}
+
 void MainWindow::on_doubleSpinBoxAxesSize_valueChanged(double value)
 {
-  ui->viewer->setAxes(true, value);
+  ui_->viewer->setAxes(true, value);
 }
 
 void MainWindow::on_actionJobImportDalton_triggered()
 {
   QString fileName;
 
-  if (!ui->viewer->isMoleculeEmpty())
+  if (molecule_.atomsCount() != 0)
   {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this,
@@ -90,21 +123,24 @@ void MainWindow::on_actionJobImportDalton_triggered()
     }
   }
 
-  // Ask user to choose Dalton input file
-  fileName = QFileDialog::getOpenFileName(this, "Choose Dalton input file",
-                                          getWorkDir(), "Dalton input files (*.dal *.inp)");
+  // Ask user to choose Dalton input file.
+  fileName = QFileDialog::getOpenFileName(this, "Open *.dal file",
+                                          getWorkDir(), "*.dal files (*.dal)");
   if (!fileName.isEmpty())
   {
+    addToLog(QString("Reading from *.dal file started. \nFileName: %1").arg(fileName));
     File::Dal dalFile(fileName);
     dalFile.read();
     // Parse Dalton input file
     if (dalFile.parse())
     {
-      // If succeeded then ask user to choose molecule input file
-      fileName = QFileDialog::getOpenFileName(this, "Open *.MOL File",
-                                              getWorkDir(), "*.MOL Files(*.mol)");
+      // If succeeded then ask user to choose molecule input file.
+      addToLog("Reading succeeded.");
+      fileName = QFileDialog::getOpenFileName(this, "Open *.mol file",
+                                              getWorkDir(), "*.mol files(*.mol)");
       if (!fileName.isEmpty())
       {
+        addToLog(QString("Reading from *.mol file started. \nFileName: %1").arg(fileName));
         File::Mol molFile(fileName);
         molFile.read();
         // Parse molecule input file
@@ -112,67 +148,58 @@ void MainWindow::on_actionJobImportDalton_triggered()
         {
           // If succeeded then do some magic! =)
           // TODO show save file dialog for project!
+          addToLog("Reading succeeded.");
           setWorkDir(dalFile.filePath());
           statusLabel_.setText(workDir_);
           setDalFile(dalFile);
           setMolFile(molFile);
           // Fill the text widgets
-          ui->plainTextEditDal->setPlainText(dalFile.text());
-          ui->plainTextEditMol->setPlainText(molFile.text());
+          ui_->plainTextEditDal->setPlainText(dalFile.text());
+          ui_->plainTextEditMol->setPlainText(molFile.text());
           // Set groupBoxes titles
-          ui->groupBoxDalFile->setTitle("Dalton input file: "
+          ui_->groupBoxDalFile->setTitle("Dalton input file: "
                                         + dalFile.fileName());
-          ui->groupBoxMolFile->setTitle("Molecule input file: "
+          ui_->groupBoxMolFile->setTitle("Molecule input file: "
                                         + molFile.fileName());
           switch (dalFile.jobType())
           {
           case File::Dal::OPTIMIZE:
-            ui->comboBoxJobType->setCurrentIndex(0);
+            ui_->comboBoxJobType->setCurrentIndex(0);
             break;
           case File::Dal::WALK:
-            ui->comboBoxJobType->setCurrentIndex(1);
+            ui_->comboBoxJobType->setCurrentIndex(1);
             break;
           case File::Dal::RUN:
-            ui->comboBoxJobType->setCurrentIndex(2);
+            ui_->comboBoxJobType->setCurrentIndex(2);
             break;
           }
           switch (molFile.basisType())
           {
           case File::Mol::ATOMBASIS:
-            ui->comboBoxBasisType->setCurrentIndex(0);
+            ui_->comboBoxBasisType->setCurrentIndex(0);
             break;
           case File::Mol::BASIS:
-            ui->comboBoxBasisType->setCurrentIndex(1);
+            ui_->comboBoxBasisType->setCurrentIndex(1);
             break;
           case File::Mol::INTGRL:
-            ui->comboBoxBasisType->setCurrentIndex(2);
+            ui_->comboBoxBasisType->setCurrentIndex(2);
             break;
           }
-          ui->tabWidget->setTabText(0, "Job ()");
-          ui->tabWidget->setTabText(1, QString("DALTON Input (%1)").arg(dalFile.fileName()));
-          ui->tabWidget->setTabText(2, QString("MOLECULE Input (%1)").arg(molFile.fileName()));
-          ui->tabWidget->setTabText(3, QString("Viewer (%1)").arg("Input geometry"));
-          ui->welcomeWidget->hide();
-          ui->tabWidget->show();
+          ui_->tabWidget->setTabText(0, "Job ()");
+          ui_->tabWidget->setTabText(1, QString("DALTON Input (%1)").arg(dalFile.fileName()));
+          ui_->tabWidget->setTabText(2, QString("MOLECULE Input (%1)").arg(molFile.fileName()));
+          ui_->tabWidget->setTabText(3, QString("Viewer (%1)").arg("Input geometry"));
+          ui_->welcomeWidget->hide();
+          ui_->tabWidget->show();
 
-          ui->tabWidget->setCurrentIndex(3);
+          ui_->tabWidget->setCurrentIndex(3);
           molecule_ = molFile.molecule();
-          ui->viewer->setMolecule(&molecule_);
-          ui->actionStructureExportImage->setEnabled(true);
-          //          ui->atomsTableWidget->setRowCount(molFile_->molecule().nucleiCount());
-          //          for (int i = 0; i < molFile.molecule().nucleiCount(); ++i)
-          //          {
-          //            Render::Atom atom = ui->viewer->getAtom(i);
-          //            QTableWidgetItem* item = new QTableWidgetItem(
-          //                atom.nucleus().label());
-          //            item->setBackgroundColor(QColor::fromRgbF(atom.color().r(),
-          //                                                      atom.color().g(), atom.color().b(), 0.5));
-          //            ui->atomsTableWidget->setItem(i, 1, item);
-          //          }
+          ui_->viewer->setMolecule(&molecule_);
         }
         else
         {
           // show error message
+          addToLog("Reading failed.");
           QMessageBox messageBox;
           messageBox.setIcon(QMessageBox::Critical);
           messageBox.setText("Can't open molecule input file "
@@ -188,6 +215,7 @@ void MainWindow::on_actionJobImportDalton_triggered()
     else
     {
       // Show error mesage
+      addToLog("Reading failed.");
       QMessageBox messageBox;
       messageBox.setIcon(QMessageBox::Critical);
       messageBox.setText("Can't open Dalton input file "
@@ -201,21 +229,21 @@ void MainWindow::on_actionJobImportDalton_triggered()
   }
 }
 
-void MainWindow::on_viewQComboBox_currentIndexChanged(int index)
+void MainWindow::on_comboBoxView_currentIndexChanged(int index)
 {
   switch (index)
   {
   case 0:
-    ui->viewer->setView(Render::Viewer::VIEW_BALLS_BONDS);
+    ui_->viewer->setView(Render::Viewer::VIEW_BALLS_BONDS);
     break;
   case 1:
-    ui->viewer->setView(Render::Viewer::VIEW_BALLS_STICKS);
+    ui_->viewer->setView(Render::Viewer::VIEW_BALLS_STICKS);
     break;
   case 2:
-    ui->viewer->setView(Render::Viewer::VIEW_STICKS);
+    ui_->viewer->setView(Render::Viewer::VIEW_STICKS);
     break;
   case 3:
-    ui->viewer->setView(Render::Viewer::VIEW_VDW);
+    ui_->viewer->setView(Render::Viewer::VIEW_VDW);
     break;
   }
 }
@@ -225,30 +253,30 @@ void MainWindow::on_toolBox_currentChanged(int index)
   switch (index)
   {
   case 0:
-    ui->viewer->setMode(ui->viewer->MODE_VIEW);
+    ui_->viewer->setMode(ui_->viewer->MODE_VIEW);
     break;
   case 1:
-    ui->viewer->setMode(ui->viewer->MODE_ADD);
+    ui_->viewer->setMode(ui_->viewer->MODE_ADD);
     break;
   }
 }
 
 void MainWindow::on_actionJobNew_triggered()
 {
-  ui->tabWidget->setTabText(0, "Job");
-  ui->tabWidget->setTabText(1, QString("DALTON Input"));
-  ui->tabWidget->setTabText(2, QString("MOLECULE Input"));
-  ui->tabWidget->setTabText(3, QString("Viewer (%1)").arg("Input geometry"));
-  ui->welcomeWidget->hide();
-  ui->tabWidget->show();
-  ui->viewer->setMolecule(&molecule_);
+  ui_->tabWidget->setTabText(0, "Job");
+  ui_->tabWidget->setTabText(1, QString("DALTON Input"));
+  ui_->tabWidget->setTabText(2, QString("MOLECULE Input"));
+  ui_->tabWidget->setTabText(3, QString("Viewer (%1)").arg("Input geometry"));
+  ui_->welcomeWidget->hide();
+  ui_->tabWidget->show();
+  ui_->viewer->setMolecule(&molecule_);
 }
 
 void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
 {
   QByteArray byteArray = s.toLatin1();
   const char* s_char = byteArray.data();
-  ui->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
+  ui_->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
 }
 
 void MainWindow::on_actionStructureImportGaussianOutput_triggered()
@@ -261,23 +289,27 @@ void MainWindow::on_actionStructureImportGaussianOutput_triggered()
                                           "Gaussian output files (*.g98 *.g03);;Any file (*.*)");
   if (!fileName.isEmpty())
   {
+    addToLog(QString("Import from Gaussian output file started. \nFileName: %1").arg(fileName));
     if (molecule_.importFromFile(Chemistry::FORMAT_GAUSSIAN_OUTPUT,
                                 fileName))
     {
-      ui->welcomeWidget->hide();
-      ui->tabWidget->show();
-      ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(&molecule_);
-      ui->actionStructureExportImage->setEnabled(true);
+      addToLog("Import succeeded.");
+      ui_->welcomeWidget->hide();
+      ui_->tabWidget->show();
+      ui_->tabWidget->setCurrentIndex(3);
+      ui_->viewer->setMolecule(&molecule_);
     }
     else
+    {
+      addToLog("failure.");
       QMessageBox::critical(this, QCoreApplication::applicationName(), "Can't import file " + fileName);
+    }
   }
 }
 
 void MainWindow::on_actionStructureExportImage_triggered()
 {
-  ui->viewer->saveSnapshot(false, false);
+  ui_->viewer->saveSnapshot(false, false);
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -294,19 +326,19 @@ void MainWindow::on_checkBoxAxes_toggled(bool checked)
 {
   if (checked)
   {
-    ui->doubleSpinBoxAxesSize->setEnabled(true);
-    ui->viewer->setAxes(true, ui->doubleSpinBoxAxesSize->value());
+    ui_->doubleSpinBoxAxesSize->setEnabled(true);
+    ui_->viewer->setAxes(true, ui_->doubleSpinBoxAxesSize->value());
   }
   else
   {
-    ui->doubleSpinBoxAxesSize->setEnabled(false);
-    ui->viewer->setAxes(false, ui->doubleSpinBoxAxesSize->value());
+    ui_->doubleSpinBoxAxesSize->setEnabled(false);
+    ui_->viewer->setAxes(false, ui_->doubleSpinBoxAxesSize->value());
   }
 }
 
 void MainWindow::on_checkBoxDebugInfo_clicked(bool checked)
 {
-  ui->viewer->setDebugInfoVisibility(checked);
+  ui_->viewer->setDebugInfoVisibility(checked);
 }
 
 void MainWindow::on_actionHelpAboutQt_triggered()
@@ -318,11 +350,11 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 {
   if (index == 3)
   {
-    ui->actionStructureExportImage->setEnabled(true);
+    ui_->actionStructureExportImage->setEnabled(true);
   }
   else
   {
-    ui->actionStructureExportImage->setEnabled(false);
+    ui_->actionStructureExportImage->setEnabled(false);
   }
 }
 
@@ -339,19 +371,18 @@ void MainWindow::on_pushButtonRun_clicked()
   std::ostringstream os;
 
   setCursor(Qt::WaitCursor);
-  ui->pushButtonRun->setText(tr("Running..."));
+  ui_->pushButtonRun->setText(tr("Running..."));
   qApp->processEvents();
-  ui->pushButtonRun->setEnabled(false);
-  molecule_.optimize((Chemistry::ForceField)ui->comboBoxForceField->currentIndex(),
-                       (Chemistry::Algorithm)ui->comboBoxAlgorithm->currentIndex(),
-                       powf(10, -ui->spinBoxConvergence->value()),
-                       ui->spinBoxMaxSteps->value(),
-                       ui->spinBoxStepsPerUpdate->value(),
+  ui_->pushButtonRun->setEnabled(false);
+  molecule_.optimize((Chemistry::ForceField)ui_->comboBoxForceField->currentIndex(),
+                       (Chemistry::Algorithm)ui_->comboBoxAlgorithm->currentIndex(),
+                       powf(10, -ui_->spinBoxConvergence->value()),
+                       ui_->spinBoxMaxSteps->value(),
+                       ui_->spinBoxStepsPerUpdate->value(),
                        &os);
-  logDialog->show();
-  logDialog->addToLog(QString::fromStdString(os.str()));
-  ui->pushButtonRun->setEnabled(true);
-  ui->pushButtonRun->setText(tr("Run"));
+  addToLog(QString::fromStdString(os.str()));
+  ui_->pushButtonRun->setEnabled(true);
+  ui_->pushButtonRun->setText(tr("Run"));
   setCursor(Qt::ArrowCursor);
 }
 
@@ -371,11 +402,8 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
     if (molecule_.importFromString(Chemistry::FORMAT_SMILES,
                                   text))
     {
-      ui->welcomeWidget->hide();
-      ui->tabWidget->show();
-      ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(&molecule_);
-      ui->actionStructureExportImage->setEnabled(true);
+      ui_->tabWidget->setCurrentIndex(3);
+      ui_->viewer->setMolecule(&molecule_);
     }
   }
 }
@@ -396,28 +424,26 @@ void MainWindow::on_actionStructureImportInChI_triggered()
     if (molecule_.importFromString(Chemistry::FORMAT_INCHI,
                                   text))
     {
-      ui->welcomeWidget->hide();
-      ui->tabWidget->show();
-      ui->tabWidget->setCurrentIndex(3);
-      ui->viewer->setMolecule(&molecule_);
-      ui->actionStructureExportImage->setEnabled(true);
+      ui_->tabWidget->setCurrentIndex(3);
+      ui_->viewer->setMolecule(&molecule_);
     }
   }
 }
 
 void MainWindow::on_actionStructureConformations_triggered()
 {
-  ui->viewer->conformationalSearch(ui->conformersTableWidget);
+  ui_->viewer->conformationalSearch(ui_->tableWidgetConformers);
+  ui_->actionViewConformersTable->setChecked(true);
 }
 
-void MainWindow::on_conformersTableWidget_cellClicked(int row, int column)
+void MainWindow::on_tableWidgetConformers_cellClicked(int row, int column)
 {
   bool ok;
 
-  quint16 n = ui->conformersTableWidget->item(row, 0)->text().toUInt(&ok);
+  quint16 n = ui_->tableWidgetConformers->item(row, 0)->text().toUInt(&ok);
   if (ok)
   {
-    ui->viewer->displayConformer(n - 1);
+    ui_->viewer->displayConformer(n - 1);
   }
 }
 
@@ -425,10 +451,34 @@ void MainWindow::on_actionViewLog_toggled(bool checked)
 {
   if (checked)
   {
-    logDialog->show();
+    ui_->logPlainTextEdit->show();
   }
   else
   {
-    logDialog->hide();
+    ui_->logPlainTextEdit->hide();
+  }
+}
+
+void MainWindow::on_actionViewToolbox_toggled(bool checked)
+{
+  if (checked)
+  {
+    ui_->toolBox->show();
+  }
+  else
+  {
+    ui_->toolBox->hide();
+  }
+}
+
+void MainWindow::on_actionViewConformersTable_toggled(bool checked)
+{
+    if (checked)
+  {
+    ui_->tableWidgetConformers->show();
+  }
+  else
+  {
+    ui_->tableWidgetConformers->hide();
   }
 }

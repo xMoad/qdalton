@@ -31,6 +31,7 @@ namespace File
     void setAngstrom(bool isAngstrom);
     bool isCartesian() const;
     void setCartesian(bool isCartesian);
+
   private:
     Chemistry::Molecule molecule_;
     BasisType basisType_;
