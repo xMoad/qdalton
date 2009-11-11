@@ -27,9 +27,9 @@ namespace Render
   // Render quality for quadrics = number of slices/stacks.
   enum Quality
   {
-    QUALITY_LOW = 9,
-    QUALITY_MIDDLE = 18,
-    QUALITY_HIGH = 24
+    QualityLow = 9,
+    QualityMiddle = 18,
+    QualityHigh = 24
   };
 }
 

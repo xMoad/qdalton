@@ -115,11 +115,11 @@ bool File::Dal::parse()
     modules_.append(module);
   }
   if (hasParametre("**DALTON INPUT", "*DEFAULT", ".OPTIMIZE"))
-    jobType_ = OPTIMIZE;
+    jobType_ = File::Dal::JobTypeOptimize;
   else if (hasParametre("**DALTON INPUT", "*DEFAULT", ".WALK"))
-    jobType_ = WALK;
+    jobType_ = File::Dal::JobTypeWalk;
   else if (hasParametre("**DALTON INPUT", "*DEFAULT", ".RUN"))
-    jobType_ = RUN;
+    jobType_ = File::Dal::JobTypeRun;
   return true;
 }
 

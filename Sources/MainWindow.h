@@ -43,6 +43,8 @@ private:
   QString workDir_;
 
 private slots:
+  void on_actionStructureExportXyz_triggered();
+  void on_pushButtonOK_clicked();
   void on_actionViewConformersTable_toggled(bool );
   void on_actionViewToolbox_toggled(bool );
   void on_actionViewLog_toggled(bool checked);

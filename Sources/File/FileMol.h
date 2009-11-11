@@ -11,11 +11,15 @@ namespace File
   public:
     enum BasisType
     {
-      ATOMBASIS, BASIS, INTGRL
+      BasisTypeAtombasis,
+      BasisTypeBasis,
+      BasisTypeIntgrl
     };
     enum BasisSet
     {
-      STO_2G, STO_3G, STO_6G
+      BasisSetSto2G,
+      BasisSetSto3G,
+      BasisSetSto6G
     };
     Mol(const File::Mol& molFile);
     Mol(QString fileName);

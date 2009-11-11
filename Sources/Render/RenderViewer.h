@@ -46,16 +46,16 @@ namespace Render
   public:
     enum View
     {
-      VIEW_BALLS_BONDS,
-      VIEW_BALLS_STICKS,
-      VIEW_STICKS,
-      VIEW_VDW
+      ViewBallsAndBonds,
+      ViewBallsAndSticks,
+      ViewSticks,
+      ViewVdWSpheres
     };
 
     enum Mode
     {
-      MODE_VIEW,
-      MODE_ADD
+      ModeView,
+      ModeEdit
     };
 
     Viewer(QWidget* parent);

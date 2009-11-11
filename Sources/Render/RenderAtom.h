@@ -43,9 +43,9 @@ namespace Render
   public:
     enum DrawStyle
     {
-      DRAW_STYLE_ATOM,
-      DRAW_STYLE_CONNECTOR,
-      DRAW_STYLE_VDW
+      DrawStyleAtom,
+      DrawStyleConnector,
+      DrawStyleVdW
     };
 
     Atom(const Atom& atom);

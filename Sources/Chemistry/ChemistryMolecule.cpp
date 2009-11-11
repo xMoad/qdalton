@@ -31,7 +31,7 @@ bool Chemistry::Molecule::importFromFile(Chemistry::Format format,
 
   switch (format)
   {
-  case (Chemistry::FORMAT_GAUSSIAN_OUTPUT):
+  case (Chemistry::FormatGaussianOutput):
     conv.SetInFormat("g03");
     break;
   default:
@@ -59,10 +59,10 @@ bool Chemistry::Molecule::importFromString(Chemistry::Format format,
 
   switch (format)
   {
-  case (Chemistry::FORMAT_SMILES):
+  case (Chemistry::FormatSmiles):
     conv.SetInFormat("smi");
     break;
-  case (Chemistry::FORMAT_INCHI):
+  case (Chemistry::FormatInchi):
     conv.SetInFormat("inchi");
     break;
   default:
@@ -84,6 +84,30 @@ bool Chemistry::Molecule::importFromString(Chemistry::Format format,
   else
   {
     return false;
+  }
+}
+
+QString Chemistry::Molecule::toString(Chemistry::Format format)
+{
+  std::stringstream ss;
+  OpenBabel::OBConversion conv;
+
+  switch (format)
+  {
+  case (Chemistry::FormatXyz):
+    conv.SetOutFormat("xyz");
+    break;
+  default:
+    break;
+  }
+
+  if (conv.Write(&this->obMol_, &ss))
+  {
+    return QString::fromStdString(ss.str());
+  }
+  else
+  {
+    return "Error";
   }
 }
 
@@ -199,8 +223,8 @@ void Chemistry::Molecule::build()
   OpenBabel::OBBuilder obbuilder;
 
   obbuilder.Build(obMol_);
-  optimize(Chemistry::FF_MMFF94,
-           Chemistry::ALGORITHM_STEEPEST_DESCENT,
+  optimize(Chemistry::ForceFieldMmff94,
+           Chemistry::AlgorithmSteepestDescent,
            1.0e-7,
            50,
            0,
@@ -238,16 +262,16 @@ void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
 
   switch (forceField)
   {
-  case (Chemistry::FF_GHEMICAL):
+  case (Chemistry::ForceFieldGhemical):
     ff = OpenBabel::OBForceField::FindForceField("Ghemical");
     break;
-  case (Chemistry::FF_MMFF94):
+  case (Chemistry::ForceFieldMmff94):
     ff = OpenBabel::OBForceField::FindForceField("MMFF94");
     break;
-  case (Chemistry::FF_MMFF94s):
+  case (Chemistry::ForceFieldMmff94s):
     ff = OpenBabel::OBForceField::FindForceField("MMFF94s");
     break;
-  case (Chemistry::FF_UFF):
+  case (Chemistry::ForceFieldUff):
     ff = OpenBabel::OBForceField::FindForceField("UFF");
     break;
   default:
@@ -272,7 +296,7 @@ void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
   */
   switch (algorithm)
   {
-  case (ALGORITHM_STEEPEST_DESCENT):
+  case (Chemistry::AlgorithmSteepestDescent):
     if (stepsPerUpdate != 0)
     {
       ff->SteepestDescentInitialize(maxSteps, convergenceCriteria);
@@ -288,7 +312,7 @@ void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
       ff->GetCoordinates(obMol_);
     }
     break;
-  case (ALGORITHM_CONJUGATE_GRADIENTS):
+  case (Chemistry::AlgorithmConjugateGradients):
     if (stepsPerUpdate != 0)
     {
       ff->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
@@ -327,7 +351,8 @@ void Chemistry::Molecule::conformationalSearch()
   ff->SetLogFile(&std::cout);
   ff->SetLogLevel(OBFF_LOGLVL_LOW);
 
-  ff->SystematicRotorSearch();
+//  ff->SystematicRotorSearch();
+  ff->RandomRotorSearch(10);
   ff->GetConformers(obMol_);
 }
 

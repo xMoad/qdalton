@@ -75,7 +75,7 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
   cylinder2.setVertex2(atom2.centre());
   cylinder2.setMaterial(material2);
 
-  if (drawStyle == Render::Bond::DRAW_STYLE_BOND)
+  if (drawStyle == Render::Bond::DrawStyleBond)
   {
     cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
     cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
@@ -89,12 +89,12 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
       shift = 0.2f;
     }
 
-    cylinder1.drawMulti(Render::STYLE_FILL,
+    cylinder1.drawMulti(Render::StyleFill,
                         quality,
                         obBond_->GetBondOrder(),
                         shift,
                         planeNormalVector);
-    cylinder2.drawMulti(Render::STYLE_FILL,
+    cylinder2.drawMulti(Render::StyleFill,
                         quality,
                         obBond_->GetBondOrder(),
                         shift,
@@ -105,8 +105,8 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
     cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
     cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
 
-    cylinder1.draw(Render::STYLE_FILL, quality);
-    cylinder2.draw(Render::STYLE_FILL, quality);
+    cylinder1.draw(Render::StyleFill, quality);
+    cylinder2.draw(Render::StyleFill, quality);
   }
 }
 
@@ -130,7 +130,7 @@ void Render::Bond::drawSelection(Render::Quality quality) const
   // Enable blending
   glEnable(GL_BLEND);
   //  glDisable(GL_DEPTH_TEST);
-  cylinder.draw(STYLE_FILL, quality);
+  cylinder.draw(Render::StyleFill, quality);
   glDisable(GL_BLEND);
   //  glEnable(GL_DEPTH_TEST);
 }

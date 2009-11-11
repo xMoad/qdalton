@@ -103,6 +103,6 @@ macx {
 }
 linux-g++ { 
     DESTDIR = Build/Binaries/Linux
-    LIBS *= -lQGLViewer \
+    LIBS *= -lqglviewer-qt4 \
         -lopenbabel
 }

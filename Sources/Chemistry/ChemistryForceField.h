@@ -5,10 +5,10 @@ namespace Chemistry
 {
   enum ForceField
   {
-    FF_GHEMICAL,
-    FF_MMFF94,
-    FF_MMFF94s,
-    FF_UFF
+    ForceFieldGhemical,
+    ForceFieldMmff94,
+    ForceFieldMmff94s,
+    ForceFieldUff
   };
 }
 

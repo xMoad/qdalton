@@ -26,10 +26,10 @@ namespace Render
 {
   enum Style
   {
-    STYLE_FILL,
-    STYLE_LINE,
-    STYLE_SILHOUETTE,
-    STYLE_POINT
+    StyleFill,
+    StyleLine,
+    StyleSilhouette,
+    StlePoint
   };
 }
 

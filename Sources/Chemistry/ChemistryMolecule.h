@@ -13,8 +13,8 @@ namespace Chemistry
 {
   enum Algorithm
   {
-    ALGORITHM_STEEPEST_DESCENT,
-    ALGORITHM_CONJUGATE_GRADIENTS
+    AlgorithmSteepestDescent,
+    AlgorithmConjugateGradients
   };
 
   class Molecule : public QObject
@@ -31,6 +31,7 @@ namespace Chemistry
                         const QString& fileName);
     bool importFromString(Chemistry::Format format,
                           const QString& string);
+    QString toString(Chemistry::Format format);
 
     OpenBabel::OBAtom* obAtom(quint16 index) const;
     OpenBabel::OBBond* obBond(quint16 index) const;

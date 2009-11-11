@@ -188,50 +188,8 @@
        <attribute name="title">
         <string>Viewer</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,1,0">
-        <item row="0" column="0">
-         <widget class="QTableWidget" name="tableWidgetConformers">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="rowCount">
-           <number>0</number>
-          </property>
-          <property name="columnCount">
-           <number>2</number>
-          </property>
-          <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <column/>
-          <column/>
-         </widget>
-        </item>
-        <item row="0" column="1">
+       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,0,0,0">
+        <item row="0" column="1" colspan="2">
          <widget class="Render::Viewer" name="viewer" native="true">
           <property name="minimumSize">
            <size>
@@ -241,7 +199,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2" rowspan="2">
+        <item row="0" column="3" rowspan="2">
          <widget class="QToolBox" name="toolBox">
           <property name="minimumSize">
            <size>
@@ -260,8 +218,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>320</width>
-             <height>321</height>
+             <width>316</width>
+             <height>255</height>
             </rect>
            </property>
            <attribute name="label">
@@ -417,8 +375,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>320</width>
-             <height>307</height>
+             <width>129</width>
+             <height>491</height>
             </rect>
            </property>
            <attribute name="label">
@@ -497,6 +455,9 @@
             </item>
             <item row="2" column="0" colspan="2">
              <spacer name="verticalSpacerMiddleAdd">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
@@ -532,8 +493,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>231</width>
-             <height>183</height>
+             <width>310</width>
+             <height>237</height>
             </rect>
            </property>
            <attribute name="label">
@@ -698,8 +659,56 @@
           </widget>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
+        <item row="1" column="0" colspan="3">
          <widget class="QPlainTextEdit" name="logPlainTextEdit"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QWidget" name="widgetConformers" native="true">
+          <layout class="QGridLayout" name="gridLayout_11">
+           <item row="0" column="0" colspan="2">
+            <widget class="QTableWidget" name="tableWidgetConformers">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="rowCount">
+              <number>0</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -728,7 +737,7 @@ QDalton is powerful GUI for Dalton.</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -766,6 +775,7 @@ QDalton is powerful GUI for Dalton.</string>
       <string>Export</string>
      </property>
      <addaction name="actionStructureExportImage"/>
+     <addaction name="actionStructureExportXyz"/>
     </widget>
     <addaction name="menuImport"/>
     <addaction name="menuExport"/>
@@ -993,6 +1003,14 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
    <property name="text">
     <string>Conformers table</string>
+   </property>
+  </action>
+  <action name="actionStructureExportXyz">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>XYZ</string>
    </property>
   </action>
  </widget>

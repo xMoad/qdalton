@@ -35,16 +35,16 @@ void Render::Quadric::prepare(Style style) const
 {
   switch (style)
   {
-  case STYLE_FILL:
+  case Render::StyleFill:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_FILL);
     break;
-  case STYLE_LINE:
+  case Render::StyleLine:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_LINE);
     break;
-  case STYLE_POINT:
+  case Render::StlePoint:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_POINT);
     break;
-  case STYLE_SILHOUETTE:
+  case Render::StyleSilhouette:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_SILHOUETTE);
     break;
   }

@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent):
   ui_->tabWidget->hide();
 
   ui_->logPlainTextEdit->hide();
-  ui_->tableWidgetConformers->hide();
+  ui_->widgetConformers->hide();
 
   ui_->statusbar->addWidget(&statusLabel_, 1);
   statusLabel_.setText(workDir_);
@@ -88,6 +88,7 @@ void MainWindow::updateActions()
     ui_->actionStructureBuild->setEnabled(true);
     ui_->actionStructureConformations->setEnabled(true);
     ui_->actionStructureExportImage->setEnabled(true);
+    ui_->actionStructureExportXyz->setEnabled(true);
   }
   else
   {
@@ -96,6 +97,7 @@ void MainWindow::updateActions()
     ui_->actionStructureRemoveHydrogens->setEnabled(false);
     ui_->actionStructureBuild->setEnabled(false);
     ui_->actionStructureConformations->setEnabled(false);
+    ui_->actionStructureExportImage->setEnabled(false);
     ui_->actionStructureExportImage->setEnabled(false);
   }
 }
@@ -163,25 +165,25 @@ void MainWindow::on_actionJobImportDalton_triggered()
                                         + molFile.fileName());
           switch (dalFile.jobType())
           {
-          case File::Dal::OPTIMIZE:
+          case File::Dal::JobTypeOptimize:
             ui_->comboBoxJobType->setCurrentIndex(0);
             break;
-          case File::Dal::WALK:
+          case File::Dal::JobTypeWalk:
             ui_->comboBoxJobType->setCurrentIndex(1);
             break;
-          case File::Dal::RUN:
+          case File::Dal::JobTypeRun:
             ui_->comboBoxJobType->setCurrentIndex(2);
             break;
           }
           switch (molFile.basisType())
           {
-          case File::Mol::ATOMBASIS:
+          case File::Mol::BasisTypeAtombasis:
             ui_->comboBoxBasisType->setCurrentIndex(0);
             break;
-          case File::Mol::BASIS:
+          case File::Mol::BasisTypeBasis:
             ui_->comboBoxBasisType->setCurrentIndex(1);
             break;
-          case File::Mol::INTGRL:
+          case File::Mol::BasisTypeIntgrl:
             ui_->comboBoxBasisType->setCurrentIndex(2);
             break;
           }
@@ -234,16 +236,16 @@ void MainWindow::on_comboBoxView_currentIndexChanged(int index)
   switch (index)
   {
   case 0:
-    ui_->viewer->setView(Render::Viewer::VIEW_BALLS_BONDS);
+    ui_->viewer->setView(Render::Viewer::ViewBallsAndBonds);
     break;
   case 1:
-    ui_->viewer->setView(Render::Viewer::VIEW_BALLS_STICKS);
+    ui_->viewer->setView(Render::Viewer::ViewBallsAndSticks);
     break;
   case 2:
-    ui_->viewer->setView(Render::Viewer::VIEW_STICKS);
+    ui_->viewer->setView(Render::Viewer::ViewSticks);
     break;
   case 3:
-    ui_->viewer->setView(Render::Viewer::VIEW_VDW);
+    ui_->viewer->setView(Render::Viewer::ViewVdWSpheres);
     break;
   }
 }
@@ -253,10 +255,11 @@ void MainWindow::on_toolBox_currentChanged(int index)
   switch (index)
   {
   case 0:
-    ui_->viewer->setMode(ui_->viewer->MODE_VIEW);
+  case 2:
+    ui_->viewer->setMode(ui_->viewer->ModeView);
     break;
   case 1:
-    ui_->viewer->setMode(ui_->viewer->MODE_ADD);
+    ui_->viewer->setMode(ui_->viewer->ModeEdit);
     break;
   }
 }
@@ -290,7 +293,7 @@ void MainWindow::on_actionStructureImportGaussianOutput_triggered()
   if (!fileName.isEmpty())
   {
     addToLog(QString("Import from Gaussian output file started. \nFileName: %1").arg(fileName));
-    if (molecule_.importFromFile(Chemistry::FORMAT_GAUSSIAN_OUTPUT,
+    if (molecule_.importFromFile(Chemistry::FormatGaussianOutput,
                                 fileName))
     {
       addToLog("Import succeeded.");
@@ -399,7 +402,7 @@ void MainWindow::on_actionStructureImportSMILES_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule_.importFromString(Chemistry::FORMAT_SMILES,
+    if (molecule_.importFromString(Chemistry::FormatSmiles,
                                   text))
     {
       ui_->tabWidget->setCurrentIndex(3);
@@ -421,7 +424,7 @@ void MainWindow::on_actionStructureImportInChI_triggered()
                                &ok);
   if (ok)
   {
-    if (molecule_.importFromString(Chemistry::FORMAT_INCHI,
+    if (molecule_.importFromString(Chemistry::FormatInchi,
                                   text))
     {
       ui_->tabWidget->setCurrentIndex(3);
@@ -473,12 +476,22 @@ void MainWindow::on_actionViewToolbox_toggled(bool checked)
 
 void MainWindow::on_actionViewConformersTable_toggled(bool checked)
 {
-    if (checked)
+  if (checked)
   {
-    ui_->tableWidgetConformers->show();
+    ui_->widgetConformers->show();
   }
   else
   {
-    ui_->tableWidgetConformers->hide();
+    ui_->widgetConformers->hide();
   }
+}
+
+void MainWindow::on_pushButtonOK_clicked()
+{
+  ui_->plainTextEditMol->setPlainText(molecule_.toString(Chemistry::FormatXyz));
+}
+
+void MainWindow::on_actionStructureExportXyz_triggered()
+{
+  ui_->plainTextEditMol->setPlainText(molecule_.toString(Chemistry::FormatXyz));
 }

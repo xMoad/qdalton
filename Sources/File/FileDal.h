@@ -34,9 +34,9 @@ namespace File
   public:
     enum JobType
     {
-      OPTIMIZE,
-      WALK,
-      RUN
+      JobTypeOptimize,
+      JobTypeWalk,
+      JobTypeRun
     };
     Dal(const File::Dal& dalFile);
     Dal(const QString& fileName);

@@ -34,8 +34,8 @@
 Render::Viewer::Viewer(QWidget* parent) :
     QGLViewer(parent),
     molecule_(0),
-    view_(Render::Viewer::VIEW_BALLS_BONDS),
-    mode_(Render::Viewer::MODE_VIEW)
+    view_(Render::Viewer::ViewBallsAndBonds),
+    mode_(Render::Viewer::ModeView)
 {
   isAxesVisible_ = true;
   isDebugInfoVisible_ = false;
@@ -69,19 +69,19 @@ void Render::Viewer::draw()
 
   switch (view_)
   {
-  case (Render::Viewer::VIEW_BALLS_BONDS):
+  case (Render::Viewer::ViewBallsAndBonds):
     glCallList(mediumBallsHigh_);
     glCallList(bondsHigh_);
     break;
-  case (Render::Viewer::VIEW_BALLS_STICKS):
+  case (Render::Viewer::ViewBallsAndSticks):
     glCallList(mediumBallsHigh_);
     glCallList(sticksHigh_);
     break;
-  case (Render::Viewer::VIEW_STICKS):
+  case (Render::Viewer::ViewSticks):
     glCallList(smallBallsHigh_);
     glCallList(sticksHigh_);
     break;
-  case (Render::Viewer::VIEW_VDW):
+  case (Render::Viewer::ViewVdWSpheres):
     glCallList(bigBallsHigh_);
     break;
   }
@@ -134,19 +134,19 @@ void Render::Viewer::fastDraw()
 
   switch (view_)
   {
-  case Render::Viewer::VIEW_BALLS_BONDS:
+  case Render::Viewer::ViewBallsAndBonds:
     glCallList(mediumBallsLow_);
     glCallList(bondsLow_);
     break;
-  case Render::Viewer::VIEW_BALLS_STICKS:
+  case Render::Viewer::ViewBallsAndSticks:
     glCallList(mediumBallsLow_);
     glCallList(sticksLow_);
     break;
-  case Render::Viewer::VIEW_STICKS:
+  case Render::Viewer::ViewSticks:
     glCallList(smallBallsLow_);
     glCallList(sticksLow_);
     break;
-  case Render::Viewer::VIEW_VDW:
+  case Render::Viewer::ViewVdWSpheres:
     glCallList(bigBallsLow_);
     break;
   }
@@ -168,18 +168,18 @@ void Render::Viewer::drawWithNames()
       Render::Atom atom(a.next());
       switch (view_)
       {
-      case Render::Viewer::VIEW_BALLS_BONDS:
-      case Render::Viewer::VIEW_BALLS_STICKS:
-        atom.draw(Render::Atom::DRAW_STYLE_ATOM,
-                           Render::QUALITY_LOW);
+      case Render::Viewer::ViewBallsAndBonds:
+      case Render::Viewer::ViewBallsAndSticks:
+        atom.draw(Render::Atom::DrawStyleAtom,
+                  Render::QualityLow);
         break;
-      case Render::Viewer::VIEW_STICKS:
-        atom.draw(Render::Atom::DRAW_STYLE_CONNECTOR,
-                           Render::QUALITY_LOW);
+      case Render::Viewer::ViewSticks:
+        atom.draw(Render::Atom::DrawStyleConnector,
+                  Render::QualityLow);
         break;
-      case Render::Viewer::VIEW_VDW:
-        atom.draw(Render::Atom::DRAW_STYLE_VDW,
-                           Render::QUALITY_LOW);
+      case Render::Viewer::ViewVdWSpheres:
+        atom.draw(Render::Atom::DrawStyleVdW,
+                  Render::QualityLow);
         break;
       }
     }
@@ -187,25 +187,16 @@ void Render::Viewer::drawWithNames()
     i++;
   }
 
-  if (view_ != Render::Viewer::VIEW_VDW)
+  if (view_ != Render::Viewer::ViewVdWSpheres)
   {
     while (b.hasNext())
     {
       glPushName(i);
       {
         Render::Bond bond(b.next());
-//        if (view_ == Render::Viewer::VIEW_BALLS_BONDS)
-//        {
-//          bond.draw(Render::Bond::DRAW_STYLE_BOND,
-//                    Eigen::Vector3f(0.0f, 0.0f, 1.0f),
-//                    Render::QUALITY_LOW);
-//        }
-//        else
-//        {
-          bond.draw(Render::Bond::DRAW_STYLE_STICK,
-                    Eigen::Vector3f(0.0f, 0.0f, 1.0f),
-                    Render::QUALITY_LOW);
-//        }
+        bond.draw(Render::Bond::DrawStyleStick,
+                  Eigen::Vector3f(0.0f, 0.0f, 1.0f),
+                  Render::QualityLow);
       }
       glPopName();
       i++;
@@ -313,9 +304,9 @@ GLuint Render::Viewer::makeAxes(GLfloat size, Quality quality)
   GLuint list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   {
-    x.draw(STYLE_FILL, quality);
-    y.draw(Render::STYLE_FILL, quality);
-    z.draw(STYLE_FILL, quality);
+    x.draw(Render::StyleFill, quality);
+    y.draw(Render::StyleFill, quality);
+    z.draw(Render::StyleFill, quality);
   }
   glEndList();
 
@@ -328,7 +319,7 @@ GLuint Render::Viewer::makeSmallBalls(Render::Quality quality)
   glNewList(list, GL_COMPILE);
   {
     for (int i = 0; i < atomsList_.size(); ++i)
-      atomsList_[i].draw(Render::Atom::DRAW_STYLE_CONNECTOR, quality);
+      atomsList_[i].draw(Render::Atom::DrawStyleConnector, quality);
   }
   glEndList();
   return list;
@@ -340,7 +331,7 @@ GLuint Render::Viewer::makeMediumBalls(Quality quality)
   glNewList(list, GL_COMPILE);
   {
     for (int i = 0; i < atomsList_.size(); ++i)
-      atomsList_[i].draw(Render::Atom::DRAW_STYLE_ATOM, quality);
+      atomsList_[i].draw(Render::Atom::DrawStyleAtom, quality);
   }
   glEndList();
   return list;
@@ -352,7 +343,7 @@ GLuint Render::Viewer::makeBigBalls(Quality quality)
   glNewList(list, GL_COMPILE);
   {
     for (int i = 0; i < atomsList_.size(); ++i)
-      atomsList_[i].draw(Render::Atom::DRAW_STYLE_VDW, quality);
+      atomsList_[i].draw(Render::Atom::DrawStyleVdW, quality);
   }
   glEndList();
   return list;
@@ -364,7 +355,7 @@ GLuint Render::Viewer::makeBonds(Render::Quality quality)
   glNewList(list, GL_COMPILE);
   {
     for (int i = 0; i < bondsList_.size(); ++i)
-      bondsList_[i].draw(Render::Bond::DRAW_STYLE_BOND,
+      bondsList_[i].draw(Render::Bond::DrawStyleBond,
                          Eigen::Vector3f(camera()->position().x,
                                          camera()->position().y,
                                          camera()->position().z),
@@ -380,7 +371,7 @@ GLuint Render::Viewer::makeSticks(Render::Quality quality)
   glNewList(list, GL_COMPILE);
   {
     for (int i = 0; i < bondsList_.size(); ++i)
-      bondsList_[i].draw(Render::Bond::DRAW_STYLE_STICK,
+      bondsList_[i].draw(Render::Bond::DrawStyleStick,
                          Eigen::Vector3f(0.0f, 0.0f, 1.0f),
                          quality);
   }
@@ -404,15 +395,15 @@ GLuint Render::Viewer::makeSelections(Quality quality)
       {  
         switch (view_)
         {
-        case Render::Viewer::VIEW_BALLS_BONDS:
-        case Render::Viewer::VIEW_BALLS_STICKS:
-          atom.drawSelection(Render::Atom::DRAW_STYLE_ATOM, quality);
+        case Render::Viewer::ViewBallsAndBonds:
+        case Render::Viewer::ViewBallsAndSticks:
+          atom.drawSelection(Render::Atom::DrawStyleAtom, quality);
           break;
-        case Render::Viewer::VIEW_STICKS:
-          atom.drawSelection(Render::Atom::DRAW_STYLE_CONNECTOR, quality);
+        case Render::Viewer::ViewSticks:
+          atom.drawSelection(Render::Atom::DrawStyleConnector, quality);
           break;
-        case Render::Viewer::VIEW_VDW:
-          atom.drawSelection(Render::Atom::DRAW_STYLE_VDW, quality);
+        case Render::Viewer::ViewVdWSpheres:
+          atom.drawSelection(Render::Atom::DrawStyleVdW, quality);
           break;
         }
       }
@@ -426,12 +417,12 @@ GLuint Render::Viewer::makeSelections(Quality quality)
       {
         switch (view_)
         {
-        case Render::Viewer::VIEW_BALLS_BONDS:
-        case Render::Viewer::VIEW_BALLS_STICKS:
-        case Render::Viewer::VIEW_STICKS:
+        case Render::Viewer::ViewBallsAndBonds:
+        case Render::Viewer::ViewBallsAndSticks:
+        case Render::Viewer::ViewSticks:
           bond.drawSelection(quality);
           break;
-        case Render::Viewer::VIEW_VDW:
+        case Render::Viewer::ViewVdWSpheres:
           break;
         }
         i++;
@@ -454,15 +445,13 @@ void Render::Viewer::setMode(Render::Viewer::Mode mode)
   mode_ = mode;
   switch (mode_)
   {
-  case (MODE_VIEW):
+  case (Render::Viewer::ModeView):
     setMouseBinding(Qt::LeftButton, CAMERA, ROTATE);
-//    setMouseBinding(Qt::CTRL + Qt::RightButton, FRAME, TRANSLATE);
     break;
-  case (MODE_ADD):
+  case (Render::Viewer::ModeEdit):
     setMouseBinding(Qt::LeftButton, FRAME, TRANSLATE);
     break;
   }
-//  updateGL();
 }
 
 void Render::Viewer::setAxes(bool visibility, GLfloat size)
@@ -549,21 +538,10 @@ void Render::Viewer::displayConformer(quint16 index)
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 {
-//  updateGL();
   switch (e->buttons())
   {
   case Qt::LeftButton:
-    switch (mode_)
-    {
-    case (MODE_VIEW):
-      QGLViewer::mouseMoveEvent(e);
-      break;
-    case (MODE_ADD):
-      QGLViewer::mouseMoveEvent(e);
-      break;
-    default:
-      break;
-    }
+    QGLViewer::mouseMoveEvent(e);
     break;
   case Qt::RightButton:
     switch (e->modifiers())
@@ -599,7 +577,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
   case Qt::LeftButton:
     switch (mode_)
     {
-    case Render::Viewer::MODE_VIEW:
+    case Render::Viewer::ModeView:
       switch (e->modifiers())
       {
       case Qt::NoModifier:
@@ -639,7 +617,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
         break;
       }
       break;
-    case Render::Viewer::MODE_ADD:
+    case Render::Viewer::ModeEdit:
       if (found)
       {
         if (selectedName() < atomsList_.size())
@@ -670,10 +648,10 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
   case Qt::RightButton:
     switch (mode_)
     {
-    case MODE_VIEW:
+    case Render::Viewer::ModeView:
       QGLViewer::mousePressEvent(e);
       break;
-    case MODE_ADD:
+    case Render::Viewer::ModeEdit:
       switch (e->modifiers())
       {
       case (Qt::NoModifier):
@@ -705,10 +683,10 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
   case (Qt::LeftButton):
     switch (mode_)
     {
-    case (MODE_VIEW):
+    case (Render::Viewer::ModeView):
       updateGLList(GLLIST_BONDS);
       break;
-    case (MODE_ADD):
+    case (Render::Viewer::ModeEdit):
 
       beginSelection(e->pos());
       drawWithNames();
@@ -767,38 +745,38 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
   case Render::Viewer::GLLIST_AXES:
     glDeleteLists(axesLow_, 1);
     glDeleteLists(axesHigh_, 1);
-    axesLow_ = makeAxes(axesSize_, Render::QUALITY_LOW);
-    axesHigh_ = makeAxes(axesSize_, Render::QUALITY_HIGH);
+    axesLow_ = makeAxes(axesSize_, Render::QualityLow);
+    axesHigh_ = makeAxes(axesSize_, Render::QualityHigh);
     break;
   case Render::Viewer::GLLIST_ATOMS:
     glDeleteLists(smallBallsLow_, 1);
     glDeleteLists(smallBallsHigh_, 1);
-    smallBallsLow_ = makeSmallBalls(Render::QUALITY_LOW);
-    smallBallsHigh_ = makeSmallBalls(Render::QUALITY_HIGH);
+    smallBallsLow_ = makeSmallBalls(Render::QualityLow);
+    smallBallsHigh_ = makeSmallBalls(Render::QualityHigh);
     glDeleteLists(mediumBallsLow_, 1);
     glDeleteLists(mediumBallsHigh_, 1);
-    mediumBallsLow_ = makeMediumBalls(Render::QUALITY_LOW);
-    mediumBallsHigh_ = makeMediumBalls(Render::QUALITY_HIGH);
+    mediumBallsLow_ = makeMediumBalls(Render::QualityLow);
+    mediumBallsHigh_ = makeMediumBalls(Render::QualityHigh);
     glDeleteLists(bigBallsLow_, 1);
     glDeleteLists(bigBallsHigh_, 1);
-    bigBallsLow_ = makeBigBalls(Render::QUALITY_LOW);
-    bigBallsHigh_ = makeBigBalls(Render::QUALITY_HIGH);
+    bigBallsLow_ = makeBigBalls(Render::QualityLow);
+    bigBallsHigh_ = makeBigBalls(Render::QualityHigh);
     break;
   case Render::Viewer::GLLIST_BONDS:
     glDeleteLists(bondsLow_, 1);
     glDeleteLists(bondsHigh_, 1);
-    bondsLow_ = makeBonds(Render::QUALITY_LOW);
-    bondsHigh_ = makeBonds(Render::QUALITY_HIGH);
+    bondsLow_ = makeBonds(Render::QualityLow);
+    bondsHigh_ = makeBonds(Render::QualityHigh);
     glDeleteLists(sticksLow_, 1);
     glDeleteLists(sticksHigh_, 1);
-    sticksLow_ = makeSticks(Render::QUALITY_LOW);
-    sticksHigh_ = makeSticks(Render::QUALITY_HIGH);
+    sticksLow_ = makeSticks(Render::QualityLow);
+    sticksHigh_ = makeSticks(Render::QualityHigh);
     break;
   case Render::Viewer::GLLIST_SELECTIONS:
     glDeleteLists(selectionsLow_, 1);
     glDeleteLists(selectionsHigh_, 1);
-    selectionsLow_ = makeSelections(Render::QUALITY_LOW);
-    selectionsHigh_ = makeSelections(Render::QUALITY_HIGH);
+    selectionsLow_ = makeSelections(Render::QualityLow);
+    selectionsHigh_ = makeSelections(Render::QualityHigh);
     break;
   }
 }

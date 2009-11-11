@@ -20,15 +20,15 @@
  **********************************************************************/
 #include <QtGlobal>
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include "OpenGL/glu.h"
 #endif
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
 #include "GL/glu.h"
 #endif
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 #ifdef Q_CC_MSVC
 #include <windows.h>
 #endif

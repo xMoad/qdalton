@@ -5,9 +5,10 @@ namespace Chemistry
 {
   enum Format
   {
-    FORMAT_GAUSSIAN_OUTPUT,
-    FORMAT_SMILES,
-    FORMAT_INCHI
+    FormatGaussianOutput,
+    FormatSmiles,
+    FormatInchi,
+    FormatXyz
   };
 }
 

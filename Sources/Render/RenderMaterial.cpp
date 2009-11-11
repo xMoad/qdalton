@@ -40,10 +40,10 @@ specular_(specular), shininess_(shininess)
 
 Render::Material::Material()
 {
-  ambient_   = defaultComponent(AMBIENT);
-  diffuse_   = defaultComponent(DIFFUSE);
-  emission_  = defaultComponent(EMISSION);
-  specular_  = defaultComponent(SPECULAR);
+  ambient_   = defaultComponent(Render::Material::ComponentAmbient);
+  diffuse_   = defaultComponent(Render::Material::ComponentDiffuse);
+  emission_  = defaultComponent(Render::Material::ComponentEmission);
+  specular_  = defaultComponent(Render::Material::ComponentSpecular);
   shininess_ = defaultShininess();
 }
 
@@ -52,16 +52,16 @@ Render::Material::Material(const Render::Color& ambient, bool optimal)
   ambient_ = ambient;
   if (optimal)
   {
-    diffuse_   = optimalComponent(DIFFUSE);
-    emission_  = optimalComponent(EMISSION);
-    specular_  = optimalComponent(SPECULAR);
+    diffuse_   = optimalComponent(Render::Material::ComponentDiffuse);
+    emission_  = optimalComponent(Render::Material::ComponentEmission);
+    specular_  = optimalComponent(Render::Material::ComponentSpecular);
     shininess_ = optimalShininess();
   }
   else
   {
-    diffuse_   = defaultComponent(DIFFUSE);
-    emission_  = defaultComponent(EMISSION);
-    specular_  = defaultComponent(SPECULAR);
+    diffuse_   = defaultComponent(Render::Material::ComponentDiffuse);
+    emission_  = defaultComponent(Render::Material::ComponentEmission);
+    specular_  = defaultComponent(Render::Material::ComponentSpecular);
     shininess_ = defaultShininess();
   }
 }
@@ -130,16 +130,16 @@ Render::Color& Render::Material::defaultComponent(Component component)
 
   switch (component)
   {
-  case AMBIENT:
+  case Render::Material::ComponentAmbient:
     c = new Color(0.2f, 0.2f, 0.2f, 1.0f);
     break;
-  case DIFFUSE:
+  case Render::Material::ComponentDiffuse:
     c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
     break;
-  case EMISSION:
+  case Render::Material::ComponentEmission:
     c = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     break;
-  case SPECULAR:
+  case Render::Material::ComponentSpecular:
     c = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     break;
   }
@@ -153,19 +153,17 @@ Render::Color& Render::Material::optimalComponent(Component component)
 
   switch (component)
   {
-  case AMBIENT:
-//    c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
+  case Render::Material::ComponentAmbient:
     c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
     break;
-  case DIFFUSE:
+  case Render::Material::ComponentDiffuse:
     c = new Color(0.4f, 0.4f, 0.4f, 1.0f);
     break;
-  case EMISSION:
+  case Render::Material::ComponentEmission:
     c = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     break;
-  case SPECULAR:
+  case Render::Material::ComponentSpecular:
     c = new Color(0.6f, 0.6f, 0.6f, 1.0f);
-//    c = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     break;
   }
 

@@ -74,20 +74,20 @@ void Render::Atom::draw(Render::Atom::DrawStyle style,
 
   switch (style)
   {
-  case Render::Atom::DRAW_STYLE_ATOM:
+  case Render::Atom::DrawStyleAtom:
     sphere.setRadius(drawRadius());
     break;
-  case Render::Atom::DRAW_STYLE_CONNECTOR:
+  case Render::Atom::DrawStyleConnector:
     sphere.setRadius(Render::Bond::STICK_THIKNESS);
     break;
-  case Render::Atom::DRAW_STYLE_VDW:
+  case Render::Atom::DrawStyleVdW:
     sphere.setRadius(vanderwaalsRadius());
     break;
   }
 
   sphere.setMaterial(material);
 
-  sphere.draw(STYLE_FILL, quality);
+  sphere.draw(Render::StyleFill, quality);
 }
 
 void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
@@ -100,13 +100,13 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
 
   switch (style)
   {
-  case Render::Atom::DRAW_STYLE_ATOM:
+  case Render::Atom::DrawStyleAtom:
     sphere.setRadius(drawRadius() + SELECTON_RADIUS);
     break;
-  case Render::Atom::DRAW_STYLE_CONNECTOR:
+  case Render::Atom::DrawStyleConnector:
     sphere.setRadius(Render::Bond::STICK_THIKNESS + SELECTON_RADIUS);
     break;
-  case Render::Atom::DRAW_STYLE_VDW:
+  case Render::Atom::DrawStyleVdW:
     sphere.setRadius(vanderwaalsRadius() + SELECTON_RADIUS * 2);
     break;
   }
@@ -116,7 +116,7 @@ void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
   // Enable blending
   glEnable(GL_BLEND);
   //  glDisable(GL_DEPTH_TEST);
-  sphere.draw(STYLE_FILL, quality);
+  sphere.draw(Render::StyleFill, quality);
   glDisable(GL_BLEND);
   //  glEnable(GL_DEPTH_TEST);
 }

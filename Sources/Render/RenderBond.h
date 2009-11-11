@@ -37,8 +37,8 @@ namespace Render
   public:
     enum DrawStyle
     {
-      DRAW_STYLE_BOND,
-      DRAW_STYLE_STICK
+      DrawStyleBond,
+      DrawStyleStick
     };
 
     Bond(const Render::Bond& bond);

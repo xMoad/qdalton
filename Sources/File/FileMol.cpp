@@ -28,19 +28,19 @@ bool File::Mol::parse(bool doAutoRebond)
   // Read basis type.
   if (strings_[0] == "ATOMBASIS")
   {
-    basisType_ = ATOMBASIS;
+    basisType_ = File::Mol::BasisTypeAtombasis;
   }
   else
   {
     if (strings_[0] == "BASIS")
     {
-      basisType_ = BASIS;
+      basisType_ = File::Mol::BasisTypeBasis;
     }
     else
     {
       if (strings_[0] == "INTGRL")
       {
-        basisType_ = INTGRL;
+        basisType_ = File::Mol::BasisTypeIntgrl;
       }
       else
       {
@@ -54,12 +54,12 @@ bool File::Mol::parse(bool doAutoRebond)
   // Depending on basis type do some actions and set the number of general string.
   switch (basisType_)
   {
-  case BASIS:
+  case File::Mol::BasisTypeBasis:
     comment_ = strings_[2] + "\n" + strings_[3];
     generalStringIndex = 4;
     break;
-  case ATOMBASIS:
-  case INTGRL:
+  case File::Mol::BasisTypeAtombasis:
+  case File::Mol::BasisTypeIntgrl:
     comment_ = strings_[1] + "\n" + strings_[2];
     generalStringIndex = 3;
     break;

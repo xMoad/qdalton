@@ -37,10 +37,10 @@ namespace Render
   public:
     enum Component
     {
-      AMBIENT,
-      DIFFUSE,
-      EMISSION,
-      SPECULAR
+      ComponentAmbient,
+      ComponentDiffuse,
+      ComponentEmission,
+      ComponentSpecular
     };
     Material();
     Material(const Color& ambient,
