@@ -47,7 +47,6 @@ Render::Viewer::Viewer(QWidget* parent) :
 
 Render::Viewer::~Viewer()
 {
-  //  makeCurrent();
   glDeleteLists(smallBallsLow_, 1);
   glDeleteLists(smallBallsHigh_, 1);
   glDeleteLists(mediumBallsLow_, 1);
@@ -109,20 +108,18 @@ void Render::Viewer::draw()
 
     glColor4fv(color);
   }
-
-  /* buggy code! =)
-    glGetFloatv(GL_CURRENT_COLOR, color);
-    glColor3f(0.0f, 1.0f, 0.0f);
-    for (int i = 0; i < atomsList_.size(); i++)
-    {
-      renderText(atomsList_[i].centre().x(),
-                 atomsList_[i].centre().y(),
-                 atomsList_[i].centre().z(),
-                 atomsList_[i].label(),
-                 QFont("Arial"));
-    }
-    glColor4fv(color);
-*/
+/*
+  GLfloat color[4];
+  glGetFloatv(GL_CURRENT_COLOR, color);
+  glColor3f(0.0f, 1.0f, 0.0f);
+  for (int i = 0; i < atomsList_.size(); ++i)
+  {
+    renderText(atomsList_[i].centre().x(),
+               atomsList_[i].centre().y(),
+               atomsList_[i].centre().z(),
+               "H");
+  }
+  glColor4fv(color); */
 }
 
 void Render::Viewer::fastDraw()
@@ -536,6 +533,20 @@ void Render::Viewer::displayConformer(quint16 index)
   updateMolecule();
 }
 
+bool Render::Viewer::isSomethingUnderPixel(const QPoint& pixel)
+{
+  bool found;
+
+  beginSelection(pixel);
+  drawWithNames();
+  endSelection(pixel);
+
+  // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
+  camera()->pointUnderPixel(pixel, found);
+
+  return found;
+}
+
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 {
   switch (e->buttons())
@@ -564,13 +575,6 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 void Render::Viewer::mousePressEvent(QMouseEvent* e)
 {
   glCallList(sticksLow_);
-  beginSelection(e->pos());
-  drawWithNames();
-  endSelection(e->pos());
-
-  // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
-  bool found;
-  selectedPoint = camera()->pointUnderPixel(e->pos(), found);
 
   switch (e->button())
   {
@@ -581,14 +585,11 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       switch (e->modifiers())
       {
       case Qt::NoModifier:
-        if (selectedName() != -1)
+        if (isSomethingUnderPixel(e->pos()) && selectedName() < atomsList_.size())
         {
-          if (selectedName() < atomsList_.size())
-          {
             camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
                                                            atomsList_[selectedName()].centre().y(),
                                                            atomsList_[selectedName()].centre().z()));
-          }
         }
         else
         {
@@ -597,20 +598,17 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
         QGLViewer::mousePressEvent(e);
         break;
       case Qt::ShiftModifier:
-        if (found)
+        if (isSomethingUnderPixel(e->pos()))
         {
-          if (selectedName() != -1)
+          if (selectedName() < atomsList_.size())
           {
-            if (selectedName() < atomsList_.size())
-            {
-              atomsList_[selectedName()].toggleSelected();
-            }
-            else
-            {
-              bondsList_[selectedName() - atomsList_.size()].toggleSelected();
-            }
-            updateGLList(Viewer::GLLIST_SELECTIONS);
+            atomsList_[selectedName()].toggleSelected();
           }
+          else
+          {
+            bondsList_[selectedName() - atomsList_.size()].toggleSelected();
+          }
+          updateGLList(Viewer::GLLIST_SELECTIONS);
         }
         break;
       default:
@@ -618,7 +616,7 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
       }
       break;
     case Render::Viewer::ModeEdit:
-      if (found)
+      if (isSomethingUnderPixel(e->pos()))
       {
         if (selectedName() < atomsList_.size())
         {
@@ -687,51 +685,46 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
       updateGLList(GLLIST_BONDS);
       break;
     case (Render::Viewer::ModeEdit):
-
-      beginSelection(e->pos());
-      drawWithNames();
-      endSelection(e->pos());
-
-      // Find the selectedPoint coordinates, using camera()->pointUnderPixel().
-      bool found;
-      selectedPoint = camera()->pointUnderPixel(e->pos(), found);
-
-      if (currentOBAtom_ != 0)
+      if (rect().contains(e->pos()))
       {
-        qglviewer::Vec v(newOBAtom_->x(),
-                         newOBAtom_->y(),
-                         newOBAtom_->z());
-        if (manipulatedFrame()->position() == qglviewer::Vec())
+
+        if (currentOBAtom_ != 0)
         {
-          currentOBAtom_->SetAtomicNum(newOBAtom_->GetAtomicNum());
-        }
-        else
-        {
-          if (!found)
+          qglviewer::Vec v(newOBAtom_->x(),
+                           newOBAtom_->y(),
+                           newOBAtom_->z());
+          if (manipulatedFrame()->position() == qglviewer::Vec())
           {
-            OpenBabel::vector3 p(newOBAtom_->x() + manipulatedFrame()->position().x,
-                                 newOBAtom_->y() + manipulatedFrame()->position().y,
-                                 newOBAtom_->z() + manipulatedFrame()->position().z);
-            newOBAtom_->SetVector(p);
-            molecule_->addObAtom(*newOBAtom_);
-            molecule_->addBond(currentOBAtom_,
-                              molecule_->obAtom(molecule_->atomsCount() - 1),
-                              1);
+            currentOBAtom_->SetAtomicNum(newOBAtom_->GetAtomicNum());
           }
           else
           {
-            molecule_->addBond(currentOBAtom_,
-                              atomsList_[selectedName()].obAtom(),
-                              1);
+            if (!isSomethingUnderPixel(e->pos()))
+            {
+              OpenBabel::vector3 p(newOBAtom_->x() + manipulatedFrame()->position().x,
+                                   newOBAtom_->y() + manipulatedFrame()->position().y,
+                                   newOBAtom_->z() + manipulatedFrame()->position().z);
+              newOBAtom_->SetVector(p);
+              molecule_->addObAtom(*newOBAtom_);
+              molecule_->addBond(currentOBAtom_,
+                                 molecule_->obAtom(molecule_->atomsCount() - 1),
+                                 1);
+            }
+            else
+            {
+              molecule_->addBond(currentOBAtom_,
+                                 atomsList_[selectedName()].obAtom(),
+                                 1);
+            }
           }
         }
-        delete newOBAtom_;
-        currentOBAtom_ = 0;
+        updateMolecule();
       }
 
-      updateMolecule();
+      delete newOBAtom_;
+      currentOBAtom_ = 0;
       manipulatedFrame()->setPosition(0.0f, 0.0f, 0.0f);
-        break;
+      break;
     }
     break;
   }

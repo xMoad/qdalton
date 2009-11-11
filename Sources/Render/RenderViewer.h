@@ -75,6 +75,8 @@ namespace Render
     void conformationalSearch(QTableWidget* targetTableWidget);
     void displayConformer(quint16 index);
 
+    bool isSomethingUnderPixel(const QPoint& pixel);
+
   public slots:
     void build();
     void addHydrogensAndBuild();
@@ -117,7 +119,7 @@ namespace Render
     QList<Render::Atom> atomsList_;
     QList<Render::Bond> bondsList_;
 
-    qglviewer::Vec selectedPoint;
+//    qglviewer::Vec selectedPoint;
 
     void updateGLList(GLList gllist);
     void updateRenderAtoms();

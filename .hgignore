@@ -8,3 +8,4 @@ glob:.project
 glob:.cproject
 glob:vc90.pdb
 glob:QDalton.suo
+glob:*.pro.user

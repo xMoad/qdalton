@@ -38,7 +38,7 @@
  </data>
  <data>
   <variable>activebuildconfiguration</variable>
-  <value type="QString" >Release</value>
+  <value type="QString" >Debug</value>
  </data>
  <data>
   <variable>buildConfiguration-Debug</variable>
@@ -48,7 +48,7 @@
    <value key="ToolChain" type="int" >0</value>
    <value key="addQDumper" type="" ></value>
    <value key="buildConfiguration" type="int" >2</value>
-   <value key="buildDirectory" type="QString" >Z:\Desktop\QDalton\Project</value>
+   <value key="buildDirectory" type="QString" >/Users/kemiisto/Desktop/QDalton/Project</value>
    <valuelist key="userEnvironmentChanges" type="QVariantList" />
   </valuemap>
  </data>
@@ -68,60 +68,29 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
-    <value type="QString" >COMMANDER_DRIVE=C:</value>
-    <value type="QString" >COMMANDER_INI=C:\Program Files\Total Commander\wincmd.ini</value>
-    <value type="QString" >COMMANDER_PATH=C:\Program Files\Total Commander</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
-    <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
-    <value type="QString" >DEVENVDIR=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >FRAMEWORK35VERSION=v3.5</value>
-    <value type="QString" >FRAMEWORKDIR=C:\WINDOWS\Microsoft.NET\Framework</value>
-    <value type="QString" >FRAMEWORKVERSION=v2.0.50727</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
-    <value type="QString" >INCLUDE=C:\Program Files\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;</value>
-    <value type="QString" >LIB=C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;</value>
-    <value type="QString" >LIBPATH=C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE;C:\Program Files\Microsoft Visual Studio 9.0\VC\BIN;C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools;C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\VCPackages;C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin;C:\Qt\qt-4.5.3\bin;C:\Program Files\Parallels\Parallels Tools\Applications;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;c:\Qt\qt-4.5.3\bin;C:\Program Files\TortoiseHg</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=1706</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PROMPT=$P$G</value>
-    <value type="QString" >QTDIR=C:/Qt/qt-4.5.3</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=Administrator</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
-    <value type="QString" >VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0\VC</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >VSINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0</value>
-    <value type="QString" >WINDIR=C:\WINDOWS</value>
-    <value type="QString" >WINDOWSSDKDIR=C:\Program Files\Microsoft SDKs\Windows\v6.0A\</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-FIDNBw/Render</value>
+    <value type="QString" >COMMAND_MODE=legacy</value>
+    <value type="QString" >DISPLAY=/tmp/launch-sfjvDp/:0</value>
+    <value type="QString" >HOME=/Users/kemiisto</value>
+    <value type="QString" >LOGNAME=kemiisto</value>
+    <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
+    <value type="QString" >QTDIR=/usr</value>
+    <value type="QString" >SECURITYSESSIONID=2b4190</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-mgg3SI/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/ny/nywC6RsUE94lcXNH0azbbU+++TI/-Tmp-/</value>
+    <value type="QString" >USER=kemiisto</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >Z:/Desktop/QDalton/Project/QDalton.pro</value>
+    <value type="QString" >/Users/kemiisto/Desktop/QDalton/Project/QDalton.pro</value>
     <value type="QString" >-spec</value>
-    <value type="QString" >win32-msvc2008</value>
+    <value type="QString" >macx-g++</value>
     <value type="QString" >-r</value>
    </valuelist>
-   <value key="abstractProcess.command" type="QString" >C:/Qt/qt-4.5.3/bin/qmake.exe</value>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/qmake</value>
    <value key="abstractProcess.enabled" type="bool" >false</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Desktop/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/kemiisto/Desktop/QDalton/Project</value>
    <value key="buildConfiguration" type="int" >2</value>
   </valuemap>
  </data>
@@ -130,56 +99,27 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
-    <value type="QString" >COMMANDER_DRIVE=C:</value>
-    <value type="QString" >COMMANDER_INI=C:\Program Files\Total Commander\wincmd.ini</value>
-    <value type="QString" >COMMANDER_PATH=C:\Program Files\Total Commander</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
-    <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
-    <value type="QString" >DEVENVDIR=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >FRAMEWORK35VERSION=v3.5</value>
-    <value type="QString" >FRAMEWORKDIR=C:\WINDOWS\Microsoft.NET\Framework</value>
-    <value type="QString" >FRAMEWORKVERSION=v2.0.50727</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
-    <value type="QString" >INCLUDE=C:\Program Files\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;</value>
-    <value type="QString" >LIB=C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;</value>
-    <value type="QString" >LIBPATH=C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE;C:\Program Files\Microsoft Visual Studio 9.0\VC\BIN;C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools;C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\VCPackages;C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin;C:\Qt\qt-4.5.3\bin;C:\Program Files\Parallels\Parallels Tools\Applications;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;c:\Qt\qt-4.5.3\bin;C:\Program Files\TortoiseHg</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=1706</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PROMPT=$P$G</value>
-    <value type="QString" >QTDIR=C:/Qt/qt-4.5.3</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=Administrator</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
-    <value type="QString" >VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0\VC</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >VSINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0</value>
-    <value type="QString" >WINDIR=C:\WINDOWS</value>
-    <value type="QString" >WINDOWSSDKDIR=C:\Program Files\Microsoft SDKs\Windows\v6.0A\</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-FIDNBw/Render</value>
+    <value type="QString" >COMMAND_MODE=legacy</value>
+    <value type="QString" >DISPLAY=/tmp/launch-sfjvDp/:0</value>
+    <value type="QString" >HOME=/Users/kemiisto</value>
+    <value type="QString" >LOGNAME=kemiisto</value>
+    <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
+    <value type="QString" >QTDIR=/usr</value>
+    <value type="QString" >SECURITYSESSIONID=2b4190</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-mgg3SI/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/ny/nywC6RsUE94lcXNH0azbbU+++TI/-Tmp-/</value>
+    <value type="QString" >USER=kemiisto</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool" >false</value>
-   <valuelist key="abstractProcess.arguments" type="QVariantList" />
-   <value key="abstractProcess.command" type="QString" >C:/Program Files/Microsoft Visual Studio 9.0/VC/BIN/nmake.exe</value>
+   <valuelist key="abstractProcess.arguments" type="QVariantList" >
+    <value type="QString" >-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Desktop/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/kemiisto/Desktop/QDalton/Project</value>
   </valuemap>
  </data>
  <data>
@@ -187,58 +127,28 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\Documents and Settings\All Users</value>
-    <value type="QString" >APPDATA=C:\Documents and Settings\Administrator\Application Data</value>
-    <value type="QString" >CLIENTNAME=Console</value>
-    <value type="QString" >COMMANDER_DRIVE=C:</value>
-    <value type="QString" >COMMANDER_INI=C:\Program Files\Total Commander\wincmd.ini</value>
-    <value type="QString" >COMMANDER_PATH=C:\Program Files\Total Commander</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=KEMIISTO-PC</value>
-    <value type="QString" >COMSPEC=C:\WINDOWS\system32\cmd.exe</value>
-    <value type="QString" >DEVENVDIR=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >FRAMEWORK35VERSION=v3.5</value>
-    <value type="QString" >FRAMEWORKDIR=C:\WINDOWS\Microsoft.NET\Framework</value>
-    <value type="QString" >FRAMEWORKVERSION=v2.0.50727</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Documents and Settings\Administrator</value>
-    <value type="QString" >INCLUDE=C:\Program Files\Microsoft Visual Studio 9.0\VC\INCLUDE;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;</value>
-    <value type="QString" >LIB=C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;</value>
-    <value type="QString" >LIBPATH=C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;</value>
-    <value type="QString" >LOGONSERVER=\\KEMIISTO-PC</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE;C:\Program Files\Microsoft Visual Studio 9.0\VC\BIN;C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools;C:\WINDOWS\Microsoft.NET\Framework\v3.5;C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727;C:\Program Files\Microsoft Visual Studio 9.0\VC\VCPackages;C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin;C:\Qt\qt-4.5.3\bin;C:\Program Files\Parallels\Parallels Tools\Applications;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;c:\Qt\qt-4.5.3\bin;C:\Program Files\TortoiseHg</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=1706</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PROMPT=$P$G</value>
-    <value type="QString" >QTDIR=C:/Qt/qt-4.5.3</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\WINDOWS</value>
-    <value type="QString" >TEMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >TMP=C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp</value>
-    <value type="QString" >USERDOMAIN=KEMIISTO-PC</value>
-    <value type="QString" >USERNAME=Administrator</value>
-    <value type="QString" >USERPROFILE=C:\Documents and Settings\Administrator</value>
-    <value type="QString" >VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0\VC</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >VSINSTALLDIR=C:\Program Files\Microsoft Visual Studio 9.0</value>
-    <value type="QString" >WINDIR=C:\WINDOWS</value>
-    <value type="QString" >WINDOWSSDKDIR=C:\Program Files\Microsoft SDKs\Windows\v6.0A\</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-FIDNBw/Render</value>
+    <value type="QString" >COMMAND_MODE=legacy</value>
+    <value type="QString" >DISPLAY=/tmp/launch-sfjvDp/:0</value>
+    <value type="QString" >HOME=/Users/kemiisto</value>
+    <value type="QString" >LOGNAME=kemiisto</value>
+    <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
+    <value type="QString" >QTDIR=/usr</value>
+    <value type="QString" >SECURITYSESSIONID=2b4190</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-mgg3SI/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/ny/nywC6RsUE94lcXNH0azbbU+++TI/-Tmp-/</value>
+    <value type="QString" >USER=kemiisto</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool" >true</value>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
     <value type="QString" >clean</value>
+    <value type="QString" >-w</value>
    </valuelist>
-   <value key="abstractProcess.command" type="QString" >C:/Program Files/Microsoft Visual Studio 9.0/VC/BIN/nmake.exe</value>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >Z:/Desktop/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/kemiisto/Desktop/QDalton/Project</value>
    <value key="cleanConfig" type="bool" >true</value>
    <valuelist key="makeargs" type="QVariantList" >
     <value type="QString" >clean</value>
