@@ -35,14 +35,15 @@ Render::Viewer::Viewer(QWidget* parent) :
     QGLViewer(parent),
     molecule_(0),
     view_(Render::Viewer::ViewBallsAndBonds),
-    mode_(Render::Viewer::ModeView)
+//    mode_(Render::Viewer::ModeView),
+    obAtomSelectedBefore_(0),
+    obAtomNew_(0)
 {
   isAxesVisible_ = true;
   isDebugInfoVisible_ = false;
   axesSize_ = 1.0f;
   atomicNumber_ = 6;
-  currentOBAtom_ = 0;
-  newOBAtom_ = 0;
+  setMouseBinding(Qt::CTRL + Qt::LeftButton, FRAME, TRANSLATE);
 }
 
 Render::Viewer::~Viewer()
@@ -437,19 +438,19 @@ void Render::Viewer::setView(Render::Viewer::View view)
   updateGL();
 }
 
-void Render::Viewer::setMode(Render::Viewer::Mode mode)
-{
-  mode_ = mode;
-  switch (mode_)
-  {
-  case (Render::Viewer::ModeView):
-    setMouseBinding(Qt::LeftButton, CAMERA, ROTATE);
-    break;
-  case (Render::Viewer::ModeEdit):
-    setMouseBinding(Qt::LeftButton, FRAME, TRANSLATE);
-    break;
-  }
-}
+//void Render::Viewer::setMode(Render::Viewer::Mode mode)
+//{
+//  mode_ = mode;
+//  switch (mode_)
+//  {
+//  case (Render::Viewer::ModeView):
+////    setMouseBinding(Qt::LeftButton, CAMERA, ROTATE);
+//    break;
+//  case (Render::Viewer::ModeEdit):
+////    setMouseBinding(Qt::LeftButton, FRAME, TRANSLATE);
+//    break;
+//  }
+//}
 
 void Render::Viewer::setAxes(bool visibility, GLfloat size)
 {
@@ -555,16 +556,9 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
     QGLViewer::mouseMoveEvent(e);
     break;
   case Qt::RightButton:
-    switch (e->modifiers())
+    if (e->modifiers() == Qt::NoModifier | Qt::MetaModifier)
     {
-    case Qt::NoModifier:
       QGLViewer::mouseMoveEvent(e);
-      break;
-    case Qt::MetaModifier:
-      QGLViewer::mouseMoveEvent(e);
-      break;
-    default:
-      break;
     }
     break;
   default:
@@ -579,95 +573,10 @@ void Render::Viewer::mousePressEvent(QMouseEvent* e)
   switch (e->button())
   {
   case Qt::LeftButton:
-    switch (mode_)
-    {
-    case Render::Viewer::ModeView:
-      switch (e->modifiers())
-      {
-      case Qt::NoModifier:
-        if (isSomethingUnderPixel(e->pos()) && selectedName() < atomsList_.size())
-        {
-            camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
-                                                           atomsList_[selectedName()].centre().y(),
-                                                           atomsList_[selectedName()].centre().z()));
-        }
-        else
-        {
-          camera()->setRevolveAroundPoint(qglviewer::Vec());
-        }
-        QGLViewer::mousePressEvent(e);
-        break;
-      case Qt::ShiftModifier:
-        if (isSomethingUnderPixel(e->pos()))
-        {
-          if (selectedName() < atomsList_.size())
-          {
-            atomsList_[selectedName()].toggleSelected();
-          }
-          else
-          {
-            bondsList_[selectedName() - atomsList_.size()].toggleSelected();
-          }
-          updateGLList(Viewer::GLLIST_SELECTIONS);
-        }
-        break;
-      default:
-        break;
-      }
-      break;
-    case Render::Viewer::ModeEdit:
-      if (isSomethingUnderPixel(e->pos()))
-      {
-        if (selectedName() < atomsList_.size())
-        {
-          currentOBAtom_ = molecule_->obAtom(selectedName());
-          //        currentOBAtom_->SetAtomicNum(atomicNumber_);
-          newOBAtom_ = new OpenBabel::OBAtom();
-          newOBAtom_->SetAtomicNum(atomicNumber_);
-          newOBAtom_->SetVector(currentOBAtom_->GetVector());
-        }
-        else
-        {
-          bondsList_[selectedName() - atomsList_.size()].cycleOrder();
-        }
-      }
-      else
-      {
-        if (molecule_->atomsCount() == 0)
-        {
-          molecule_->addAtom(atomicNumber_);
-          updateMolecule();
-        }
-      }
-      QGLViewer::mousePressEvent(e);
-      break;
-    }
+    mouseLeftButtonPressEvent(e);
     break;
   case Qt::RightButton:
-    switch (mode_)
-    {
-    case Render::Viewer::ModeView:
-      QGLViewer::mousePressEvent(e);
-      break;
-    case Render::Viewer::ModeEdit:
-      switch (e->modifiers())
-      {
-      case (Qt::NoModifier):
-        if (selectedName() < atomsList_.size())
-        {
-          molecule_->deleteAtom(atomsList_[selectedName()].obAtom());
-        }
-        else
-        {
-          molecule_->deleteBond(bondsList_[selectedName() - atomsList_.size()].obBond());
-        }
-        updateMolecule();
-        break;
-      case (Qt::MetaModifier):
-        QGLViewer::mousePressEvent(e);
-      }
-      break;
-    }
+    mouseRightButtonPressEvent(e);
     break;
   default:
     break;
@@ -679,53 +588,9 @@ void Render::Viewer::mouseReleaseEvent(QMouseEvent* e)
   switch (e->button())
   {
   case (Qt::LeftButton):
-    switch (mode_)
-    {
-    case (Render::Viewer::ModeView):
-      updateGLList(GLLIST_BONDS);
-      break;
-    case (Render::Viewer::ModeEdit):
-      if (rect().contains(e->pos()))
-      {
-
-        if (currentOBAtom_ != 0)
-        {
-          qglviewer::Vec v(newOBAtom_->x(),
-                           newOBAtom_->y(),
-                           newOBAtom_->z());
-          if (manipulatedFrame()->position() == qglviewer::Vec())
-          {
-            currentOBAtom_->SetAtomicNum(newOBAtom_->GetAtomicNum());
-          }
-          else
-          {
-            if (!isSomethingUnderPixel(e->pos()))
-            {
-              OpenBabel::vector3 p(newOBAtom_->x() + manipulatedFrame()->position().x,
-                                   newOBAtom_->y() + manipulatedFrame()->position().y,
-                                   newOBAtom_->z() + manipulatedFrame()->position().z);
-              newOBAtom_->SetVector(p);
-              molecule_->addObAtom(*newOBAtom_);
-              molecule_->addBond(currentOBAtom_,
-                                 molecule_->obAtom(molecule_->atomsCount() - 1),
-                                 1);
-            }
-            else
-            {
-              molecule_->addBond(currentOBAtom_,
-                                 atomsList_[selectedName()].obAtom(),
-                                 1);
-            }
-          }
-        }
-        updateMolecule();
-      }
-
-      delete newOBAtom_;
-      currentOBAtom_ = 0;
-      manipulatedFrame()->setPosition(0.0f, 0.0f, 0.0f);
-      break;
-    }
+    mouseLeftButtonReleaseEvent(e);
+    break;
+  default:
     break;
   }
   QGLViewer::mouseReleaseEvent(e);
@@ -792,4 +657,172 @@ void Render::Viewer::updateRenderBonds()
     Bond bond(molecule_->obBond(i));
     addBond(bond);
   }
+}
+
+void Render::Viewer::mouseLeftButtonPressEvent(QMouseEvent* e)
+{
+  switch (e->modifiers())
+  {
+  case Qt::NoModifier:
+    mouseLeftButtonWithNoModifierPressEvent(e);
+    QGLViewer::mousePressEvent(e);
+    break;
+  case Qt::ShiftModifier:
+    mouseLeftButtonWithShiftPressEvent(e);
+    break;
+  case Qt::ControlModifier:
+    mouseLeftButtonWithCtrlPressEvent(e);
+    QGLViewer::mousePressEvent(e);
+    break;
+  default:
+    break;
+  }
+}
+
+void Render::Viewer::mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e)
+{
+  if (isSomethingUnderPixel(e->pos()) && selectedName() < atomsList_.size())
+  {
+    camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
+                                                   atomsList_[selectedName()].centre().y(),
+                                                   atomsList_[selectedName()].centre().z()));
+  }
+  else
+  {
+    camera()->setRevolveAroundPoint(qglviewer::Vec());
+  }
+}
+
+void Render::Viewer::mouseLeftButtonWithShiftPressEvent(QMouseEvent* e)
+{
+  if (isSomethingUnderPixel(e->pos()))
+  {
+    if (selectedName() < atomsList_.size())
+    {
+      atomsList_[selectedName()].toggleSelected();
+    }
+    else
+    {
+      bondsList_[selectedName() - atomsList_.size()].toggleSelected();
+    }
+    updateGLList(Viewer::GLLIST_SELECTIONS);
+  }
+}
+
+void Render::Viewer::mouseLeftButtonWithCtrlPressEvent(QMouseEvent* e)
+{
+  if (isSomethingUnderPixel(e->pos()))
+  {
+    if (selectedName() < atomsList_.size())
+    {
+      obAtomSelectedBefore_ = molecule_->obAtom(selectedName());
+      obAtomNew_ = new OpenBabel::OBAtom();
+      obAtomNew_->SetAtomicNum(atomicNumber_);
+      obAtomNew_->SetVector(obAtomSelectedBefore_->GetVector());
+    }
+    else
+    {
+      bondsList_[selectedName() - atomsList_.size()].cycleOrder();
+    }
+  }
+  else
+  {
+    obAtomSelectedBefore_ = 0;
+    if (molecule_->atomsCount() == 0)
+    {
+      molecule_->addAtom(atomicNumber_);
+      updateMolecule();
+    }
+  }
+}
+
+void Render::Viewer::mouseRightButtonPressEvent(QMouseEvent* e)
+{
+  switch (e->modifiers())
+  {
+  case (Qt::NoModifier):
+    mouseRightButtonWithNoModifierPressEvent(e);
+    break;
+  default:
+    break;
+  }
+}
+
+void Render::Viewer::mouseRightButtonWithNoModifierPressEvent(QMouseEvent* e)
+{
+  if (isSomethingUnderPixel(e->pos()))
+  {
+    if (selectedName() < atomsList_.size())
+    {
+      molecule_->deleteAtom(atomsList_[selectedName()].obAtom());
+    }
+    else
+    {
+      molecule_->deleteBond(bondsList_[selectedName() - atomsList_.size()].obBond());
+    }
+    updateMolecule();
+  }
+  else
+  {
+    QGLViewer::mousePressEvent(e);
+  }
+}
+
+void Render::Viewer::mouseLeftButtonReleaseEvent(QMouseEvent* e)
+{
+  switch (e->modifiers())
+  {
+  case Qt::NoModifier:
+    updateGLList(GLLIST_BONDS);
+    break;
+  case Qt::ControlModifier:
+    mouseLeftButtonWithCtrlReleaseEvent(e);
+    break;
+  }
+}
+
+void Render::Viewer::mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e)
+{
+  if (rect().contains(e->pos()))
+  {
+    if (obAtomSelectedBefore_ != 0)
+    {
+      qglviewer::Vec v(obAtomNew_->x(),
+                       obAtomNew_->y(),
+                       obAtomNew_->z());
+      if (manipulatedFrame()->position() == qglviewer::Vec())
+      {
+        obAtomSelectedBefore_->SetAtomicNum(obAtomNew_->GetAtomicNum());
+      }
+      else
+      {
+        if (!isSomethingUnderPixel(e->pos()))
+        {
+          OpenBabel::vector3 p(obAtomNew_->x() + manipulatedFrame()->position().x,
+                               obAtomNew_->y() + manipulatedFrame()->position().y,
+                               obAtomNew_->z() + manipulatedFrame()->position().z);
+          obAtomNew_->SetVector(p);
+          molecule_->addObAtom(*obAtomNew_);
+          molecule_->addBond(obAtomSelectedBefore_,
+                             molecule_->obAtom(molecule_->atomsCount() - 1),
+                             1);
+        }
+        else
+        {
+          molecule_->addBond(obAtomSelectedBefore_,
+                             atomsList_[selectedName()].obAtom(),
+                             1);
+        }
+      }
+    }
+    updateMolecule();
+  }
+
+  if (obAtomSelectedBefore_ != 0)
+  {
+    delete obAtomNew_;
+    obAtomSelectedBefore_ = 0;
+  }
+
+  manipulatedFrame()->setPosition(0.0f, 0.0f, 0.0f);
 }

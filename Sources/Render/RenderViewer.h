@@ -52,11 +52,11 @@ namespace Render
       ViewVdWSpheres
     };
 
-    enum Mode
-    {
-      ModeView,
-      ModeEdit
-    };
+//    enum Mode
+//    {
+//      ModeView,
+//      ModeEdit
+//    };
 
     Viewer(QWidget* parent);
     ~Viewer();
@@ -64,7 +64,7 @@ namespace Render
     void setMolecule(Chemistry::Molecule* molecule);
 
     void setView(View view);
-    void setMode(Mode mode);
+//    void setMode(Mode mode);
     void setAtomicNumber(quint8 atomicNumber);
 
     void setAxes(bool visibility, GLfloat size);
@@ -105,7 +105,7 @@ namespace Render
 
     Chemistry::Molecule* molecule_;
     View view_;
-    Mode mode_;
+//    Mode mode_;
     // added atom atomic number
     quint8 atomicNumber_;
     // visibility flags
@@ -113,17 +113,26 @@ namespace Render
     bool isAxesVisible_;
     GLfloat axesSize_;
 
-    OpenBabel::OBAtom* currentOBAtom_;
-    OpenBabel::OBAtom* newOBAtom_;
+    OpenBabel::OBAtom* obAtomSelectedBefore_;
+    OpenBabel::OBAtom* obAtomNew_;
 
     QList<Render::Atom> atomsList_;
     QList<Render::Bond> bondsList_;
 
-//    qglviewer::Vec selectedPoint;
-
     void updateGLList(GLList gllist);
     void updateRenderAtoms();
     void updateRenderBonds();
+
+    void mouseLeftButtonPressEvent(QMouseEvent* e);
+    void mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e);
+    void mouseLeftButtonWithShiftPressEvent(QMouseEvent* e);
+    void mouseLeftButtonWithCtrlPressEvent(QMouseEvent* e);
+
+    void mouseRightButtonPressEvent(QMouseEvent* e);
+    void mouseRightButtonWithNoModifierPressEvent(QMouseEvent* e);
+
+    void mouseLeftButtonReleaseEvent(QMouseEvent* e);
+    void mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e);
 
     // GLLists, Low & High Quality.
     GLuint axesLow_;

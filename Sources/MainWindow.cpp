@@ -256,10 +256,10 @@ void MainWindow::on_toolBox_currentChanged(int index)
   {
   case 0:
   case 2:
-    ui_->viewer->setMode(ui_->viewer->ModeView);
+//    ui_->viewer->setMode(ui_->viewer->ModeView);
     break;
   case 1:
-    ui_->viewer->setMode(ui_->viewer->ModeEdit);
+//    ui_->viewer->setMode(ui_->viewer->ModeEdit);
     break;
   }
 }
@@ -484,11 +484,6 @@ void MainWindow::on_actionViewConformersTable_toggled(bool checked)
   {
     ui_->widgetConformers->hide();
   }
-}
-
-void MainWindow::on_pushButtonOK_clicked()
-{
-  ui_->plainTextEditMol->setPlainText(molecule_.toString(Chemistry::FormatXyz));
 }
 
 void MainWindow::on_actionStructureExportXyz_triggered()
