@@ -30,7 +30,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="labelLogo">
        <property name="text">
         <string/>
        </property>
@@ -48,7 +48,7 @@
         <string>Based on:
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;http://openbabel.org&quot;&gt;Open Babel 2.2.3&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://qt.nokia.com&quot;&gt;Qt 4.5.2&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://qt.nokia.com&quot;&gt;Qt 4.5.3&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.libqglviewer.com&quot;&gt;libQGLViewer 2.3.4&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://eigen.tuxfamily.org&quot;&gt;Eigen 2.0.5&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</string>
@@ -66,7 +66,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="horizontalSpacerLeft">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -79,14 +79,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="okPushButton">
+      <widget class="QPushButton" name="pushButtonOk">
        <property name="text">
         <string>OK</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalSpacerRight">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -107,7 +107,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>okPushButton</sender>
+   <sender>pushButtonOk</sender>
    <signal>clicked()</signal>
    <receiver>AboutDialog</receiver>
    <slot>accept()</slot>

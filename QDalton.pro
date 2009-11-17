@@ -5,15 +5,14 @@ QT *= core \
 
 # QMAKE_CXXFLAGS *= -Wold-style-cast -Wfloat-equal -Woverloaded-virtual -Wshadow -Wundef
 TEMPLATE = app
-CONFIG += debug_and_release \
-    qt \
+CONFIG += qt \
     opengl \
     warn_on \
     thread \
     rtti \
     console \
-    embed_manifest_exe \
-    cocoa
+    embed_manifest_exe
+#    cocoa
 INCLUDEPATH += Sources \
     Include
 HEADERS += Sources/MainWindow.h \

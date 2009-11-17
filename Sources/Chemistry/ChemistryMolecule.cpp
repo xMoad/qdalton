@@ -1,8 +1,29 @@
+/**********************************************************************
+  Copyright (C) 2008, 2009 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
+
 #include "Chemistry/ChemistryMolecule.h"
 
 #include <iostream>
 #include <openbabel/mol.h>
-#include <openbabel/forcefield.h>
+
 #include <openbabel/builder.h>
 #include <openbabel/obconversion.h>
 
@@ -18,7 +39,7 @@ Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
 }
 
 Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
-{
+                                                   {
   obMol_ = molecule.obMol_;
   emit formulaChanged();
   return *this;
@@ -175,8 +196,8 @@ void Chemistry::Molecule::deleteBond(OpenBabel::OBBond* obBond)
 }
 
 void Chemistry::Molecule::addBond(OpenBabel::OBAtom* beginObAtom,
-                               OpenBabel::OBAtom* endObAtom,
-                               quint8 bondOrder)
+                                  OpenBabel::OBAtom* endObAtom,
+                                  quint8 bondOrder)
 {
   OpenBabel::OBBond* obbond;
 
@@ -223,7 +244,7 @@ void Chemistry::Molecule::build()
   OpenBabel::OBBuilder obbuilder;
 
   obbuilder.Build(obMol_);
-  optimize(Chemistry::ForceFieldMmff94,
+  optimize(OpenBabel::OBForceField::FindForceField("MMFF94"),
            Chemistry::AlgorithmSteepestDescent,
            1.0e-7,
            50,
@@ -251,85 +272,59 @@ void Chemistry::Molecule::removeHydrogens()
   emit formulaChanged();
 }
 
-void Chemistry::Molecule::optimize(Chemistry::ForceField forceField,
+void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
                                    Chemistry::Algorithm algorithm,
                                    double convergenceCriteria,
                                    quint16 maxSteps,
                                    quint8 stepsPerUpdate,
                                    std::ostream* logOstream)
 {
-  OpenBabel::OBForceField* ff;
-
-  switch (forceField)
+  if (!obForceField->Setup(obMol_))
   {
-  case (Chemistry::ForceFieldGhemical):
-    ff = OpenBabel::OBForceField::FindForceField("Ghemical");
-    break;
-  case (Chemistry::ForceFieldMmff94):
-    ff = OpenBabel::OBForceField::FindForceField("MMFF94");
-    break;
-  case (Chemistry::ForceFieldMmff94s):
-    ff = OpenBabel::OBForceField::FindForceField("MMFF94s");
-    break;
-  case (Chemistry::ForceFieldUff):
-    ff = OpenBabel::OBForceField::FindForceField("UFF");
-    break;
-  default:
-    break;
+    *logOstream << "Force field setup error." << std::endl;
   }
-
-  if (!ff)
+  else
   {
-  }
+    obForceField->SetLogFile(logOstream);
+    obForceField->SetLogLevel(OBFF_LOGLVL_LOW);
 
-  if (!ff->Setup(obMol_))
-  {
-    std::cout << "Setup error!";
-  }
-
-  ff->SetLogFile(logOstream);
-  ff->SetLogLevel(OBFF_LOGLVL_LOW);
-
-  /*
-  ff->SystematicRotorSearch();
-  ff->GetConformers(obMol_);
-  */
-  switch (algorithm)
-  {
-  case (Chemistry::AlgorithmSteepestDescent):
-    if (stepsPerUpdate != 0)
+    switch (algorithm)
     {
-      ff->SteepestDescentInitialize(maxSteps, convergenceCriteria);
-      while (ff->SteepestDescentTakeNSteps(stepsPerUpdate))
+    case (Chemistry::AlgorithmSteepestDescent):
+      if (stepsPerUpdate != 0)
       {
-        ff->GetCoordinates(obMol_);
-        emit geometryChanged();
+        obForceField->SteepestDescentInitialize(maxSteps, convergenceCriteria);
+        while (obForceField->SteepestDescentTakeNSteps(stepsPerUpdate))
+        {
+          obForceField->GetCoordinates(obMol_);
+          emit geometryChanged();
+        }
       }
-    }
-    else
-    {
-      ff->SteepestDescent(maxSteps, convergenceCriteria);
-      ff->GetCoordinates(obMol_);
-    }
-    break;
-  case (Chemistry::AlgorithmConjugateGradients):
-    if (stepsPerUpdate != 0)
-    {
-      ff->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
-      while (ff->ConjugateGradientsTakeNSteps(stepsPerUpdate))
+      else
       {
-        ff->GetCoordinates(obMol_);
-        emit geometryChanged();
+        obForceField->SteepestDescent(maxSteps, convergenceCriteria);
+        obForceField->GetCoordinates(obMol_);
       }
+      break;
+    case (Chemistry::AlgorithmConjugateGradients):
+      if (stepsPerUpdate != 0)
+      {
+        obForceField->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
+        while (obForceField->ConjugateGradientsTakeNSteps(stepsPerUpdate))
+        {
+          obForceField->GetCoordinates(obMol_);
+          emit geometryChanged();
+        }
+      }
+      else
+      {
+        obForceField->ConjugateGradients(maxSteps, convergenceCriteria);
+        obForceField->GetCoordinates(obMol_);
+      }
+      break;
     }
-    else
-    {
-      ff->ConjugateGradients(maxSteps, convergenceCriteria);
-      ff->GetCoordinates(obMol_);
-    }
-    break;
+    emit geometryChanged();
   }
-  emit geometryChanged();
 }
 
 void Chemistry::Molecule::conformationalSearch()
@@ -351,7 +346,6 @@ void Chemistry::Molecule::conformationalSearch()
   ff->SetLogFile(&std::cout);
   ff->SetLogLevel(OBFF_LOGLVL_LOW);
 
-//  ff->SystematicRotorSearch();
   ff->RandomRotorSearch(10);
   ff->GetConformers(obMol_);
 }

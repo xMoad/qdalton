@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include <QCompleter>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -15,6 +16,7 @@ MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     ui_(new Ui::MainWindow),
     molecule_(),
+    obForceField_(0),
     dalFile_(0),
     molFile_(0),
     workDir_(QDir::currentPath())
@@ -35,10 +37,24 @@ MainWindow::MainWindow(QWidget* parent):
   ui_->tableWidgetConformers->setHorizontalHeaderLabels(headerLabels);
   ui_->tableWidgetConformers->horizontalHeader()->setVisible(true);
 
+  QStringList stringList;
+
+  for (quint8 i = 1; i <= OpenBabel::etab.GetNumberOfElements(); ++i)
+  {
+    stringList.append(QString::fromAscii(OpenBabel::etab.GetSymbol(i)));
+  }
+
+//  ui_->comboBoxAtom->addItems(stringList);
+
+  QCompleter* completer = new QCompleter(stringList, ui_->comboBoxAtom);
+  ui_->comboBoxAtom->setCompleter(completer);
+
   connect(&molecule_, SIGNAL(formulaChanged()),
           this, SLOT(updateActions()));
   connect(&molecule_, SIGNAL(geometryChanged()),
           ui_->viewer, SLOT(updateMolecule()));
+
+  ui_->comboBoxForceField->setCurrentIndex(2);
 }
 
 MainWindow::~MainWindow()
@@ -275,13 +291,6 @@ void MainWindow::on_actionJobNew_triggered()
   ui_->viewer->setMolecule(&molecule_);
 }
 
-void MainWindow::on_comboBoxAtom_currentIndexChanged(QString s)
-{
-  QByteArray byteArray = s.toLatin1();
-  const char* s_char = byteArray.data();
-  ui_->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
-}
-
 void MainWindow::on_actionStructureImportGaussianOutput_triggered()
 {
   QString fileName;
@@ -369,23 +378,23 @@ void MainWindow::on_actionHelpAbout_triggered()
   dialog.exec();
 }
 
-void MainWindow::on_pushButtonRun_clicked()
+void MainWindow::on_pushButtonOptimize_clicked()
 {
   std::ostringstream os;
 
   setCursor(Qt::WaitCursor);
-  ui_->pushButtonRun->setText(tr("Running..."));
+  ui_->pushButtonOptimize->setText(tr("Running..."));
   qApp->processEvents();
-  ui_->pushButtonRun->setEnabled(false);
-  molecule_.optimize((Chemistry::ForceField)ui_->comboBoxForceField->currentIndex(),
-                       (Chemistry::Algorithm)ui_->comboBoxAlgorithm->currentIndex(),
-                       powf(10, -ui_->spinBoxConvergence->value()),
-                       ui_->spinBoxMaxSteps->value(),
-                       ui_->spinBoxStepsPerUpdate->value(),
-                       &os);
+  ui_->pushButtonOptimize->setEnabled(false);
+  molecule_.optimize(obForceField_,
+                     (Chemistry::Algorithm)ui_->comboBoxAlgorithm->currentIndex(),
+                     powf(10, -ui_->spinBoxConvergence->value()),
+                     ui_->spinBoxMaxSteps->value(),
+                     ui_->spinBoxStepsPerUpdate->value(),
+                     &os);
   addToLog(QString::fromStdString(os.str()));
-  ui_->pushButtonRun->setEnabled(true);
-  ui_->pushButtonRun->setText(tr("Run"));
+  ui_->pushButtonOptimize->setEnabled(true);
+  ui_->pushButtonOptimize->setText(tr("Run"));
   setCursor(Qt::ArrowCursor);
 }
 
@@ -489,4 +498,28 @@ void MainWindow::on_actionViewConformersTable_toggled(bool checked)
 void MainWindow::on_actionStructureExportXyz_triggered()
 {
   ui_->plainTextEditMol->setPlainText(molecule_.toString(Chemistry::FormatXyz));
+}
+
+void MainWindow::on_comboBoxAtom_editTextChanged(QString string)
+{
+  QByteArray byteArray = string.toLatin1();
+  const char* s_char = byteArray.data();
+  ui_->viewer->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
+}
+
+void MainWindow::on_comboBoxForceField_currentIndexChanged(QString string)
+{
+  obForceField_ = OpenBabel::OBForceField::FindForceField(string.toStdString());
+  if (obForceField_ == 0)
+  {
+    addToLog(QString("Force field %1 not found.").arg(string));
+    ui_->groupBoxOptimization->setEnabled(false);
+    ui_->groupBoxConformationalSearch->setEnabled(false);
+  }
+  else
+  {
+    addToLog(QString("Force field %1 found.").arg(string));
+    ui_->groupBoxOptimization->setEnabled(true);
+    ui_->groupBoxConformationalSearch->setEnabled(true);
+  }
 }

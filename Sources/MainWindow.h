@@ -3,6 +3,8 @@
 
 #include <QtGui/QMainWindow>
 
+#include <openbabel/forcefield.h>
+
 #include "ui_MainWindow.h"
 #include "Chemistry/ChemistryMolecule.h"
 
@@ -35,7 +37,10 @@ public slots:
 
 private:
   Ui::MainWindow* ui_;
+
   Chemistry::Molecule molecule_;
+
+  OpenBabel::OBForceField* obForceField_;
 
   File::Dal* dalFile_;
   File::Mol* molFile_;
@@ -43,6 +48,8 @@ private:
   QString workDir_;
 
 private slots:
+  void on_comboBoxForceField_currentIndexChanged(QString );
+  void on_comboBoxAtom_editTextChanged(QString );
   void on_actionStructureExportXyz_triggered();
   void on_actionViewConformersTable_toggled(bool );
   void on_actionViewToolbox_toggled(bool );
@@ -51,7 +58,7 @@ private slots:
   void on_actionStructureConformations_triggered();
   void on_actionStructureImportInChI_triggered();
   void on_actionStructureImportSMILES_triggered();
-  void on_pushButtonRun_clicked();
+  void on_pushButtonOptimize_clicked();
   void on_actionHelpAbout_triggered();
   void on_tabWidget_currentChanged(int index);
   void on_actionHelpAboutQt_triggered();
@@ -60,7 +67,6 @@ private slots:
   void on_actionExit_triggered();
   void on_actionStructureExportImage_triggered();
   void on_actionStructureImportGaussianOutput_triggered();
-  void on_comboBoxAtom_currentIndexChanged(QString );
   void on_actionJobNew_triggered();
   void on_toolBox_currentChanged(int index);
   void on_comboBoxView_currentIndexChanged(int index);

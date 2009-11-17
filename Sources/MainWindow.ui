@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>862</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,6 +18,21 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="_2">
+    <item row="0" column="0" colspan="2">
+     <widget class="QWidget" name="welcomeWidget" native="true">
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome">
+         <property name="text">
+          <string>Welcome to QDalton!
+
+QDalton is powerful GUI for Dalton.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item row="2" column="0" rowspan="2" colspan="2">
      <widget class="QTabWidget" name="tabWidget">
       <property name="sizePolicy">
@@ -184,49 +199,55 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="viewerTab">
+      <widget class="QWidget" name="tabViewer">
        <attribute name="title">
         <string>Viewer</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,0,0,0">
-        <item row="0" column="1" colspan="2">
-         <widget class="Render::Viewer" name="viewer" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
+       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,1,0">
+        <item row="0" column="1">
+         <widget class="Render::Viewer" name="viewer" native="true"/>
         </item>
-        <item row="0" column="3" rowspan="2">
+        <item row="0" column="2" rowspan="2">
          <widget class="QToolBox" name="toolBox">
           <property name="minimumSize">
            <size>
-            <width>320</width>
+            <width>340</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>320</width>
+            <width>340</width>
             <height>16777215</height>
            </size>
           </property>
-          <widget class="QWidget" name="pageView">
+          <widget class="QWidget" name="pageViewEdit">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>316</width>
-             <height>255</height>
+             <width>324</width>
+             <height>398</height>
             </rect>
            </property>
            <attribute name="label">
-            <string>View</string>
+            <string>View/Edit</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="1" colspan="2">
+            <item row="0" column="0" colspan="2">
+             <spacer name="verticalSpacerUpView">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="0">
              <widget class="QCheckBox" name="checkBoxAxes">
               <property name="text">
                <string>Axes</string>
@@ -236,7 +257,68 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="3">
+            <item row="14" column="0" colspan="2">
+             <spacer name="verticalSpacerMiddleView">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="16" column="0" colspan="2">
+             <spacer name="verticalSpacerDownView">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="checkBoxDebugInfo">
+              <property name="text">
+               <string>Debug Info</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="0" colspan="2">
+             <widget class="QLabel" name="labelHelpView">
+              <property name="text">
+               <string>&lt;b&gt;Mouse&lt;/b&gt; 
+&lt;hr&gt;
+&lt;u&gt;To rotate the scene above its centre&lt;/u&gt; left click and drag. &lt;br&gt;
+&lt;u&gt;To rotate the scene above some atom&lt;/u&gt; left click on atom and drag. &lt;br&gt;
+&lt;u&gt;To add first atom&lt;/u&gt; &amp;lt;Ctrl&amp;gt; (&amp;lt;Cmd&amp;gt; on Mac) + left click on the scene. First atom goes to the origin of axes. &lt;br&gt;
+&lt;u&gt;To add second etc. atom&lt;/u&gt; left click on existing atom and drag. &lt;br&gt;
+&lt;u&gt;To cycle bond order (1-2-3)&lt;/u&gt;: left click on it. &lt;br&gt;
+&lt;u&gt;To delete atom / bond&lt;/u&gt;: right click on it.
+</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::RichText</enum>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0">
+             <widget class="QLabel" name="labelAtom">
+              <property name="text">
+               <string>Atom:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxAxesSize">
               <property name="mouseTracking">
                <bool>false</bool>
@@ -267,7 +349,67 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1" colspan="3">
+            <item row="11" column="1">
+             <widget class="QComboBox" name="comboBoxAtom">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>H</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>B</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>C</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>N</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>O</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>F</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>P</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>S</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Cl</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Br</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="5" column="1">
              <widget class="QComboBox" name="comboBoxView">
               <item>
                <property name="text">
@@ -291,198 +433,10 @@
               </item>
              </widget>
             </item>
-            <item row="2" column="1" colspan="3">
-             <widget class="QCheckBox" name="checkBoxDebugInfo">
+            <item row="5" column="0">
+             <widget class="QLabel" name="labelView">
               <property name="text">
-               <string>Debug Info</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" colspan="3">
-             <spacer name="verticalSpacerUpView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="6" column="1" colspan="3">
-             <spacer name="verticalSpacerDownView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="5" column="1" colspan="3">
-             <widget class="QLabel" name="labelHelpView">
-              <property name="text">
-               <string>&lt;b&gt;Mouse&lt;/b&gt; 
-&lt;hr&gt;
-&lt;table&gt;
-&lt;tr&gt;
-&lt;td&gt;Left Button Click&lt;/td&gt;
-&lt;td width=&quot;10&quot;&gt;&lt;/td&gt;
-&lt;td&gt;Rotate the scene&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Right Button Click&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;Translate the scene&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Wheel&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;Zoom&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Shift + Left Button Click&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;Select atom / bond&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
-</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="3">
-             <spacer name="verticalSpacerMiddleView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="pageAdd">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>129</width>
-             <height>491</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Add</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboBoxAtom">
-              <property name="currentIndex">
-               <number>1</number>
-              </property>
-              <item>
-               <property name="text">
-                <string>H</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>C</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>N</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>O</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>P</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>S</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelAtom">
-              <property name="text">
-               <string>Atom:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="2">
-             <spacer name="verticalSpacerUpAdd">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <spacer name="verticalSpacerDownAdd">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="2" column="0" colspan="2">
-             <spacer name="verticalSpacerMiddleAdd">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="0" colspan="2">
-             <widget class="QLabel" name="labelHelpAdd">
-              <property name="text">
-               <string>&lt;b&gt;Mouse&lt;/b&gt; 
-&lt;hr&gt;
-&lt;u&gt;To add atom&lt;/u&gt; left click on the scene. First atom goes to the origin of axes. For next atoms: left click on existing atom and drag.
-&lt;br&gt;
-&lt;u&gt;To cycle bond order (1-2-3)&lt;/u&gt;: left click on it.
-&lt;br&gt;
-&lt;u&gt;To delete atom / bond&lt;/u&gt;: right click on it.
-</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::RichText</enum>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
+               <string>View:</string>
               </property>
              </widget>
             </item>
@@ -493,14 +447,27 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>310</width>
-             <height>237</height>
+             <width>340</width>
+             <height>353</height>
             </rect>
            </property>
            <attribute name="label">
-            <string>MM</string>
+            <string>Molecular Mechanics</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0" colspan="2">
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="labelForceField">
               <property name="text">
@@ -510,9 +477,6 @@
             </item>
             <item row="1" column="1">
              <widget class="QComboBox" name="comboBoxForceField">
-              <property name="currentIndex">
-               <number>1</number>
-              </property>
               <item>
                <property name="text">
                 <string>Ghemical</string>
@@ -535,101 +499,113 @@
               </item>
              </widget>
             </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QGroupBox" name="groupBoxOptimization">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="title">
+               <string>Optimization</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="0" column="0">
+                <widget class="QLabel" name="labelAlgorithm">
+                 <property name="text">
+                  <string>Algorithm:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="comboBoxAlgorithm">
+                 <item>
+                  <property name="text">
+                   <string>Steepest descent</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Conjugate gradient</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Convergence:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBoxConvergence">
+                 <property name="prefix">
+                  <string>10e-</string>
+                 </property>
+                 <property name="minimum">
+                  <number>2</number>
+                 </property>
+                 <property name="maximum">
+                  <number>10</number>
+                 </property>
+                 <property name="value">
+                  <number>7</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="labelMaxSteps">
+                 <property name="text">
+                  <string>Max steps:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="spinBoxMaxSteps">
+                 <property name="minimum">
+                  <number>100</number>
+                 </property>
+                 <property name="maximum">
+                  <number>10000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="labelStepsPerUpdate">
+                 <property name="text">
+                  <string>Steps per update:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="spinBoxStepsPerUpdate">
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="value">
+                  <number>10</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="2">
+                <widget class="QPushButton" name="pushButtonOptimize">
+                 <property name="text">
+                  <string>Optimize</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
             <item row="6" column="0" colspan="2">
-             <widget class="QPushButton" name="pushButtonRun">
-              <property name="text">
-               <string>Run</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelAlgorithm">
-              <property name="text">
-               <string>Algorithm:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QComboBox" name="comboBoxAlgorithm">
-              <item>
-               <property name="text">
-                <string>Steepest descent</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Conjugate gradient</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Convergence:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="spinBoxConvergence">
-              <property name="prefix">
-               <string>10e-</string>
-              </property>
-              <property name="minimum">
-               <number>2</number>
-              </property>
-              <property name="maximum">
-               <number>10</number>
-              </property>
-              <property name="value">
-               <number>7</number>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="labelMaxSteps">
-              <property name="text">
-               <string>Max steps:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBoxMaxSteps">
-              <property name="minimum">
-               <number>100</number>
-              </property>
-              <property name="maximum">
-               <number>10000</number>
-              </property>
-              <property name="singleStep">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>1000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="labelStepsPerUpdate">
-              <property name="text">
-               <string>Steps per update:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QSpinBox" name="spinBoxStepsPerUpdate">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>10</number>
-              </property>
-              <property name="value">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0" colspan="2">
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -642,24 +618,79 @@
               </property>
              </spacer>
             </item>
-            <item row="0" column="0" colspan="2">
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+            <item row="5" column="0" colspan="2">
+             <widget class="QGroupBox" name="groupBoxConformationalSearch">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
+              <property name="title">
+               <string>Conformational search</string>
               </property>
-             </spacer>
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Search type:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="comboBox_2">
+                 <item>
+                  <property name="text">
+                   <string>Systematic rotor</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Random rotor</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Weighted rotor</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Steps:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBoxMaxSteps_2">
+                 <property name="minimum">
+                  <number>100</number>
+                 </property>
+                 <property name="maximum">
+                  <number>10000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>2500</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="2">
+                <widget class="QPushButton" name="pushButtonSearch">
+                 <property name="text">
+                  <string>Search</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
            </layout>
           </widget>
          </widget>
         </item>
-        <item row="1" column="0" colspan="3">
+        <item row="1" column="0" colspan="2">
          <widget class="QPlainTextEdit" name="logPlainTextEdit"/>
         </item>
         <item row="0" column="0">
@@ -667,12 +698,6 @@
           <layout class="QGridLayout" name="gridLayout_11">
            <item row="0" column="0" colspan="2">
             <widget class="QTableWidget" name="tableWidgetConformers">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>0</height>
-              </size>
-             </property>
              <property name="editTriggers">
               <set>QAbstractItemView::NoEditTriggers</set>
              </property>
@@ -714,21 +739,6 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QWidget" name="welcomeWidget" native="true">
-      <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="0">
-        <widget class="QLabel" name="labelWelcome">
-         <property name="text">
-          <string>Welcome to QDalton!
-
-QDalton is powerful GUI for Dalton.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -736,8 +746,8 @@ QDalton is powerful GUI for Dalton.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>22</height>
+     <width>862</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

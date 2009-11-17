@@ -556,7 +556,7 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
     QGLViewer::mouseMoveEvent(e);
     break;
   case Qt::RightButton:
-    if (e->modifiers() == Qt::NoModifier | Qt::MetaModifier)
+    if (e->modifiers() == (Qt::NoModifier | Qt::MetaModifier))
     {
       QGLViewer::mouseMoveEvent(e);
     }
@@ -743,12 +743,20 @@ void Render::Viewer::mouseRightButtonPressEvent(QMouseEvent* e)
   case (Qt::NoModifier):
     mouseRightButtonWithNoModifierPressEvent(e);
     break;
+  case (Qt::ControlModifier):
+    mouseRightButtonWithCtrlPressEvent(e);
+    break;
   default:
     break;
   }
 }
 
 void Render::Viewer::mouseRightButtonWithNoModifierPressEvent(QMouseEvent* e)
+{
+  QGLViewer::mousePressEvent(e);
+}
+
+void Render::Viewer::mouseRightButtonWithCtrlPressEvent(QMouseEvent* e)
 {
   if (isSomethingUnderPixel(e->pos()))
   {
@@ -761,10 +769,6 @@ void Render::Viewer::mouseRightButtonWithNoModifierPressEvent(QMouseEvent* e)
       molecule_->deleteBond(bondsList_[selectedName() - atomsList_.size()].obBond());
     }
     updateMolecule();
-  }
-  else
-  {
-    QGLViewer::mousePressEvent(e);
   }
 }
 

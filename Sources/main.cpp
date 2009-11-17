@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 #endif
 
   QCoreApplication::setApplicationName("QDalton");
-  QCoreApplication::setApplicationVersion("0.0.6.1");
+  QCoreApplication::setApplicationVersion("0.0.6.3");
   QCoreApplication::setOrganizationDomain("ctcc.no");
   QCoreApplication::setOrganizationName("CTCC");
 

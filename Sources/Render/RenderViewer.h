@@ -52,19 +52,12 @@ namespace Render
       ViewVdWSpheres
     };
 
-//    enum Mode
-//    {
-//      ModeView,
-//      ModeEdit
-//    };
-
     Viewer(QWidget* parent);
     ~Viewer();
 
     void setMolecule(Chemistry::Molecule* molecule);
 
     void setView(View view);
-//    void setMode(Mode mode);
     void setAtomicNumber(quint8 atomicNumber);
 
     void setAxes(bool visibility, GLfloat size);
@@ -105,7 +98,6 @@ namespace Render
 
     Chemistry::Molecule* molecule_;
     View view_;
-//    Mode mode_;
     // added atom atomic number
     quint8 atomicNumber_;
     // visibility flags
@@ -130,6 +122,7 @@ namespace Render
 
     void mouseRightButtonPressEvent(QMouseEvent* e);
     void mouseRightButtonWithNoModifierPressEvent(QMouseEvent* e);
+    void mouseRightButtonWithCtrlPressEvent(QMouseEvent* e);
 
     void mouseLeftButtonReleaseEvent(QMouseEvent* e);
     void mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e);
