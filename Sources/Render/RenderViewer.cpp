@@ -35,7 +35,6 @@ Render::Viewer::Viewer(QWidget* parent) :
     QGLViewer(parent),
     molecule_(0),
     view_(Render::Viewer::ViewBallsAndBonds),
-//    mode_(Render::Viewer::ModeView),
     obAtomSelectedBefore_(0),
     obAtomNew_(0)
 {
@@ -124,7 +123,7 @@ void Render::Viewer::draw()
 }
 
 void Render::Viewer::fastDraw()
-{
+{ 
   if (isAxesVisible_)
   {
     glCallList(axesLow_);
@@ -202,13 +201,6 @@ void Render::Viewer::drawWithNames()
   }
 }
 
-QString Render::Viewer::helpString() const
-{
-  QString text("<h2>QDalton \"Draft 1\"</h2>");
-  text += "Hi there! =)";
-  return text;
-}
-
 void Render::Viewer::init()
 {
   const float LIGHT_AMBIENT[4] = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -227,10 +219,8 @@ void Render::Viewer::init()
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  // Setup shading (filling) mode to smooth
-//  glShadeModel(GL_SMOOTH);
   // Enable the depth buffer updating
-//  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -438,20 +428,6 @@ void Render::Viewer::setView(Render::Viewer::View view)
   updateGL();
 }
 
-//void Render::Viewer::setMode(Render::Viewer::Mode mode)
-//{
-//  mode_ = mode;
-//  switch (mode_)
-//  {
-//  case (Render::Viewer::ModeView):
-////    setMouseBinding(Qt::LeftButton, CAMERA, ROTATE);
-//    break;
-//  case (Render::Viewer::ModeEdit):
-////    setMouseBinding(Qt::LeftButton, FRAME, TRANSLATE);
-//    break;
-//  }
-//}
-
 void Render::Viewer::setAxes(bool visibility, GLfloat size)
 {
   isAxesVisible_ = visibility;
@@ -469,6 +445,8 @@ void Render::Viewer::setDebugInfoVisibility(bool visibility)
 void Render::Viewer::setMolecule(Chemistry::Molecule* molecule)
 {
   molecule_ = molecule;
+  setSceneRadius(molecule_->radius() + 1.0f);
+  showEntireScene();
   updateMolecule();
 }
 
@@ -494,38 +472,6 @@ void Render::Viewer::addAtom(const Atom& atom)
 void Render::Viewer::addBond(const Bond& bond)
 {
   bondsList_ << bond;
-}
-
-void Render::Viewer::build()
-{
-  molecule_->build();
-  updateMolecule();
-}
-
-void Render::Viewer::addHydrogensAndBuild()
-{
-  molecule_->addHydrogensAndBuild();
-  updateMolecule();
-}
-
-void Render::Viewer::removeHydrogens()
-{
-  molecule_->removeHydrogens();
-  updateMolecule();
-}
-
-void Render::Viewer::conformationalSearch(QTableWidget* targetTableWidget)
-{
-  molecule_->conformationalSearch();
-  targetTableWidget->setRowCount(molecule_->conformersCount());
-  for (int i = 0; i < molecule_->conformersCount(); ++i)
-  {
-    QTableWidgetItem* newItem = new QTableWidgetItem(QString::number(i + 1).rightJustified(3, '0'));
-    targetTableWidget->setItem(i, 0, newItem);
-    newItem = new QTableWidgetItem(QString::number(molecule_->conformerEnergy(i)));
-    targetTableWidget->setItem(i, 1, newItem);
-  }
-  displayConformer(0);
 }
 
 void Render::Viewer::displayConformer(quint16 index)
@@ -556,10 +502,10 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
     QGLViewer::mouseMoveEvent(e);
     break;
   case Qt::RightButton:
-    if (e->modifiers() == (Qt::NoModifier | Qt::MetaModifier))
-    {
+//    if (e->modifiers() == (Qt::NoModifier | Qt::MetaModifier))
+//    {
       QGLViewer::mouseMoveEvent(e);
-    }
+//    }
     break;
   default:
     break;
@@ -683,9 +629,10 @@ void Render::Viewer::mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e)
 {
   if (isSomethingUnderPixel(e->pos()) && selectedName() < atomsList_.size())
   {
-    camera()->setRevolveAroundPoint(qglviewer::Vec(atomsList_[selectedName()].centre().x(),
-                                                   atomsList_[selectedName()].centre().y(),
-                                                   atomsList_[selectedName()].centre().z()));
+    camera()->setRevolveAroundPoint(qglviewer::Vec(
+        atomsList_[selectedName()].centre().x(),
+        atomsList_[selectedName()].centre().y(),
+        atomsList_[selectedName()].centre().z()));
   }
   else
   {
@@ -802,9 +749,10 @@ void Render::Viewer::mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e)
       {
         if (!isSomethingUnderPixel(e->pos()))
         {
-          OpenBabel::vector3 p(obAtomNew_->x() + manipulatedFrame()->position().x,
-                               obAtomNew_->y() + manipulatedFrame()->position().y,
-                               obAtomNew_->z() + manipulatedFrame()->position().z);
+          OpenBabel::vector3 p(
+              obAtomNew_->x() + manipulatedFrame()->position().x,
+              obAtomNew_->y() + manipulatedFrame()->position().y,
+              obAtomNew_->z() + manipulatedFrame()->position().z);
           obAtomNew_->SetVector(p);
           molecule_->addObAtom(*obAtomNew_);
           molecule_->addBond(obAtomSelectedBefore_,

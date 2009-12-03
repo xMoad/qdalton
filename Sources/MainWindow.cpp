@@ -23,6 +23,10 @@ MainWindow::MainWindow(QWidget* parent):
 {
   ui_->setupUi(this);
 
+#ifdef Q_OS_MAC
+  ui_->toolBar->setIconSize(QSize(24, 24));
+#endif
+
   // Hide all tabs
   ui_->tabWidget->hide();
 
@@ -44,17 +48,22 @@ MainWindow::MainWindow(QWidget* parent):
     stringList.append(QString::fromAscii(OpenBabel::etab.GetSymbol(i)));
   }
 
-//  ui_->comboBoxAtom->addItems(stringList);
-
   QCompleter* completer = new QCompleter(stringList, ui_->comboBoxAtom);
   ui_->comboBoxAtom->setCompleter(completer);
+
+  ui_->comboBoxForceField->setCurrentIndex(2);
 
   connect(&molecule_, SIGNAL(formulaChanged()),
           this, SLOT(updateActions()));
   connect(&molecule_, SIGNAL(geometryChanged()),
           ui_->viewer, SLOT(updateMolecule()));
 
-  ui_->comboBoxForceField->setCurrentIndex(2);
+  connect(ui_->doubleSpinBox, SIGNAL(valueChanged(double)),
+          this, SLOT(fillConformersTable(double)));
+  connect(ui_->actionStructureAddHydrogens, SIGNAL(triggered()),
+          &molecule_, SLOT(addHydrogensAndBuild()));
+  connect(ui_->actionStructureRemoveHydrogens, SIGNAL(triggered()),
+          &molecule_, SLOT(removeHydrogens()));
 }
 
 MainWindow::~MainWindow()
@@ -98,20 +107,16 @@ void MainWindow::updateActions()
 {
   if (molecule_.atomsCount() != 0)
   {
-    ui_->actionStructureBuild->setEnabled(true);
     ui_->actionStructureAddHydrogens->setEnabled(true);
     ui_->actionStructureRemoveHydrogens->setEnabled(true);
-    ui_->actionStructureBuild->setEnabled(true);
     ui_->actionStructureConformations->setEnabled(true);
     ui_->actionStructureExportImage->setEnabled(true);
     ui_->actionStructureExportXyz->setEnabled(true);
   }
   else
   {
-    ui_->actionStructureBuild->setEnabled(false);
     ui_->actionStructureAddHydrogens->setEnabled(false);
     ui_->actionStructureRemoveHydrogens->setEnabled(false);
-    ui_->actionStructureBuild->setEnabled(false);
     ui_->actionStructureConformations->setEnabled(false);
     ui_->actionStructureExportImage->setEnabled(false);
     ui_->actionStructureExportImage->setEnabled(false);
@@ -302,8 +307,8 @@ void MainWindow::on_actionStructureImportGaussianOutput_triggered()
   if (!fileName.isEmpty())
   {
     addToLog(QString("Import from Gaussian output file started. \nFileName: %1").arg(fileName));
-    if (molecule_.importFromFile(Chemistry::FormatGaussianOutput,
-                                fileName))
+    if (molecule_.importFromFile(Chemistry::FormatGaussianOutput, fileName))
+//    if (molecule_.importFromFile(Chemistry::FormatPdb, fileName))
     {
       addToLog("Import succeeded.");
       ui_->welcomeWidget->hide();
@@ -442,12 +447,6 @@ void MainWindow::on_actionStructureImportInChI_triggered()
   }
 }
 
-void MainWindow::on_actionStructureConformations_triggered()
-{
-  ui_->viewer->conformationalSearch(ui_->tableWidgetConformers);
-  ui_->actionViewConformersTable->setChecked(true);
-}
-
 void MainWindow::on_tableWidgetConformers_cellClicked(int row, int column)
 {
   bool ok;
@@ -522,4 +521,71 @@ void MainWindow::on_comboBoxForceField_currentIndexChanged(QString string)
     ui_->groupBoxOptimization->setEnabled(true);
     ui_->groupBoxConformationalSearch->setEnabled(true);
   }
+}
+
+void MainWindow::fillConformersTable(double threshold)
+{
+  QList<bool> list;
+
+  ui_->tableWidgetConformers->setRowCount(0);
+
+  for (int i = 0; i < molecule_.conformersCount(); ++i)
+  {
+    list.append(true);
+  }
+  
+  for (quint16 i = 1; i < list.count(); ++i)
+  {
+    if (list[i])
+    {
+      for (quint16 j = i + 1; j < list.count(); ++j)
+      {
+        if (list[j] && qAbs(molecule_.conformerEnergy(i) -
+                            molecule_.conformerEnergy(j)) <= threshold)
+        {
+          list[j] = false;
+        }
+      }
+    }
+  }
+
+  for (int i = 0; i < molecule_.conformersCount(); ++i)
+  {
+    if (list[i])
+    {
+      ui_->tableWidgetConformers->insertRow(
+          ui_->tableWidgetConformers->rowCount());
+      QTableWidgetItem* newItem = new QTableWidgetItem(
+          QString::number(i + 1).rightJustified(3, '0'));
+      ui_->tableWidgetConformers->setItem(
+          ui_->tableWidgetConformers->rowCount() - 1, 0, newItem);
+
+      newItem = new QTableWidgetItem(QString::number(
+          molecule_.conformerEnergy(i)));
+      ui_->tableWidgetConformers->setItem(
+          ui_->tableWidgetConformers->rowCount() - 1, 1, newItem);
+    }
+  }
+  ui_->viewer->displayConformer(0);
+}
+
+void MainWindow::on_pushButtonSearch_clicked()
+{
+  std::ostringstream os;
+
+  setCursor(Qt::WaitCursor);
+//  ui_->pushButtonOptimize->setText(tr("Running..."));
+//  qApp->processEvents();
+//  ui_->pushButtonOptimize->setEnabled(false);
+  molecule_.searchConformers(obForceField_,
+                             (Chemistry::SearchType)ui_->comboBoxSearchType->currentIndex(),
+                             ui_->spinBoxConformersCount->value(),
+                             ui_->spinBoxStepsCount->value(),
+                             &os);
+  addToLog(QString::fromStdString(os.str()));
+//  ui_->pushButtonOptimize->setEnabled(true);
+//  ui_->pushButtonOptimize->setText(tr("Run"));
+  setCursor(Qt::ArrowCursor);
+  fillConformersTable(ui_->doubleSpinBox->value());
+  ui_->actionViewConformersTable->setChecked(true);
 }

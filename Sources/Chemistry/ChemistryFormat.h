@@ -27,6 +27,7 @@ namespace Chemistry
   enum Format
   {
     FormatGaussianOutput,
+    FormatPdb,
     FormatSmiles,
     FormatInchi,
     FormatXyz

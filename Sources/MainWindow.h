@@ -34,6 +34,7 @@ public:
 
 public slots:
   void updateActions();
+  void fillConformersTable(double threshold);
 
 private:
   Ui::MainWindow* ui_;
@@ -48,6 +49,7 @@ private:
   QString workDir_;
 
 private slots:
+  void on_pushButtonSearch_clicked();
   void on_comboBoxForceField_currentIndexChanged(QString );
   void on_comboBoxAtom_editTextChanged(QString );
   void on_actionStructureExportXyz_triggered();
@@ -55,7 +57,6 @@ private slots:
   void on_actionViewToolbox_toggled(bool );
   void on_actionViewLog_toggled(bool checked);
   void on_tableWidgetConformers_cellClicked(int row, int column);
-  void on_actionStructureConformations_triggered();
   void on_actionStructureImportInChI_triggered();
   void on_actionStructureImportSMILES_triggered();
   void on_pushButtonOptimize_clicked();

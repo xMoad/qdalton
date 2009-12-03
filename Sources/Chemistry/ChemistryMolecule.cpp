@@ -28,19 +28,29 @@
 #include <openbabel/obconversion.h>
 
 Chemistry::Molecule::Molecule() :
-    QObject()
+    QObject(),
+    obMol_(new OpenBabel::OBMol())
 {
 }
 
 Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
     QObject(),
-    obMol_(molecule.obMol_)
+    obMol_(new OpenBabel::OBMol(*molecule.obMol_))
 {
 }
 
+Chemistry::Molecule::~Molecule()
+{
+  delete obMol_;
+}
+
 Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
-                                                   {
-  obMol_ = molecule.obMol_;
+{
+  if (obMol_ != 0)
+  {
+    delete obMol_;
+  }
+  obMol_ = new OpenBabel::OBMol(*molecule.obMol_);
   emit formulaChanged();
   return *this;
 }
@@ -52,15 +62,22 @@ bool Chemistry::Molecule::importFromFile(Chemistry::Format format,
 
   switch (format)
   {
-  case (Chemistry::FormatGaussianOutput):
+  case Chemistry::FormatGaussianOutput:
     conv.SetInFormat("g03");
+    break;
+  case Chemistry::FormatPdb:
+    conv.SetInFormat("pdb");
+    break;
+  case Chemistry::FormatXyz:
+    conv.SetInFormat("xyz");
     break;
   default:
     break;
   }
 
-  if (conv.ReadFile(&obMol_, fileName.toStdString()))
+  if (conv.ReadFile(obMol_, fileName.toStdString()))
   {
+    obMol_->Center();
     emit formulaChanged();
     return true;
   }
@@ -94,11 +111,11 @@ bool Chemistry::Molecule::importFromString(Chemistry::Format format,
   ss.str(stdString);
   conv.SetInStream(&ss);
 
-  if (conv.Read(&obMol_))
+  if (conv.Read(obMol_))
   {
-    obMol_.AddHydrogens();
-    obbuilder.Build(obMol_);
-    obMol_.Center();
+    obMol_->AddHydrogens();
+    obbuilder.Build(*obMol_);
+    obMol_->Center();
     emit formulaChanged();
     return true;
   }
@@ -122,7 +139,7 @@ QString Chemistry::Molecule::toString(Chemistry::Format format)
     break;
   }
 
-  if (conv.Write(&this->obMol_, &ss))
+  if (conv.Write(this->obMol_, &ss))
   {
     return QString::fromStdString(ss.str());
   }
@@ -132,31 +149,31 @@ QString Chemistry::Molecule::toString(Chemistry::Format format)
   }
 }
 
-QString Chemistry::Molecule::formula()
+QString Chemistry::Molecule::formula() const
 {
-  return QString::fromStdString(obMol_.GetFormula());
+  return QString::fromStdString(obMol_->GetFormula());
 }
 
 OpenBabel::OBAtom* Chemistry::Molecule::obAtom(quint16 index) const
 {
-  return obMol_.GetAtom(index + 1);
+  return obMol_->GetAtom(index + 1);
 }
 
 OpenBabel::OBBond* Chemistry::Molecule::obBond(quint16 index) const
 {
-  return obMol_.GetBond(index);
+  return obMol_->GetBond(index);
 }
 
 void Chemistry::Molecule::addAtom(quint8 atomicNumber)
 {
   OpenBabel::OBAtom* obAtom;
 
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obAtom = obMol_.NewAtom();
+    obAtom = obMol_->NewAtom();
     obAtom->SetAtomicNum(atomicNumber);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 
   emit formulaChanged();
 }
@@ -166,33 +183,33 @@ void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
 #ifdef Q_CC_MSVC
 #undef AddAtom
 #endif
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obMol_.AddAtom(obAtom);
+    obMol_->AddAtom(obAtom);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 
   emit formulaChanged();
 }
 
 void Chemistry::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
 {
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obMol_.DeleteAtom(obAtom);
+    obMol_->DeleteAtom(obAtom);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 
   emit formulaChanged();
 }
 
 void Chemistry::Molecule::deleteBond(OpenBabel::OBBond* obBond)
 {
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obMol_.DeleteBond(obBond);
+    obMol_->DeleteBond(obBond);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 }
 
 void Chemistry::Molecule::addBond(OpenBabel::OBAtom* beginObAtom,
@@ -201,75 +218,84 @@ void Chemistry::Molecule::addBond(OpenBabel::OBAtom* beginObAtom,
 {
   OpenBabel::OBBond* obbond;
 
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obbond = obMol_.NewBond();
+    obbond = obMol_->NewBond();
     obbond->SetBegin(beginObAtom);
     obbond->SetEnd(endObAtom);
     obbond->SetBondOrder(bondOrder);
     beginObAtom->AddBond(obbond);
     endObAtom->AddBond(obbond);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 }
 
 void Chemistry::Molecule::setCharge(quint8 charge)
 {
-  obMol_.SetTotalCharge(charge);
+  obMol_->SetTotalCharge(charge);
 }
 
 quint16 Chemistry::Molecule::atomsCount() const
 {
-  return obMol_.NumAtoms();
+  return obMol_->NumAtoms();
 }
 
 quint16 Chemistry::Molecule::bondsCount() const
 {
-  return obMol_.NumBonds();
+  return obMol_->NumBonds();
 }
 
-quint16 Chemistry::Molecule::conformersCount()
+qreal Chemistry::Molecule::radius() const
 {
-  return obMol_.NumConformers();
+  if (atomsCount() >= 2)
+  {
+    qreal r = (obMol_->GetAtom(1)->GetVector() - obMol_->Center(0)).length();
+    for (quint16 i = 2; i <= obMol_->NumAtoms(); ++i)
+    {
+      qreal rr = (obMol_->GetAtom(1)->GetVector() - obMol_->Center(0)).length();
+      if (rr > r)
+      {
+        r = rr;
+      }
+    }
+    return r;
+  }
+  else
+  {
+    return 10.0;
+  }
+}
+
+quint16 Chemistry::Molecule::conformersCount() const
+{
+  return obMol_->NumConformers();
 }
 
 void Chemistry::Molecule::rebond()
 {
-  obMol_.ConnectTheDots();
-  obMol_.PerceiveBondOrders();
-}
-
-void Chemistry::Molecule::build()
-{
-  OpenBabel::OBBuilder obbuilder;
-
-  obbuilder.Build(obMol_);
-  optimize(OpenBabel::OBForceField::FindForceField("MMFF94"),
-           Chemistry::AlgorithmSteepestDescent,
-           1.0e-7,
-           50,
-           0,
-           &std::cout);
-  obMol_.Center();
+  obMol_->ConnectTheDots();
+  obMol_->PerceiveBondOrders();
 }
 
 void Chemistry::Molecule::addHydrogensAndBuild()
 {
   OpenBabel::OBBuilder obbuilder;
 
-  obbuilder.Build(obMol_);
-  obMol_.AddHydrogens();
-  obbuilder.Build(obMol_);
-  obMol_.Center();
+  obbuilder.Build(*obMol_);
+  obMol_->AddHydrogens();
+  obbuilder.Build(*obMol_);
+  obMol_->Center();
 
   emit formulaChanged();
+  emit geometryChanged();
 }
 
 void Chemistry::Molecule::removeHydrogens()
 {
-  obMol_.DeleteHydrogens();
+  obMol_->DeleteHydrogens();
 
   emit formulaChanged();
+  emit geometryChanged();
 }
 
 void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
@@ -279,7 +305,7 @@ void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
                                    quint8 stepsPerUpdate,
                                    std::ostream* logOstream)
 {
-  if (!obForceField->Setup(obMol_))
+  if (!obForceField->Setup(*obMol_))
   {
     *logOstream << "Force field setup error." << std::endl;
   }
@@ -290,36 +316,36 @@ void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
 
     switch (algorithm)
     {
-    case (Chemistry::AlgorithmSteepestDescent):
+    case Chemistry::AlgorithmSteepestDescent:
       if (stepsPerUpdate != 0)
       {
         obForceField->SteepestDescentInitialize(maxSteps, convergenceCriteria);
         while (obForceField->SteepestDescentTakeNSteps(stepsPerUpdate))
         {
-          obForceField->GetCoordinates(obMol_);
+          obForceField->GetCoordinates(*obMol_);
           emit geometryChanged();
         }
       }
       else
       {
         obForceField->SteepestDescent(maxSteps, convergenceCriteria);
-        obForceField->GetCoordinates(obMol_);
+        obForceField->GetCoordinates(*obMol_);
       }
       break;
-    case (Chemistry::AlgorithmConjugateGradients):
+    case Chemistry::AlgorithmConjugateGradients:
       if (stepsPerUpdate != 0)
       {
         obForceField->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
         while (obForceField->ConjugateGradientsTakeNSteps(stepsPerUpdate))
         {
-          obForceField->GetCoordinates(obMol_);
+          obForceField->GetCoordinates(*obMol_);
           emit geometryChanged();
         }
       }
       else
       {
         obForceField->ConjugateGradients(maxSteps, convergenceCriteria);
-        obForceField->GetCoordinates(obMol_);
+        obForceField->GetCoordinates(*obMol_);
       }
       break;
     }
@@ -327,35 +353,44 @@ void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
   }
 }
 
-void Chemistry::Molecule::conformationalSearch()
+void Chemistry::Molecule::searchConformers(OpenBabel::OBForceField* obForceField,
+                                           Chemistry::SearchType searchType,
+                                           quint16 conformers,
+                                           quint16 steps,
+                                           std::ostream* logOstream)
 {
-  OpenBabel::OBForceField* ff;
-
-  ff = OpenBabel::OBForceField::FindForceField("MMFF94");
-
-  if (!ff)
+  if (!obForceField->Setup(*obMol_))
   {
-    std::cout << "No FF!";
+    *logOstream << "Force field setup error." << std::endl;
   }
-
-  if (!ff->Setup(obMol_))
+  else
   {
-    std::cout << "Setup error!";
+    obForceField->SetLogFile(logOstream);
+    obForceField->SetLogLevel(OBFF_LOGLVL_LOW);
+
+    switch (searchType)
+    {
+    case Chemistry::SearchTypeSystematicRotor:
+      obForceField->SystematicRotorSearch(steps);
+      break;
+    case Chemistry::SearchTypeRandomRotor:
+      obForceField->RandomRotorSearch(conformers, steps);
+      break;
+    case Chemistry::SearchTypeWeightedRotor:
+      obForceField->WeightedRotorSearch(conformers, steps);
+      break;
+    }
+
+    obForceField->GetConformers(*obMol_);
   }
-
-  ff->SetLogFile(&std::cout);
-  ff->SetLogLevel(OBFF_LOGLVL_LOW);
-
-  ff->RandomRotorSearch(10);
-  ff->GetConformers(obMol_);
 }
 
 void Chemistry::Molecule::setConformer(quint16 index)
 {
-  obMol_.SetConformer(index);
+  obMol_->SetConformer(index);
 }
 
 qreal Chemistry::Molecule::conformerEnergy(quint16 index)
 {
-  return obMol_.GetEnergy(index);
+  return obMol_->GetEnergy(index);
 }

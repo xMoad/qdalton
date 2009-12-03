@@ -12,7 +12,6 @@ CONFIG += qt \
     rtti \
     console \
     embed_manifest_exe
-#    cocoa
 INCLUDEPATH += Sources \
     Include
 HEADERS += Sources/MainWindow.h \

@@ -65,15 +65,11 @@ namespace Render
     void addAtom(const Render::Atom& atom);
     void addBond(const Render::Bond& bond);
 
-    void conformationalSearch(QTableWidget* targetTableWidget);
     void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 
   public slots:
-    void build();
-    void addHydrogensAndBuild();
-    void removeHydrogens();
     void updateMolecule();
 
   protected:
@@ -81,7 +77,6 @@ namespace Render
     virtual void draw();
     virtual void drawWithNames();
     virtual void fastDraw();
-    virtual QString helpString() const;
 
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mousePressEvent(QMouseEvent* e);

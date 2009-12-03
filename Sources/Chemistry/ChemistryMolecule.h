@@ -39,6 +39,13 @@ namespace Chemistry
     AlgorithmConjugateGradients
   };
 
+  enum SearchType
+  {
+    SearchTypeSystematicRotor,
+    SearchTypeRandomRotor,
+    SearchTypeWeightedRotor
+  };
+
   class Molecule : public QObject
   {
     Q_OBJECT
@@ -46,6 +53,7 @@ namespace Chemistry
   public:
     Molecule();
     Molecule(const Chemistry::Molecule& molecule);
+    ~Molecule();
 
     Chemistry::Molecule& operator=(const Chemistry::Molecule& molecule);
 
@@ -69,16 +77,15 @@ namespace Chemistry
 
     void setCharge(quint8 charge);
 
-    QString formula();
+    QString formula() const;
 
     quint16 atomsCount() const;
     quint16 bondsCount() const;
-    quint16 conformersCount();
+    qreal radius() const;
+    quint16 conformersCount() const;
 
     void rebond();
-    void build();
-    void addHydrogensAndBuild();
-    void removeHydrogens();
+
 
     void optimize(OpenBabel::OBForceField* obForceField,
                   Chemistry::Algorithm algorithm,
@@ -86,16 +93,26 @@ namespace Chemistry
                   quint16 maxSteps,
                   quint8 stepsPerUpdate,
                   std::ostream* logOstream);
-    void conformationalSearch();
+
+    void searchConformers(OpenBabel::OBForceField* obForceField,
+                          Chemistry::SearchType searchType,
+                          quint16 conformers,
+                          quint16 steps,
+                          std::ostream* logOstream);
+
     void setConformer(quint16 index);
     qreal conformerEnergy(quint16 index);
+
+  public slots:
+    void addHydrogensAndBuild();
+    void removeHydrogens();
 
   signals:
     void formulaChanged();
     void geometryChanged();
 
   private:
-    OpenBabel::OBMol obMol_;
+    OpenBabel::OBMol* obMol_;
   };
 }
 

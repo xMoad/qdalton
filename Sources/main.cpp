@@ -32,18 +32,18 @@ int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
   a.setAttribute(Qt::AA_DontShowIconsInMenus, true);
 #endif
 
   QCoreApplication::setApplicationName("QDalton");
-  QCoreApplication::setApplicationVersion("0.0.6.3");
+  QCoreApplication::setApplicationVersion("0.0.7.0");
   QCoreApplication::setOrganizationDomain("ctcc.no");
   QCoreApplication::setOrganizationName("CTCC");
 
-  MainWindow w;
-  w.setWindowTitle(QCoreApplication::applicationName() + " " +
+  MainWindow mainWindow;
+  mainWindow.setWindowTitle(QCoreApplication::applicationName() + " " +
                    QCoreApplication::applicationVersion());
-  w.show();
+  mainWindow.show();
   return a.exec();
 }

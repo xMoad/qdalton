@@ -226,8 +226,8 @@ QDalton is powerful GUI for Dalton.</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>324</width>
-             <height>398</height>
+             <width>340</width>
+             <height>355</height>
             </rect>
            </property>
            <attribute name="label">
@@ -258,19 +258,6 @@ QDalton is powerful GUI for Dalton.</string>
              </widget>
             </item>
             <item row="14" column="0" colspan="2">
-             <spacer name="verticalSpacerMiddleView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="16" column="0" colspan="2">
              <spacer name="verticalSpacerDownView">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -287,27 +274,6 @@ QDalton is powerful GUI for Dalton.</string>
              <widget class="QCheckBox" name="checkBoxDebugInfo">
               <property name="text">
                <string>Debug Info</string>
-              </property>
-             </widget>
-            </item>
-            <item row="15" column="0" colspan="2">
-             <widget class="QLabel" name="labelHelpView">
-              <property name="text">
-               <string>&lt;b&gt;Mouse&lt;/b&gt; 
-&lt;hr&gt;
-&lt;u&gt;To rotate the scene above its centre&lt;/u&gt; left click and drag. &lt;br&gt;
-&lt;u&gt;To rotate the scene above some atom&lt;/u&gt; left click on atom and drag. &lt;br&gt;
-&lt;u&gt;To add first atom&lt;/u&gt; &amp;lt;Ctrl&amp;gt; (&amp;lt;Cmd&amp;gt; on Mac) + left click on the scene. First atom goes to the origin of axes. &lt;br&gt;
-&lt;u&gt;To add second etc. atom&lt;/u&gt; left click on existing atom and drag. &lt;br&gt;
-&lt;u&gt;To cycle bond order (1-2-3)&lt;/u&gt;: left click on it. &lt;br&gt;
-&lt;u&gt;To delete atom / bond&lt;/u&gt;: right click on it.
-</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::RichText</enum>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -447,8 +413,8 @@ QDalton is powerful GUI for Dalton.</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>340</width>
-             <height>353</height>
+             <width>339</width>
+             <height>453</height>
             </rect>
            </property>
            <attribute name="label">
@@ -635,7 +601,7 @@ QDalton is powerful GUI for Dalton.</string>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="comboBox_2">
+                <widget class="QComboBox" name="comboBoxSearchType">
                  <item>
                   <property name="text">
                    <string>Systematic rotor</string>
@@ -653,15 +619,15 @@ QDalton is powerful GUI for Dalton.</string>
                  </item>
                 </widget>
                </item>
-               <item row="1" column="0">
+               <item row="2" column="0">
                 <widget class="QLabel" name="label_6">
                  <property name="text">
                   <string>Steps:</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxMaxSteps_2">
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="spinBoxStepsCount">
                  <property name="minimum">
                   <number>100</number>
                  </property>
@@ -676,10 +642,30 @@ QDalton is powerful GUI for Dalton.</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0" colspan="2">
+               <item row="3" column="0" colspan="2">
                 <widget class="QPushButton" name="pushButtonSearch">
                  <property name="text">
                   <string>Search</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Conformers count:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBoxConformersCount">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>999</number>
+                 </property>
+                 <property name="value">
+                  <number>10</number>
                  </property>
                 </widget>
                </item>
@@ -696,7 +682,10 @@ QDalton is powerful GUI for Dalton.</string>
         <item row="0" column="0">
          <widget class="QWidget" name="widgetConformers" native="true">
           <layout class="QGridLayout" name="gridLayout_11">
-           <item row="0" column="0" colspan="2">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item row="1" column="0" colspan="3">
             <widget class="QTableWidget" name="tableWidgetConformers">
              <property name="editTriggers">
               <set>QAbstractItemView::NoEditTriggers</set>
@@ -732,6 +721,32 @@ QDalton is powerful GUI for Dalton.</string>
              <column/>
             </widget>
            </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Energy filter:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <property name="suffix">
+              <string> kcal/mol</string>
+             </property>
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -747,7 +762,7 @@ QDalton is powerful GUI for Dalton.</string>
      <x>0</x>
      <y>0</y>
      <width>862</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -790,7 +805,6 @@ QDalton is powerful GUI for Dalton.</string>
     <addaction name="menuImport"/>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
-    <addaction name="actionStructureBuild"/>
     <addaction name="actionStructureAddHydrogens"/>
     <addaction name="actionStructureRemoveHydrogens"/>
     <addaction name="separator"/>
@@ -963,14 +977,6 @@ QDalton is powerful GUI for Dalton.</string>
     <string>InChI</string>
    </property>
   </action>
-  <action name="actionStructureBuild">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Build</string>
-   </property>
-  </action>
   <action name="actionStructureConformations">
    <property name="enabled">
     <bool>false</bool>
@@ -1039,54 +1045,5 @@ QDalton is powerful GUI for Dalton.</string>
  <resources>
   <include location="../Resources/icons.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>actionStructureAddHydrogens</sender>
-   <signal>triggered()</signal>
-   <receiver>viewer</receiver>
-   <slot>addHydrogensAndBuild()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>265</x>
-     <y>411</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionStructureRemoveHydrogens</sender>
-   <signal>triggered()</signal>
-   <receiver>viewer</receiver>
-   <slot>removeHydrogens()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>265</x>
-     <y>411</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionStructureBuild</sender>
-   <signal>triggered()</signal>
-   <receiver>viewer</receiver>
-   <slot>build()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>264</x>
-     <y>398</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
