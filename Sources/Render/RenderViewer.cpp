@@ -264,7 +264,7 @@ void Render::Viewer::init()
   // If so one can try to glDisable(GL_CULL_FACE). It works! Not always. =(
   glDisable(GL_CULL_FACE);
 
-  updateGLList(Viewer::GLLIST_AXES);
+  updateGLList(Render::Viewer::GLListAxes);
   setManipulatedFrame(new qglviewer::ManipulatedFrame());
 }
 
@@ -424,7 +424,7 @@ GLuint Render::Viewer::makeSelections(Quality quality)
 void Render::Viewer::setView(Render::Viewer::View view)
 {
   view_ = view;
-  updateGLList(GLLIST_SELECTIONS);
+  updateGLList(Render::Viewer::GLListSelections);
   updateGL();
 }
 
@@ -432,7 +432,7 @@ void Render::Viewer::setAxes(bool visibility, GLfloat size)
 {
   isAxesVisible_ = visibility;
   axesSize_ = size;
-  updateGLList(GLLIST_AXES);
+  updateGLList(Render::Viewer::GLListAxes);
   updateGL();
 }
 
@@ -458,9 +458,9 @@ void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
 void Render::Viewer::updateMolecule()
 {
   updateRenderAtoms();
-  updateGLList(Render::Viewer::GLLIST_ATOMS);
+  updateGLList(Render::Viewer::GLListAtoms);
   updateRenderBonds();
-  updateGLList(Render::Viewer::GLLIST_BONDS);
+  updateGLList(Render::Viewer::GLListBonds);
   updateGL();
 }
 
@@ -546,13 +546,13 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
 {
   switch (gllist)
   {
-  case Render::Viewer::GLLIST_AXES:
+  case Render::Viewer::GLListAxes:
     glDeleteLists(axesLow_, 1);
     glDeleteLists(axesHigh_, 1);
     axesLow_ = makeAxes(axesSize_, Render::QualityLow);
     axesHigh_ = makeAxes(axesSize_, Render::QualityHigh);
     break;
-  case Render::Viewer::GLLIST_ATOMS:
+  case Render::Viewer::GLListAtoms:
     glDeleteLists(smallBallsLow_, 1);
     glDeleteLists(smallBallsHigh_, 1);
     smallBallsLow_ = makeSmallBalls(Render::QualityLow);
@@ -566,7 +566,7 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
     bigBallsLow_ = makeBigBalls(Render::QualityLow);
     bigBallsHigh_ = makeBigBalls(Render::QualityHigh);
     break;
-  case Render::Viewer::GLLIST_BONDS:
+  case Render::Viewer::GLListBonds:
     glDeleteLists(bondsLow_, 1);
     glDeleteLists(bondsHigh_, 1);
     bondsLow_ = makeBonds(Render::QualityLow);
@@ -576,7 +576,7 @@ void Render::Viewer::updateGLList(Viewer::GLList gllist)
     sticksLow_ = makeSticks(Render::QualityLow);
     sticksHigh_ = makeSticks(Render::QualityHigh);
     break;
-  case Render::Viewer::GLLIST_SELECTIONS:
+  case Render::Viewer::GLListSelections:
     glDeleteLists(selectionsLow_, 1);
     glDeleteLists(selectionsHigh_, 1);
     selectionsLow_ = makeSelections(Render::QualityLow);
@@ -652,7 +652,7 @@ void Render::Viewer::mouseLeftButtonWithShiftPressEvent(QMouseEvent* e)
     {
       bondsList_[selectedName() - atomsList_.size()].toggleSelected();
     }
-    updateGLList(Viewer::GLLIST_SELECTIONS);
+    updateGLList(Render::Viewer::GLListSelections);
   }
 }
 
@@ -724,7 +724,7 @@ void Render::Viewer::mouseLeftButtonReleaseEvent(QMouseEvent* e)
   switch (e->modifiers())
   {
   case Qt::NoModifier:
-    updateGLList(GLLIST_BONDS);
+    updateGLList(Render::Viewer::GLListBonds);
     break;
   case Qt::ControlModifier:
     mouseLeftButtonWithCtrlReleaseEvent(e);

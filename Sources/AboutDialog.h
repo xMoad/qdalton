@@ -19,15 +19,10 @@
 
  **********************************************************************/
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef ABOUT_DIALOG_H
+#define ABOUT_DIALOG_H
 
-#include <QtGui/QDialog>
-
-namespace Ui
-{
-  class AboutDialog;
-}
+#include "ui_AboutDialog.h"
 
 class AboutDialog : public QDialog
 {
@@ -35,11 +30,10 @@ class AboutDialog : public QDialog
 
 public:
   AboutDialog(QWidget* parent = 0);
-  ~AboutDialog();
   void setHeaderLabelText(const QString& text);
 
 private:
-  Ui::AboutDialog* ui_;
+  Ui::AboutDialog ui_;
 };
 
-#endif // ABOUTDIALOG_H
+#endif // ABOUT_DIALOG_H

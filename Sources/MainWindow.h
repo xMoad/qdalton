@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
-
 #include <openbabel/forcefield.h>
 
 #include "ui_MainWindow.h"
@@ -14,30 +12,30 @@ namespace File
   class Mol;
 }
 
-namespace Ui
-{
-  class MainWindow;
-}
-
 class MainWindow: public QMainWindow
 {
   Q_OBJECT
 
 public:
   MainWindow(QWidget* parent = 0);
-  ~MainWindow();
   void setDalFile(File::Dal& dalFile);
   void setMolFile(File::Mol& molFile);
   void setWorkDir(const QString& work_dir);
   QString& getWorkDir();
   void addToLog(const QString& string);
+  void importMoleculeFromFile(const QString& fileName,
+                              OpenBabel::OBFormat* obFormat);
 
 public slots:
-  void updateActions();
   void fillConformersTable(double threshold);
+  void showImportStructureFromFileDialog();
+  void showAboutDialog();
+  void setActionsViewEnabled(bool enabled);
+  void updateActionsForEmptyMolecule();
+  void updateActionsForNonemptyMolecule();
 
 private:
-  Ui::MainWindow* ui_;
+  Ui::MainWindow ui_;
 
   Chemistry::Molecule molecule_;
 
@@ -45,6 +43,7 @@ private:
 
   File::Dal* dalFile_;
   File::Mol* molFile_;
+
   QLabel statusLabel_;
   QString workDir_;
 
@@ -60,16 +59,12 @@ private slots:
   void on_actionStructureImportInChI_triggered();
   void on_actionStructureImportSMILES_triggered();
   void on_pushButtonOptimize_clicked();
-  void on_actionHelpAbout_triggered();
   void on_tabWidget_currentChanged(int index);
-  void on_actionHelpAboutQt_triggered();
   void on_checkBoxDebugInfo_clicked(bool checked);
   void on_checkBoxAxes_toggled(bool checked);
   void on_actionExit_triggered();
   void on_actionStructureExportImage_triggered();
-  void on_actionStructureImportGaussianOutput_triggered();
   void on_actionJobNew_triggered();
-  void on_toolBox_currentChanged(int index);
   void on_comboBoxView_currentIndexChanged(int index);
   void on_actionJobImportDalton_triggered();
   void on_doubleSpinBoxAxesSize_valueChanged(double);

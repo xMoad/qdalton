@@ -789,11 +789,12 @@ QDalton is powerful GUI for Dalton.</string>
     </property>
     <widget class="QMenu" name="menuImport">
      <property name="title">
-      <string>Import</string>
+      <string>Import from</string>
      </property>
+     <addaction name="actionStructureImportFromFile"/>
+     <addaction name="separator"/>
      <addaction name="actionStructureImportSMILES"/>
      <addaction name="actionStructureImportInChI"/>
-     <addaction name="actionStructureImportGaussianOutput"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
@@ -844,7 +845,7 @@ QDalton is powerful GUI for Dalton.</string>
    <addaction name="actionJobNew"/>
    <addaction name="actionJobImportDalton"/>
    <addaction name="separator"/>
-   <addaction name="actionStructureImportGaussianOutput"/>
+   <addaction name="actionStructureImportFromFile"/>
    <addaction name="actionStructureExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionHelpHelp"/>
@@ -903,16 +904,19 @@ QDalton is powerful GUI for Dalton.</string>
     <string>Help</string>
    </property>
   </action>
-  <action name="actionStructureImportGaussianOutput">
+  <action name="actionStructureImportFromFile">
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
-     <normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</normaloff>:/icons/16x16/actionStructureImportGaussianOutput.png</iconset>
+     <normaloff>:/icons/16x16/actionStructureImportFile.png</normaloff>:/icons/16x16/actionStructureImportFile.png</iconset>
    </property>
    <property name="text">
-    <string>Gaussian Output</string>
+    <string>File...</string>
    </property>
    <property name="toolTip">
-    <string>Import structure from Gaussian output file.</string>
+    <string>Import structure from various input/output files.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionStructureExportImage">

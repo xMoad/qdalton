@@ -44,6 +44,6 @@ int main(int argc, char* argv[])
   MainWindow mainWindow;
   mainWindow.setWindowTitle(QCoreApplication::applicationName() + " " +
                    QCoreApplication::applicationVersion());
-  mainWindow.show();
+  mainWindow.showMaximized();
   return a.exec();
 }

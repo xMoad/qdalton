@@ -19,13 +19,13 @@
 
  **********************************************************************/
 
-#include "Chemistry/ChemistryMolecule.h"
-
 #include <iostream>
-#include <openbabel/mol.h>
 
 #include <openbabel/builder.h>
+#include <openbabel/mol.h>
 #include <openbabel/obconversion.h>
+
+#include "Chemistry/ChemistryMolecule.h"
 
 Chemistry::Molecule::Molecule() :
     QObject(),
@@ -44,41 +44,29 @@ Chemistry::Molecule::~Molecule()
   delete obMol_;
 }
 
-Chemistry::Molecule& Chemistry::Molecule::operator=(const Chemistry::Molecule& molecule)
+Chemistry::Molecule& Chemistry::Molecule::operator=(
+    const Chemistry::Molecule& molecule)
 {
   if (obMol_ != 0)
   {
     delete obMol_;
   }
   obMol_ = new OpenBabel::OBMol(*molecule.obMol_);
-  emit formulaChanged();
+  emit becameNonempty();
   return *this;
 }
 
-bool Chemistry::Molecule::importFromFile(Chemistry::Format format,
-                                         const QString& fileName)
+bool Chemistry::Molecule::importFromFile(const QString& fileName,
+                                         OpenBabel::OBFormat* obFormat)
 {
-  OpenBabel::OBConversion conv;
+  OpenBabel::OBConversion obConversion;
 
-  switch (format)
-  {
-  case Chemistry::FormatGaussianOutput:
-    conv.SetInFormat("g03");
-    break;
-  case Chemistry::FormatPdb:
-    conv.SetInFormat("pdb");
-    break;
-  case Chemistry::FormatXyz:
-    conv.SetInFormat("xyz");
-    break;
-  default:
-    break;
-  }
+  obConversion.SetInFormat(obFormat);
 
-  if (conv.ReadFile(obMol_, fileName.toStdString()))
+  if (obConversion.ReadFile(obMol_, fileName.toStdString()))
   {
     obMol_->Center();
-    emit formulaChanged();
+    emit becameNonempty();
     return true;
   }
   else
@@ -86,7 +74,7 @@ bool Chemistry::Molecule::importFromFile(Chemistry::Format format,
     return false;
   }
 }
-
+/*
 bool Chemistry::Molecule::importFromString(Chemistry::Format format,
                                            const QString& string)
 {
@@ -116,7 +104,7 @@ bool Chemistry::Molecule::importFromString(Chemistry::Format format,
     obMol_->AddHydrogens();
     obbuilder.Build(*obMol_);
     obMol_->Center();
-    emit formulaChanged();
+    emit becameNonempty();;
     return true;
   }
   else
@@ -148,7 +136,7 @@ QString Chemistry::Molecule::toString(Chemistry::Format format)
     return "Error";
   }
 }
-
+*/
 QString Chemistry::Molecule::formula() const
 {
   return QString::fromStdString(obMol_->GetFormula());
@@ -175,7 +163,10 @@ void Chemistry::Molecule::addAtom(quint8 atomicNumber)
   }
   obMol_->EndModify();
 
-  emit formulaChanged();
+  if (this->atomsCount() == 1)
+  {
+    emit becameNonempty();
+  }
 }
 
 void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
@@ -189,7 +180,10 @@ void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
   }
   obMol_->EndModify();
 
-  emit formulaChanged();
+  if (this->atomsCount() == 1)
+  {
+    emit becameNonempty();
+  }
 }
 
 void Chemistry::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
@@ -200,7 +194,10 @@ void Chemistry::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
   }
   obMol_->EndModify();
 
-  emit formulaChanged();
+  if (this->atomsCount() == 0)
+  {
+    emit becameEmpty();
+  }
 }
 
 void Chemistry::Molecule::deleteBond(OpenBabel::OBBond* obBond)
@@ -286,15 +283,12 @@ void Chemistry::Molecule::addHydrogensAndBuild()
   obbuilder.Build(*obMol_);
   obMol_->Center();
 
-  emit formulaChanged();
   emit geometryChanged();
 }
 
 void Chemistry::Molecule::removeHydrogens()
 {
   obMol_->DeleteHydrogens();
-
-  emit formulaChanged();
   emit geometryChanged();
 }
 

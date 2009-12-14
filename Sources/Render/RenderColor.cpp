@@ -67,30 +67,30 @@ GLfloat Render::Color::a() const
 
 const Render::Color& Render::Color::blue()
 {
-  static Render::Color* p = new Render::Color(0.0f, 0.0f, 1.0f, 1.0f);
-  return *p;
+  static Render::Color color(0.0f, 0.0f, 1.0f, 1.0f);
+  return color;
 }
 
 const Render::Color& Render::Color::green()
 {
-  static Render::Color* p = new Render::Color(0.0f, 1.0f, 0.0f, 1.0f);
-  return *p;
+  static Render::Color color(0.0f, 1.0f, 0.0f, 1.0f);
+  return color;
 }
 
 const Render::Color& Render::Color::red()
 {
-  static Render::Color* p = new Render::Color(1.0f, 0.0f, 0.0f, 1.0f);
-  return *p;
+  static Render::Color color(1.0f, 0.0f, 0.0f, 1.0f);
+  return color;
 }
 
 const Render::Color& Render::Color::yellow()
 {
-  static Render::Color* p = new Render::Color(1.0f, 1.0f, 0.0f, 1.0f);
-  return *p;
+  static Render::Color color(1.0f, 1.0f, 0.0f, 1.0f);
+  return color;
 }
 
 const Render::Color& Render::Color::selection()
 {
-  static Render::Color* p = new Render::Color(0.2f, 0.4f, 0.2f, 1.0f);
-  return *p;
+  static Render::Color color(0.2f, 0.4f, 0.2f, 1.0f);
+  return color;
 }

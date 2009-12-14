@@ -19,14 +19,14 @@
 
  **********************************************************************/
 
-#ifndef RENDER_VIEWER_H
-#define RENDER_VIEWER_H
-
 #include <QtGlobal>
 
 #ifdef Q_CC_MSVC
 #define NOMINMAX
 #endif
+
+#ifndef RENDER_VIEWER_H
+#define RENDER_VIEWER_H
 
 #include <QMouseEvent>
 #include <QTableWidget>
@@ -85,10 +85,10 @@ namespace Render
   private:
     enum GLList
     {
-      GLLIST_AXES,
-      GLLIST_ATOMS,
-      GLLIST_BONDS,
-      GLLIST_SELECTIONS
+      GLListAxes,
+      GLListAtoms,
+      GLListBonds,
+      GLListSelections
     };
 
     Chemistry::Molecule* molecule_;

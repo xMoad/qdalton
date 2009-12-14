@@ -20,21 +20,14 @@
  **********************************************************************/
 
 #include "AboutDialog.h"
-#include "ui_AboutDialog.h"
 
 AboutDialog::AboutDialog(QWidget* parent) :
-    QDialog(parent),
-    ui_(new Ui::AboutDialog)
+    QDialog(parent)
 {
-  ui_->setupUi(this);
-}
-
-AboutDialog::~AboutDialog()
-{
-  delete ui_;
+  ui_.setupUi(this);
 }
 
 void AboutDialog::setHeaderLabelText(const QString& text)
 {
-  ui_->headerLabel->setText(text);
+  ui_.headerLabel->setText(text);
 }

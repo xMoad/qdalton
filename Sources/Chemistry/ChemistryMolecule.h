@@ -29,7 +29,11 @@
 #include <openbabel/forcefield.h>
 
 #include "Chemistry/ChemistryForceField.h"
-#include "Chemistry/ChemistryFormat.h"
+
+namespace OpenBabel
+{
+  class OBFormat;
+}
 
 namespace Chemistry
 {
@@ -57,11 +61,10 @@ namespace Chemistry
 
     Chemistry::Molecule& operator=(const Chemistry::Molecule& molecule);
 
-    bool importFromFile(Chemistry::Format format,
-                        const QString& fileName);
-    bool importFromString(Chemistry::Format format,
-                          const QString& string);
-    QString toString(Chemistry::Format format);
+    bool importFromFile(const QString& fileName, OpenBabel::OBFormat* obFormat);
+//    bool importFromString(Chemistry::Format format,
+//                          const QString& string);
+//    QString toString(Chemistry::Format format);
 
     OpenBabel::OBAtom* obAtom(quint16 index) const;
     OpenBabel::OBBond* obBond(quint16 index) const;
@@ -108,7 +111,8 @@ namespace Chemistry
     void removeHydrogens();
 
   signals:
-    void formulaChanged();
+    void becameEmpty();
+    void becameNonempty();
     void geometryChanged();
 
   private:
