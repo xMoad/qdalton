@@ -59,12 +59,9 @@ namespace Chemistry
     Molecule(const Chemistry::Molecule& molecule);
     ~Molecule();
 
-    Chemistry::Molecule& operator=(const Chemistry::Molecule& molecule);
+    Chemistry::Molecule& operator=(const Chemistry::Molecule& rhs);
 
     bool importFromFile(const QString& fileName, OpenBabel::OBFormat* obFormat);
-//    bool importFromString(Chemistry::Format format,
-//                          const QString& string);
-//    QString toString(Chemistry::Format format);
 
     OpenBabel::OBAtom* obAtom(quint16 index) const;
     OpenBabel::OBBond* obBond(quint16 index) const;
@@ -88,7 +85,6 @@ namespace Chemistry
     quint16 conformersCount() const;
 
     void rebond();
-
 
     void optimize(OpenBabel::OBForceField* obForceField,
                   Chemistry::Algorithm algorithm,
@@ -114,6 +110,7 @@ namespace Chemistry
     void becameEmpty();
     void becameNonempty();
     void geometryChanged();
+    void conformationalSearchFinished();
 
   private:
     OpenBabel::OBMol* obMol_;

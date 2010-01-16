@@ -31,7 +31,6 @@ HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderViewer.h \
     Sources/File/FileText.h \
     Sources/File/FileMol.h \
-    Sources/File/FileJob.h \
     Sources/File/FileSubmodule.h \
     Sources/File/FileParametre.h \
     Sources/File/FileModule.h \
@@ -39,7 +38,7 @@ HEADERS += Sources/MainWindow.h \
     Sources/AboutDialog.h \
     Sources/Chemistry/ChemistryMolecule.h \
     Sources/Chemistry/ChemistryForceField.h \
-    Sources/ImportStructureFromFileDialog.h
+    Sources/ImportMoleculeFromFileDialog.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -54,32 +53,31 @@ SOURCES = Sources/main.cpp \
     Sources/Render/RenderViewer.cpp \
     Sources/File/FileText.cpp \
     Sources/File/FileMol.cpp \
-    Sources/File/FileJob.cpp \
     Sources/File/FileSubmodule.cpp \
     Sources/File/FileParametre.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
     Sources/Chemistry/ChemistryMolecule.cpp \
-    Sources/ImportStructureFromFileDialog.cpp
+    Sources/ImportMoleculeFromFileDialog.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui \
-    Sources/ImportStructureFromFileDialog.ui
+    Sources/ImportMoleculeFromFileDialog.ui
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
-CONFIG(debug, debug|release) { 
-    MOC_DIR = Build/Temp/debug
-    RCC_DIR = Build/Temp/debug
-    UI_DIR = Build/Temp/debug
-    OBJECTS_DIR = Build/Objects/debug
-}
-else { 
-    CONFIG -= console
+#CONFIG(debug, debug|release) {
+#    MOC_DIR = Build/Temp/debug
+#    RCC_DIR = Build/Temp/debug
+#    UI_DIR = Build/Temp/debug
+#    OBJECTS_DIR = Build/Objects/debug
+#}
+#else {
+#    CONFIG -= console
     MOC_DIR = Build/Temp/release
     RCC_DIR = Build/Temp/release
     UI_DIR = Build/Temp/release
     OBJECTS_DIR = Build/Objects/release
-}
+#}
 win32 { 
     CONFIG(debug, debug|release) { 
         DESTDIR = Build/Binaries/Windows/debug

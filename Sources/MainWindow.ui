@@ -17,733 +17,537 @@
    </size>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="_2">
-    <item row="0" column="0" colspan="2">
-     <widget class="QWidget" name="welcomeWidget" native="true">
-      <layout class="QGridLayout" name="gridLayout_8">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="0,0,0">
+    <item row="0" column="0">
+     <widget class="QWidget" name="widgetConformers" native="true">
+      <layout class="QGridLayout" name="gridLayout_11">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="1" column="0" colspan="2">
+        <widget class="QTableWidget" name="tableWidgetConformers">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>2</number>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column/>
+         <column/>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QDoubleSpinBox" name="doubleSpinBox">
+         <property name="suffix">
+          <string> kcal/mol</string>
+         </property>
+         <property name="decimals">
+          <number>3</number>
+         </property>
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="value">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="labelWelcome">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>Welcome to QDalton!
-
-QDalton is powerful GUI for Dalton.</string>
+          <string>Energy filter:</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="2" column="0" rowspan="2" colspan="2">
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+    <item row="0" column="2" rowspan="2">
+     <widget class="QToolBox" name="toolBox">
+      <property name="minimumSize">
+       <size>
+        <width>340</width>
+        <height>0</height>
+       </size>
       </property>
-      <property name="currentIndex">
-       <number>3</number>
+      <property name="maximumSize">
+       <size>
+        <width>340</width>
+        <height>16777215</height>
+       </size>
       </property>
-      <widget class="QWidget" name="tabJob">
-       <attribute name="title">
-        <string>Job</string>
+      <widget class="QWidget" name="pageViewEdit">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>340</width>
+         <height>506</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>View/Edit</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1">
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBoxDalFile">
-          <property name="title">
-           <string>Dalton input file: </string>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" colspan="2">
+         <spacer name="verticalSpacerUpView">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <widget class="QLabel" name="labelJobType">
-             <property name="text">
-              <string>Job type: </string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboBoxJobType">
-             <property name="currentIndex">
-              <number>1</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>.OPTIMIZE</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>.WALK</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>.RUN</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="checkBoxAxes">
+          <property name="text">
+           <string>Axes</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QGroupBox" name="groupBoxMolFile">
+        <item row="14" column="0" colspan="2">
+         <spacer name="verticalSpacerDownView">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="checkBoxDebugInfo">
+          <property name="text">
+           <string>Debug Info</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="labelAtom">
+          <property name="text">
+           <string>Atom:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxAxesSize">
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::PlusMinus</enum>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>0.500000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.500000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QComboBox" name="comboBoxAtom">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="currentIndex">
+           <number>2</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>H</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>N</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>O</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>F</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>P</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>S</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Cl</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Br</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="comboBoxView">
+          <item>
+           <property name="text">
+            <string>Balls &amp; Bonds</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Balls &amp; Sticks</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Sticks</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>VdW Spheres</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="labelView">
+          <property name="text">
+           <string>View:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageMM">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>340</width>
+         <height>506</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Molecular Mechanics</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0" colspan="2">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelForceField">
+          <property name="text">
+           <string>Force field:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="comboBoxForceField">
+          <item>
+           <property name="text">
+            <string>Ghemical</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>MMFF94</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>MMFF94s</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UFF</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBoxOptimization">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="title">
-           <string>Molecule input file:</string>
+           <string>Optimization</string>
           </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboBoxBasisType">
-             <property name="currentIndex">
-              <number>1</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>ATOMBASIS</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>BASIS</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>INTGRL</string>
-              </property>
-             </item>
-            </widget>
-           </item>
+          <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="0">
-            <widget class="QLabel" name="labelBasisType">
+            <widget class="QLabel" name="labelAlgorithm">
              <property name="text">
-              <string>Basis Type:</string>
+              <string>Algorithm:</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Comment Line #1:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEditComment1"/>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEditComment2"/>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Comment Line #2:</string>
-             </property>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxAlgorithm">
+             <item>
+              <property name="text">
+               <string>Steepest descent</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Conjugate gradient</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Basis Set:</string>
+              <string>Convergence:</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="comboBox">
-             <item>
-              <property name="text">
-               <string>STO-2G</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>STO-3G</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>STO-6G</string>
-              </property>
-             </item>
+            <widget class="QSpinBox" name="spinBoxConvergence">
+             <property name="prefix">
+              <string>10e-</string>
+             </property>
+             <property name="minimum">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>7</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelMaxSteps">
+             <property name="text">
+              <string>Max steps:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinBoxMaxSteps">
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelStepsPerUpdate">
+             <property name="text">
+              <string>Steps per update:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="spinBoxStepsPerUpdate">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QPushButton" name="pushButtonOptimize">
+             <property name="text">
+              <string>Optimize</string>
+             </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabDal">
-       <attribute name="title">
-        <string>DAL File</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <item row="0" column="0">
-         <widget class="QPlainTextEdit" name="plainTextEditDal"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabMol">
-       <attribute name="title">
-        <string>new.mol</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QPlainTextEdit" name="plainTextEditMol"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabViewer">
-       <attribute name="title">
-        <string>Viewer</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_10" rowstretch="1,0" columnstretch="0,1,0">
-        <item row="0" column="1">
-         <widget class="Render::Viewer" name="viewer" native="true"/>
-        </item>
-        <item row="0" column="2" rowspan="2">
-         <widget class="QToolBox" name="toolBox">
-          <property name="minimumSize">
+        <item row="6" column="0" colspan="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
            <size>
-            <width>340</width>
-            <height>0</height>
+            <width>20</width>
+            <height>40</height>
            </size>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>340</width>
-            <height>16777215</height>
-           </size>
+         </spacer>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBoxConformationalSearch">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
-          <widget class="QWidget" name="pageViewEdit">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>340</width>
-             <height>355</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>View/Edit</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0" colspan="2">
-             <spacer name="verticalSpacerUpView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="2" column="0">
-             <widget class="QCheckBox" name="checkBoxAxes">
-              <property name="text">
-               <string>Axes</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="0" colspan="2">
-             <spacer name="verticalSpacerDownView">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="0">
-             <widget class="QCheckBox" name="checkBoxDebugInfo">
-              <property name="text">
-               <string>Debug Info</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0">
-             <widget class="QLabel" name="labelAtom">
-              <property name="text">
-               <string>Atom:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxAxesSize">
-              <property name="mouseTracking">
-               <bool>false</bool>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::ClickFocus</enum>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::PlusMinus</enum>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1">
-             <widget class="QComboBox" name="comboBoxAtom">
-              <property name="editable">
-               <bool>true</bool>
-              </property>
-              <property name="currentIndex">
-               <number>2</number>
-              </property>
-              <item>
-               <property name="text">
-                <string>H</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>B</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>C</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>N</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>O</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>F</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>P</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>S</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Cl</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Br</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QComboBox" name="comboBoxView">
-              <item>
-               <property name="text">
-                <string>Balls &amp; Bonds</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Balls &amp; Sticks</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Sticks</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>VdW Spheres</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="labelView">
-              <property name="text">
-               <string>View:</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="pageMM">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>339</width>
-             <height>453</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Molecular Mechanics</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_9">
-            <item row="0" column="0" colspan="2">
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelForceField">
-              <property name="text">
-               <string>Force field:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboBoxForceField">
-              <item>
-               <property name="text">
-                <string>Ghemical</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>MMFF94</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>MMFF94s</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>UFF</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="QGroupBox" name="groupBoxOptimization">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="title">
-               <string>Optimization</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <item row="0" column="0">
-                <widget class="QLabel" name="labelAlgorithm">
-                 <property name="text">
-                  <string>Algorithm:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="comboBoxAlgorithm">
-                 <item>
-                  <property name="text">
-                   <string>Steepest descent</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Conjugate gradient</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>Convergence:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxConvergence">
-                 <property name="prefix">
-                  <string>10e-</string>
-                 </property>
-                 <property name="minimum">
-                  <number>2</number>
-                 </property>
-                 <property name="maximum">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>7</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="labelMaxSteps">
-                 <property name="text">
-                  <string>Max steps:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxMaxSteps">
-                 <property name="minimum">
-                  <number>100</number>
-                 </property>
-                 <property name="maximum">
-                  <number>10000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>100</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="labelStepsPerUpdate">
-                 <property name="text">
-                  <string>Steps per update:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QSpinBox" name="spinBoxStepsPerUpdate">
-                 <property name="maximum">
-                  <number>100</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>10</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButtonOptimize">
-                 <property name="text">
-                  <string>Optimize</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="6" column="0" colspan="2">
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QGroupBox" name="groupBoxConformationalSearch">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="title">
-               <string>Conformational search</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_12">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_4">
-                 <property name="text">
-                  <string>Search type:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="comboBoxSearchType">
-                 <item>
-                  <property name="text">
-                   <string>Systematic rotor</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Random rotor</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Weighted rotor</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string>Steps:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxStepsCount">
-                 <property name="minimum">
-                  <number>100</number>
-                 </property>
-                 <property name="maximum">
-                  <number>10000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>100</number>
-                 </property>
-                 <property name="value">
-                  <number>2500</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButtonSearch">
-                 <property name="text">
-                  <string>Search</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Conformers count:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxConformersCount">
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>999</number>
-                 </property>
-                 <property name="value">
-                  <number>10</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPlainTextEdit" name="logPlainTextEdit"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QWidget" name="widgetConformers" native="true">
-          <layout class="QGridLayout" name="gridLayout_11">
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <item row="1" column="0" colspan="3">
-            <widget class="QTableWidget" name="tableWidgetConformers">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-             <property name="rowCount">
-              <number>0</number>
-             </property>
-             <property name="columnCount">
-              <number>2</number>
-             </property>
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <column/>
-             <column/>
-            </widget>
-           </item>
+          <property name="title">
+           <string>Conformational search</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_12">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_8">
+            <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Energy filter:</string>
+              <string>Search type:</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1" colspan="2">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox">
-             <property name="suffix">
-              <string> kcal/mol</string>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxSearchType">
+             <item>
+              <property name="text">
+               <string>Systematic rotor</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Random rotor</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Weighted rotor</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Steps:</string>
              </property>
-             <property name="decimals">
-              <number>3</number>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinBoxStepsCount">
+             <property name="minimum">
+              <number>100</number>
              </property>
              <property name="maximum">
-              <double>1.000000000000000</double>
+              <number>10000</number>
              </property>
              <property name="singleStep">
-              <double>0.010000000000000</double>
+              <number>100</number>
              </property>
              <property name="value">
-              <double>0.010000000000000</double>
+              <number>2500</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QPushButton" name="pushButtonSearch">
+             <property name="text">
+              <string>Search</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Conformers count:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinBoxConformersCount">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999</number>
+             </property>
+             <property name="value">
+              <number>10</number>
              </property>
             </widget>
            </item>
@@ -754,24 +558,43 @@ QDalton is powerful GUI for Dalton.</string>
       </widget>
      </widget>
     </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QPlainTextEdit" name="logPlainTextEdit"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>862</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menuMolecule">
     <property name="title">
-     <string>Job</string>
+     <string>Molecule</string>
     </property>
-    <addaction name="actionJobOpen"/>
-    <addaction name="actionJobNew"/>
-    <addaction name="actionJobImportDalton"/>
+    <widget class="QMenu" name="menuImport_from">
+     <property name="title">
+      <string>Import from...</string>
+     </property>
+     <addaction name="actionMoleculeImportFromFile"/>
+    </widget>
+    <addaction name="actionMoleculeOpen"/>
+    <addaction name="actionMoleculeNew"/>
+    <addaction name="menuImport_from"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -787,23 +610,12 @@ QDalton is powerful GUI for Dalton.</string>
     <property name="title">
      <string>Structure</string>
     </property>
-    <widget class="QMenu" name="menuImport">
-     <property name="title">
-      <string>Import from</string>
-     </property>
-     <addaction name="actionStructureImportFromFile"/>
-     <addaction name="separator"/>
-     <addaction name="actionStructureImportSMILES"/>
-     <addaction name="actionStructureImportInChI"/>
-    </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
       <string>Export</string>
      </property>
      <addaction name="actionStructureExportImage"/>
-     <addaction name="actionStructureExportXyz"/>
     </widget>
-    <addaction name="menuImport"/>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionStructureAddHydrogens"/>
@@ -819,12 +631,12 @@ QDalton is powerful GUI for Dalton.</string>
     <addaction name="actionViewLog"/>
     <addaction name="actionViewToolbox"/>
    </widget>
-   <addaction name="menuFile"/>
+   <addaction name="menuMolecule"/>
    <addaction name="menuStructure"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -841,19 +653,15 @@ QDalton is powerful GUI for Dalton.</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionJobOpen"/>
-   <addaction name="actionJobNew"/>
-   <addaction name="actionJobImportDalton"/>
+   <addaction name="actionMoleculeOpen"/>
+   <addaction name="actionMoleculeNew"/>
+   <addaction name="actionMoleculeImportFromFile"/>
    <addaction name="separator"/>
-   <addaction name="actionStructureImportFromFile"/>
    <addaction name="actionStructureExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionHelpHelp"/>
   </widget>
-  <action name="actionJobOpen">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
+  <action name="actionMoleculeOpen">
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobOpen.png</normaloff>:/icons/16x16/actionJobOpen.png</iconset>
@@ -865,22 +673,7 @@ QDalton is powerful GUI for Dalton.</string>
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionJobImportDalton">
-   <property name="icon">
-    <iconset resource="../Resources/icons.qrc">
-     <normaloff>:/icons/16x16/actionJobImportDalton.png</normaloff>:/icons/16x16/actionJobImportDalton.png</iconset>
-   </property>
-   <property name="text">
-    <string>Dalton Input</string>
-   </property>
-   <property name="toolTip">
-    <string>Import existing Dalton input file(s)</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionJobNew">
+  <action name="actionMoleculeNew">
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionJobNew.png</normaloff>:/icons/16x16/actionJobNew.png</iconset>
@@ -904,7 +697,7 @@ QDalton is powerful GUI for Dalton.</string>
     <string>Help</string>
    </property>
   </action>
-  <action name="actionStructureImportFromFile">
+  <action name="actionMoleculeImportFromFile">
    <property name="icon">
     <iconset resource="../Resources/icons.qrc">
      <normaloff>:/icons/16x16/actionStructureImportFile.png</normaloff>:/icons/16x16/actionStructureImportFile.png</iconset>
@@ -952,11 +745,6 @@ QDalton is powerful GUI for Dalton.</string>
     <enum>QAction::AboutRole</enum>
    </property>
   </action>
-  <action name="actionStructureImportSMILES">
-   <property name="text">
-    <string>SMILES</string>
-   </property>
-  </action>
   <action name="actionStructureAddHydrogens">
    <property name="enabled">
     <bool>false</bool>
@@ -974,11 +762,6 @@ QDalton is powerful GUI for Dalton.</string>
    </property>
    <property name="text">
     <string>Remove hydrogens</string>
-   </property>
-  </action>
-  <action name="actionStructureImportInChI">
-   <property name="text">
-    <string>InChI</string>
    </property>
   </action>
   <action name="actionStructureConformations">
@@ -1025,27 +808,7 @@ QDalton is powerful GUI for Dalton.</string>
     <string>Conformers table</string>
    </property>
   </action>
-  <action name="actionStructureExportXyz">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>XYZ</string>
-   </property>
-  </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Render::Viewer</class>
-   <extends></extends>
-   <header>Render/RenderViewer.h</header>
-   <slots>
-    <slot>addHydrogensAndBuild()</slot>
-    <slot>removeHydrogens()</slot>
-    <slot>build()</slot>
-   </slots>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../Resources/icons.qrc"/>
  </resources>

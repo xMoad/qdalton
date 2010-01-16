@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -45,13 +45,15 @@ Chemistry::Molecule::~Molecule()
 }
 
 Chemistry::Molecule& Chemistry::Molecule::operator=(
-    const Chemistry::Molecule& molecule)
+    const Chemistry::Molecule& rhs)
 {
+  if (this == &rhs)
+    return *this;
+
   if (obMol_ != 0)
-  {
     delete obMol_;
-  }
-  obMol_ = new OpenBabel::OBMol(*molecule.obMol_);
+
+  obMol_ = new OpenBabel::OBMol(*rhs.obMol_);
   emit becameNonempty();
   return *this;
 }
@@ -74,69 +76,7 @@ bool Chemistry::Molecule::importFromFile(const QString& fileName,
     return false;
   }
 }
-/*
-bool Chemistry::Molecule::importFromString(Chemistry::Format format,
-                                           const QString& string)
-{
-  std::string stdString;
-  std::stringstream ss;
-  OpenBabel::OBBuilder obbuilder;
-  OpenBabel::OBConversion conv;
 
-  switch (format)
-  {
-  case (Chemistry::FormatSmiles):
-    conv.SetInFormat("smi");
-    break;
-  case (Chemistry::FormatInchi):
-    conv.SetInFormat("inchi");
-    break;
-  default:
-    break;
-  }
-
-  stdString = string.toStdString();
-  ss.str(stdString);
-  conv.SetInStream(&ss);
-
-  if (conv.Read(obMol_))
-  {
-    obMol_->AddHydrogens();
-    obbuilder.Build(*obMol_);
-    obMol_->Center();
-    emit becameNonempty();;
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-QString Chemistry::Molecule::toString(Chemistry::Format format)
-{
-  std::stringstream ss;
-  OpenBabel::OBConversion conv;
-
-  switch (format)
-  {
-  case (Chemistry::FormatXyz):
-    conv.SetOutFormat("xyz");
-    break;
-  default:
-    break;
-  }
-
-  if (conv.Write(this->obMol_, &ss))
-  {
-    return QString::fromStdString(ss.str());
-  }
-  else
-  {
-    return "Error";
-  }
-}
-*/
 QString Chemistry::Molecule::formula() const
 {
   return QString::fromStdString(obMol_->GetFormula());
@@ -347,12 +287,14 @@ void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
   }
 }
 
-void Chemistry::Molecule::searchConformers(OpenBabel::OBForceField* obForceField,
-                                           Chemistry::SearchType searchType,
-                                           quint16 conformers,
-                                           quint16 steps,
-                                           std::ostream* logOstream)
+void Chemistry::Molecule::searchConformers(
+    OpenBabel::OBForceField* obForceField,
+    Chemistry::SearchType searchType,
+    quint16 conformers,
+    quint16 steps,
+    std::ostream* logOstream)
 {
+  std::cout << steps << std::endl;
   if (!obForceField->Setup(*obMol_))
   {
     *logOstream << "Force field setup error." << std::endl;
@@ -376,6 +318,7 @@ void Chemistry::Molecule::searchConformers(OpenBabel::OBForceField* obForceField
     }
 
     obForceField->GetConformers(*obMol_);
+    emit conformationalSearchFinished();
   }
 }
 

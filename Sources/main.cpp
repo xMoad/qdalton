@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -37,13 +37,13 @@ int main(int argc, char* argv[])
 #endif
 
   QCoreApplication::setApplicationName("QDalton");
-  QCoreApplication::setApplicationVersion("0.0.7.0");
+  QCoreApplication::setApplicationVersion("0.0.8.0");
   QCoreApplication::setOrganizationDomain("ctcc.no");
   QCoreApplication::setOrganizationName("CTCC");
 
   MainWindow mainWindow;
   mainWindow.setWindowTitle(QCoreApplication::applicationName() + " " +
-                   QCoreApplication::applicationVersion());
-  mainWindow.showMaximized();
+                            QCoreApplication::applicationVersion());
+  mainWindow.show();
   return a.exec();
 }

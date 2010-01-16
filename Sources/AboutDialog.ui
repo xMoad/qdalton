@@ -48,9 +48,9 @@
         <string>Based on:
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;http://openbabel.org&quot;&gt;Open Babel 2.2.3&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://qt.nokia.com&quot;&gt;Qt 4.5.3&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://qt.nokia.com&quot;&gt;Qt 4.6.0&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.libqglviewer.com&quot;&gt;libQGLViewer 2.3.4&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://eigen.tuxfamily.org&quot;&gt;Eigen 2.0.5&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://eigen.tuxfamily.org&quot;&gt;Eigen 2.0.11&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</string>
        </property>
        <property name="textFormat">

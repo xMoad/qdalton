@@ -55,7 +55,8 @@ namespace Render
     Viewer(QWidget* parent);
     ~Viewer();
 
-    void setMolecule(Chemistry::Molecule* molecule);
+    Chemistry::Molecule* molecule();
+    void setMolecule(const Chemistry::Molecule& molecule);
 
     void setView(View view);
     void setAtomicNumber(quint8 atomicNumber);
@@ -91,7 +92,7 @@ namespace Render
       GLListSelections
     };
 
-    Chemistry::Molecule* molecule_;
+    Chemistry::Molecule molecule_;
     View view_;
     // added atom atomic number
     quint8 atomicNumber_;
