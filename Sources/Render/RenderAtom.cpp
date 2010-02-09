@@ -25,7 +25,6 @@
 #include <openbabel/mol.h>
 
 #include "Render/RenderAtom.h"
-#include "Render/RenderArrow.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderSphere.h"
 
@@ -33,14 +32,36 @@ const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
 Render::Atom::Atom(const Render::Atom& atom) :
     obAtom_(atom.obAtom_),
-    isSelected_(atom.isSelected_)
+    isSelected_(atom.isSelected_),
+    displayListAtom_(0),
+    displayListConnector_(0),
+    displayListVdW_(0)
 {
 }
 
 Render::Atom::Atom(OpenBabel::OBAtom* obAtom) :
     obAtom_(obAtom),
-    isSelected_(false)
+    isSelected_(false),
+    displayListAtom_(0),
+    displayListConnector_(0),
+    displayListVdW_(0)
 {
+}
+
+Render::Atom::~Atom()
+{
+  deleteDisplayLists();
+}
+
+quint8 Render::Atom::atomicNumber() const
+{
+  return obAtom_->GetAtomicNum();
+}
+
+void Render::Atom::setAtomicNumber(quint8 atomicNumber)
+{
+  obAtom_->SetAtomicNum(atomicNumber);
+  createDisplayLists();
 }
 
 GLfloat Render::Atom::drawRadius() const
@@ -63,62 +84,22 @@ Render::Color Render::Atom::color() const
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void Render::Atom::draw(Render::Atom::DrawStyle style,
-                        Render::Quality quality) const
+void Render::Atom::draw(Render::Atom::DrawStyle style)
 {
-  Render::Sphere sphere;
-  Render::Material material(color(), true);
-  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
-
-  sphere.setCentre(centre);
-
+  if (displayListAtom_ == 0)
+    createDisplayLists();
   switch (style)
   {
   case Render::Atom::DrawStyleAtom:
-    sphere.setRadius(drawRadius());
+    glCallList(displayListAtom_);
     break;
   case Render::Atom::DrawStyleConnector:
-    sphere.setRadius(Render::Bond::STICK_THIKNESS);
+    glCallList(displayListConnector_);
     break;
   case Render::Atom::DrawStyleVdW:
-    sphere.setRadius(vanderwaalsRadius());
+    glCallList(displayListVdW_);
     break;
   }
-
-  sphere.setMaterial(material);
-
-  sphere.draw(Render::StyleFill, quality);
-}
-
-void Render::Atom::drawSelection(Atom::DrawStyle style, Quality quality) const
-{
-  Render::Sphere sphere;
-  Render::Material material(Color::selection(), true);
-  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
-
-  sphere.setCentre(centre);
-
-  switch (style)
-  {
-  case Render::Atom::DrawStyleAtom:
-    sphere.setRadius(drawRadius() + SELECTON_RADIUS);
-    break;
-  case Render::Atom::DrawStyleConnector:
-    sphere.setRadius(Render::Bond::STICK_THIKNESS + SELECTON_RADIUS);
-    break;
-  case Render::Atom::DrawStyleVdW:
-    sphere.setRadius(vanderwaalsRadius() + SELECTON_RADIUS * 2);
-    break;
-  }
-
-  sphere.setMaterial(material);
-
-  // Enable blending
-  glEnable(GL_BLEND);
-  //  glDisable(GL_DEPTH_TEST);
-  sphere.draw(Render::StyleFill, quality);
-  glDisable(GL_BLEND);
-  //  glEnable(GL_DEPTH_TEST);
 }
 
 Eigen::Vector3f Render::Atom::centre() const
@@ -139,6 +120,7 @@ bool Render::Atom::isSelected() const
 void Render::Atom::setSelected(bool selected)
 {
   isSelected_ = selected;
+  createDisplayLists();
 }
 
 void Render::Atom::toggleSelected()
@@ -156,4 +138,49 @@ void Render::Atom::toggleSelected()
 OpenBabel::OBAtom* Render::Atom::obAtom() const
 {
   return obAtom_;
+}
+
+void Render::Atom::createDisplayLists()
+{
+  deleteDisplayLists();
+
+  Render::Sphere sphere;
+  Render::Material material(color(), true);
+  if (isSelected_)
+    material.setAmbient(Render::Color::selection());
+  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
+
+  sphere.setCentre(centre);
+  sphere.setMaterial(material);
+  sphere.setRadius(drawRadius());
+
+  displayListAtom_ = glGenLists(1);
+  glNewList(displayListAtom_, GL_COMPILE);
+  {
+    sphere.draw(Render::StyleFill);
+  }
+  glEndList();
+
+  sphere.setRadius(Render::Bond::STICK_THIKNESS);
+  displayListConnector_ = glGenLists(1);
+  glNewList(displayListConnector_, GL_COMPILE);
+  {
+    sphere.draw(Render::StyleFill);
+  }
+  glEndList();
+
+  sphere.setRadius(vanderwaalsRadius());
+  displayListVdW_ = glGenLists(1);
+  glNewList(displayListVdW_, GL_COMPILE);
+  {
+    sphere.draw(Render::StyleFill);
+  }
+  glEndList();
+}
+
+void Render::Atom::deleteDisplayLists()
+{
+  glDeleteLists(displayListAtom_, 1);
+  glDeleteLists(displayListConnector_, 1);
+  glDeleteLists(displayListVdW_, 1);
 }

@@ -26,7 +26,6 @@
 
 #include "Render/RenderMaterial.h"
 #include "Render/RenderStyle.h"
-#include "Render/RenderQuality.h"
 #include "Render/RenderQuadric.h"
 
 namespace Render
@@ -48,7 +47,7 @@ namespace Render
     const Render::Material& material() const;
     void setMaterial(const Render::Material& material);
 
-    void draw(Render::Style style, Render::Quality quality) const;
+    void draw(Render::Style style) const;
   private:
     Eigen::Vector3f vertex1_;
     Eigen::Vector3f vertex2_;

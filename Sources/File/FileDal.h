@@ -39,7 +39,6 @@ namespace File
       JobTypeRun
     };
     Dal(const File::Dal& dalFile);
-    Dal(const QString& fileName);
     bool parse();
     JobType jobType();
   private:

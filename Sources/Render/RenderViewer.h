@@ -34,8 +34,7 @@
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
-#include "Render/RenderQuality.h"
-#include "Chemistry/ChemistryMolecule.h"
+#include "File/FileMol.h"
 
 namespace Render
 {
@@ -55,8 +54,8 @@ namespace Render
     Viewer(QWidget* parent);
     ~Viewer();
 
-    Chemistry::Molecule* molecule();
-    void setMolecule(const Chemistry::Molecule& molecule);
+    File::Mol& fileMol();
+    void setFileMol(const File::Mol& fileMol);
 
     void setView(View view);
     void setAtomicNumber(quint8 atomicNumber);
@@ -77,22 +76,13 @@ namespace Render
     virtual void init();
     virtual void draw();
     virtual void drawWithNames();
-    virtual void fastDraw();
 
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mousePressEvent(QMouseEvent* e);
     virtual void mouseReleaseEvent(QMouseEvent* e);
 
   private:
-    enum GLList
-    {
-      GLListAxes,
-      GLListAtoms,
-      GLListBonds,
-      GLListSelections
-    };
-
-    Chemistry::Molecule molecule_;
+    File::Mol fileMol_;
     View view_;
     // added atom atomic number
     quint8 atomicNumber_;
@@ -101,13 +91,12 @@ namespace Render
     bool isAxesVisible_;
     GLfloat axesSize_;
 
-    OpenBabel::OBAtom* obAtomSelectedBefore_;
+    Render::Atom* atomSelectedBefore_;
     OpenBabel::OBAtom* obAtomNew_;
 
     QList<Render::Atom> atomsList_;
     QList<Render::Bond> bondsList_;
 
-    void updateGLList(GLList gllist);
     void updateRenderAtoms();
     void updateRenderBonds();
 
@@ -124,32 +113,10 @@ namespace Render
     void mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e);
 
     // GLLists, Low & High Quality.
-    GLuint axesLow_;
-    GLuint axesHigh_;
+    GLuint displayListAxes_;
 
-    GLuint smallBallsLow_;
-    GLuint smallBallsHigh_;
-    GLuint mediumBallsLow_;
-    GLuint mediumBallsHigh_;
-    GLuint bigBallsLow_;
-    GLuint bigBallsHigh_;
-
-    GLuint bondsLow_;
-    GLuint bondsHigh_;
-
-    GLuint sticksLow_;
-    GLuint sticksHigh_;
-
-    GLuint selectionsLow_;
-    GLuint selectionsHigh_;
     // GLLists generators.
-    GLuint makeAxes(GLfloat size, Quality quality);
-    GLuint makeSmallBalls(Quality quality);
-    GLuint makeMediumBalls(Quality quality);
-    GLuint makeBigBalls(Quality quality);
-    GLuint makeBonds(Quality quality);
-    GLuint makeSticks(Quality quality);
-    GLuint makeSelections(Quality quality);
+    GLuint makeAxes(GLfloat size);
   };
 }
 

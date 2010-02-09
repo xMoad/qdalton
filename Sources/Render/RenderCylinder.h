@@ -26,7 +26,6 @@
 
 #include "Render/RenderMaterial.h"
 #include "Render/RenderStyle.h"
-#include "Render/RenderQuality.h"
 #include "Render/RenderQuadric.h"
 
 namespace Render
@@ -64,11 +63,9 @@ namespace Render
 
     Eigen::Vector3f centre() const;
 
-    void draw(Render::Style style,
-              Render::Quality quality) const;
+    void draw(Render::Style style) const;
 
     void drawMulti(Render::Style style,
-                   Render::Quality quality,
                    quint8 order,
                    float shift,
                    const Eigen::Vector3f& planeNormalVector) const;

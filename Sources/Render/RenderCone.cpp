@@ -73,12 +73,11 @@ void Render::Cone::setMaterial(const Render::Material& material)
   material_ = material;
 }
 
-void Render::Cone::draw(Render::Style style,
-                        Render::Quality quality) const
+void Render::Cone::draw(Render::Style style) const
 {
   material_.prepare();
-  quadric_.prepare(style);
-  GLint slices = quality;
+  quadric_.prepare(style);  
+  GLint slices = 24;
 
   // construct the 4D transformation matrix
   Eigen::Matrix4f matrix;

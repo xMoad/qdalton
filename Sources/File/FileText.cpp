@@ -25,45 +25,61 @@
 
 #include "File/FileText.h"
 
-namespace File
+File::Text::Text() :
+    absoluteFilePath_(),
+    strings_()
 {
-  Text::Text(const QString& fileName)
+}
+
+File::Text::Text(const File::Text &fileText):
+    absoluteFilePath_(fileText.absoluteFilePath_),
+    strings_(fileText.strings_)
+{
+}
+
+const QString& File::Text::absoluteFilePath() const
+{
+  return absoluteFilePath_;
+}
+
+void File::Text::setAbsoluteFilePath(const QString& absoluteFilePath)
+{
+  absoluteFilePath_ = absoluteFilePath;
+}
+
+bool File::Text::read()
+{
+  QFile file(absoluteFilePath_);
+
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    return false;
+
+  strings_.clear();
+  QTextStream in(&file);
+  while (!in.atEnd())
   {
-    QFileInfo fileInfo(fileName);
-    fileName_ = fileInfo.fileName();
-    absolutePath_ = fileInfo.absolutePath();
+    QString line = in.readLine();
+    strings_.append(line);
   }
-  
-  void Text::read()
-  {
-    QFile file(absolutePath_ + "/" + fileName_);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-      return;
-    QTextStream in(&file);
-    while (!in.atEnd())
-    {
-      QString line = in.readLine();
-      strings_.append(line);
-    }
-  }
-  
-  const QString& Text::fileName() const
-  {
-    return fileName_;
-  }
-  
-  const QString& Text::filePath() const
-  {
-    return absolutePath_;
-  }
-  
-  QString Text::text() const
-  {
-    return strings_.join("\n");
-  }
-  
-  Text::ParseError& Text::getParseError()
-  {
-    return parseError_;
-  }
+  return true;
+}
+
+QString File::Text::fileName() const
+{
+  return QFileInfo(absoluteFilePath_).fileName();
+}
+
+QString File::Text::absolutePath() const
+{
+  return QFileInfo(absoluteFilePath_).absolutePath();
+}
+
+QString File::Text::text() const
+{
+  return strings_.join("\n");
+}
+
+void File::Text::addString(const QString& string)
+{
+  strings_ << string;
 }

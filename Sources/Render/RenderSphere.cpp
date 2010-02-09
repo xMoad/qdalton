@@ -53,12 +53,13 @@ void Render::Sphere::setMaterial(const Render::Material& material)
   material_ = material;
 }
 
-void Render::Sphere::draw(Render::Style style, Render::Quality quality) const
+void Render::Sphere::draw(Render::Style style) const
 {
   material_.prepare();
   quadric_.prepare(style);
-  GLint slices = quality;
-  GLint stacks = quality;
+  GLint slices = 24;
+  GLint stacks = 24;
+
   glPushMatrix();
   {
     glTranslatef(centre_.x(), centre_.y(), centre_.z());

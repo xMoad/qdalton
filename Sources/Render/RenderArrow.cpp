@@ -71,7 +71,7 @@ void Render::Arrow::setMaterial(const Render::Material& material)
   material_ = material;
 }
 
-void Render::Arrow::draw(Render::Style style, Render::Quality quality) const
+void Render::Arrow::draw(Render::Style style) const
 {
   Eigen::Vector3f point;
   Render::Cylinder cylinder;
@@ -85,11 +85,11 @@ void Render::Arrow::draw(Render::Style style, Render::Quality quality) const
   cylinder.setVertex2(point);
   cylinder.setRadius(radius_);
   cylinder.setMaterial(material_);
-  cylinder.draw(style, quality);
+  cylinder.draw(style);
 
   cone.setVertex1(point);
   cone.setVertex2(terminus_);
   cone.setRadius(radius_ * 2);
   cone.setMaterial(material_);
-  cone.draw(style, quality);
+  cone.draw(style);
 }

@@ -8,22 +8,24 @@ namespace File
   class Text
   {
   public:
-    struct ParseError
-    {
-      QString message;
-      int index;
-    };
-    Text(const QString& fileName);
-    void read();
-    const QString& fileName() const;
-    const QString& filePath() const;
+    Text();
+    Text(const File::Text& fileText);
+
+    const QString& absoluteFilePath() const;
+    void setAbsoluteFilePath(const QString& absoluteFilePath);
+
+    bool read();
+
+    QString fileName() const;
+    QString absolutePath() const;
+
     QString text() const;
-    ParseError& getParseError();
+
+    void addString(const QString& string);
+
   protected:
-    QString fileName_;
-    QString absolutePath_;
+    QString absoluteFilePath_;
     QStringList strings_;
-    ParseError parseError_;
   };
 }
 

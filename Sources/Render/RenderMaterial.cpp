@@ -66,27 +66,32 @@ Render::Material::Material(const Render::Color& ambient, bool optimal)
   }
 }
 
-Render::Color& Render::Material::ambient()
+const Render::Color& Render::Material::ambient() const
 {
   return ambient_;
 }
 
-Render::Color& Render::Material::diffuse()
+void Render::Material::setAmbient(const Render::Color &ambient)
+{
+  ambient_ = ambient;
+}
+
+const Render::Color& Render::Material::diffuse() const
 {
   return diffuse_;
 }
 
-Render::Color& Render::Material::emission()
+const Render::Color& Render::Material::emission() const
 {
   return emission_;
 }
 
-Render::Color& Render::Material::specular()
+const Render::Color& Render::Material::specular() const
 {
   return specular_;
 }
 
-GLfloat& Render::Material::shininess()
+GLfloat Render::Material::shininess() const
 {
   return shininess_;
 }

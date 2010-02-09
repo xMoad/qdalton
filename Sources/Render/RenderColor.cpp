@@ -91,6 +91,6 @@ const Render::Color& Render::Color::yellow()
 
 const Render::Color& Render::Color::selection()
 {
-  static Render::Color color(0.2f, 0.4f, 0.2f, 1.0f);
+  static Render::Color color(0.0f, 1.0f, 1.0f, 1.0f);
   return color;
 }

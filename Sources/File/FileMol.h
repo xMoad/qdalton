@@ -9,25 +9,14 @@ namespace File
   class Mol: public File::Text
   {
   public:
-    enum BasisType
-    {
-      BasisTypeAtombasis,
-      BasisTypeBasis,
-      BasisTypeIntgrl
-    };
-    enum BasisSet
-    {
-      BasisSetSto2G,
-      BasisSetSto3G,
-      BasisSetSto6G
-    };
-    Mol(const File::Mol& molFile);
-    Mol(QString fileName);
+    Mol();
+    Mol(const File::Mol& fileMol);
+
     bool parse(bool doAutoRebond);
 
-    const Chemistry::Molecule& molecule() const;
-    BasisType basisType() const;
-    BasisSet basisSet();
+    Chemistry::Molecule* molecule();
+    void setMolecule(const Chemistry::Molecule& molecule);
+
     const QString& comment() const;
     int atomTypes() const;
     void setAtomTypes(int atomTypes);
@@ -38,12 +27,17 @@ namespace File
 
   private:
     Chemistry::Molecule molecule_;
-    BasisType basisType_;
-    BasisSet basisSet_;
+    // General string contains most important information
+    int generalStringIndex_;
+    QString basisType_;
+    QString basisSet_;
     QString comment_;
     int atomTypes_;
     bool isAngstrom_;
     bool isCartesian_;
+    bool parseBasis();
+    bool parseGeneralString();
+    bool parseAtoms();
   };
 }
 

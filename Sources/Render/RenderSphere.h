@@ -26,7 +26,6 @@
 
 #include "Render/RenderMaterial.h"
 #include "Render/RenderQuadric.h"
-#include "Render/RenderQuality.h"
 
 namespace Render
 {
@@ -44,7 +43,7 @@ namespace Render
     const Render::Material& material() const;
     void setMaterial(const Render::Material& material);
 
-    void draw(Render::Style style, Render::Quality quality) const;
+    void draw(Render::Style style) const;
   private:
     Eigen::Vector3f centre_;
     GLfloat radius_;

@@ -25,7 +25,6 @@
 #include <Eigen/Array>
 
 #include "Render/RenderMaterial.h"
-#include "Render/RenderQuality.h"
 #include "Render/RenderStyle.h"
 
 namespace Render
@@ -53,7 +52,7 @@ namespace Render
     const Render::Material& material() const;
     void setMaterial(const Render::Material& material);
 
-    void draw(Style style, Render::Quality quality) const;    
+    void draw(Style style) const;
   private:
     Eigen::Vector3f origin_;
     Eigen::Vector3f terminus_;

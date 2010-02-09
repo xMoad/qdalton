@@ -74,11 +74,6 @@ File::Dal::Dal(const File::Dal& dalFile) :
   parse();
 }
 
-File::Dal::Dal(const QString& fileName) :
-  File::Text(fileName)
-{
-}
-
 bool File::Dal::parse()
 {
   QHash<QString, QString> modulesHashTable = divide(text(), MODULES_DIVIDER);

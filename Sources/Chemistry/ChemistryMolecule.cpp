@@ -29,13 +29,15 @@
 
 Chemistry::Molecule::Molecule() :
     QObject(),
-    obMol_(new OpenBabel::OBMol())
+    obMol_(new OpenBabel::OBMol()),
+    obFoceFieldName_()
 {
 }
 
 Chemistry::Molecule::Molecule(const Chemistry::Molecule& molecule) :
     QObject(),
-    obMol_(new OpenBabel::OBMol(*molecule.obMol_))
+    obMol_(new OpenBabel::OBMol(*molecule.obMol_)),
+    obFoceFieldName_(molecule.obFoceFieldName_)
 {
 }
 
@@ -92,10 +94,9 @@ OpenBabel::OBBond* Chemistry::Molecule::obBond(quint16 index) const
   return obMol_->GetBond(index);
 }
 
-void Chemistry::Molecule::addAtom(quint8 atomicNumber)
+OpenBabel::OBAtom* Chemistry::Molecule::newAtom(quint8 atomicNumber)
 {
   OpenBabel::OBAtom* obAtom;
-
   obMol_->BeginModify();
   {
     obAtom = obMol_->NewAtom();
@@ -107,6 +108,8 @@ void Chemistry::Molecule::addAtom(quint8 atomicNumber)
   {
     emit becameNonempty();
   }
+
+  return obAtom;
 }
 
 void Chemistry::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
@@ -214,6 +217,11 @@ void Chemistry::Molecule::rebond()
   obMol_->PerceiveBondOrders();
 }
 
+void Chemistry::Molecule::setObForceFieldName(const QString& obFoceFieldName)
+{
+  obFoceFieldName_ = obFoceFieldName;
+}
+
 void Chemistry::Molecule::addHydrogensAndBuild()
 {
   OpenBabel::OBBuilder obbuilder;
@@ -232,13 +240,15 @@ void Chemistry::Molecule::removeHydrogens()
   emit geometryChanged();
 }
 
-void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
-                                   Chemistry::Algorithm algorithm,
+void Chemistry::Molecule::optimize(Chemistry::Algorithm algorithm,
                                    double convergenceCriteria,
                                    quint16 maxSteps,
                                    quint8 stepsPerUpdate,
                                    std::ostream* logOstream)
 {
+  OpenBabel::OBForceField* obForceField = OpenBabel::OBForceField::FindForceField(
+      obFoceFieldName_.toStdString());
+
   if (!obForceField->Setup(*obMol_))
   {
     *logOstream << "Force field setup error." << std::endl;
@@ -283,18 +293,20 @@ void Chemistry::Molecule::optimize(OpenBabel::OBForceField* obForceField,
       }
       break;
     }
-    emit geometryChanged();
+//    emit geometryChanged();
+    emit optimizationFinished();
   }
 }
 
 void Chemistry::Molecule::searchConformers(
-    OpenBabel::OBForceField* obForceField,
     Chemistry::SearchType searchType,
     quint16 conformers,
     quint16 steps,
     std::ostream* logOstream)
 {
-  std::cout << steps << std::endl;
+  OpenBabel::OBForceField* obForceField = OpenBabel::OBForceField::FindForceField(
+      obFoceFieldName_.toStdString());
+
   if (!obForceField->Setup(*obMol_))
   {
     *logOstream << "Force field setup error." << std::endl;

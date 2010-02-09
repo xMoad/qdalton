@@ -51,11 +51,14 @@ namespace Render
     Material(const Color& ambient, bool optimal);
     Material(const Material& material);
 
-    Render::Color& ambient();
-    Render::Color& diffuse();
-    Render::Color& emission();
-    Render::Color& specular();
-    GLfloat& shininess();
+    const Render::Color& ambient() const;
+    void setAmbient(const Render::Color& ambient);
+
+    const Render::Color& diffuse() const;
+    const Render::Color& emission() const;
+    const Render::Color& specular() const;
+    GLfloat shininess() const;
+
     void prepare() const;
     // OpenGL default material properties of the objects
     static Color& defaultComponent(Component component);

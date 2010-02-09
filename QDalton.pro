@@ -26,7 +26,6 @@ HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderMaterial.h \
     Sources/Render/RenderStyle.h \
     Sources/Render/RenderQuadric.h \
-    Sources/Render/RenderQuality.h \
     Sources/Render/RenderSphere.h \
     Sources/Render/RenderViewer.h \
     Sources/File/FileText.h \
@@ -38,7 +37,8 @@ HEADERS += Sources/MainWindow.h \
     Sources/AboutDialog.h \
     Sources/Chemistry/ChemistryMolecule.h \
     Sources/Chemistry/ChemistryForceField.h \
-    Sources/ImportMoleculeFromFileDialog.h
+    Sources/ImportMoleculeFromFileDialog.h \
+    Sources/FileMolGeneratorDialog.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -59,47 +59,39 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
     Sources/Chemistry/ChemistryMolecule.cpp \
-    Sources/ImportMoleculeFromFileDialog.cpp
+    Sources/ImportMoleculeFromFileDialog.cpp \
+    Sources/FileMolGeneratorDialog.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui \
-    Sources/ImportMoleculeFromFileDialog.ui
+    Sources/ImportMoleculeFromFileDialog.ui \
+    Sources/FileMolGeneratorDialog.ui
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
-#CONFIG(debug, debug|release) {
-#    MOC_DIR = Build/Temp/debug
-#    RCC_DIR = Build/Temp/debug
-#    UI_DIR = Build/Temp/debug
-#    OBJECTS_DIR = Build/Objects/debug
-#}
-#else {
-#    CONFIG -= console
-    MOC_DIR = Build/Temp/release
-    RCC_DIR = Build/Temp/release
-    UI_DIR = Build/Temp/release
-    OBJECTS_DIR = Build/Objects/release
-#}
 win32 { 
-    CONFIG(debug, debug|release) { 
-        DESTDIR = Build/Binaries/Windows/debug
-        LIBS += -LLibraries/Windows \
-            -ldQGLViewer2 \
-            -ldopenbabel-2
-    }
-    else { 
-        DESTDIR = Build/Binaries/Windows/release
-        LIBS += -LLibraries/Windows \
-            -lQGLViewer2 \
-            -lopenbabel-2
-    }
+    MOC_DIR = Build/Temp/win32
+    RCC_DIR = Build/Temp/win32
+    UI_DIR = Build/Temp/win32
+    OBJECTS_DIR = Build/Objects/win32
+    DESTDIR = Build/Binaries/Windows
+    LIBS += -LLibraries/Windows \
+        -lQGLViewer2 \
+        -lopenbabel-2
 }
 macx { 
+    MOC_DIR = Build/Temp/macx
+    RCC_DIR = Build/Temp/macx
+    UI_DIR = Build/Temp/macx
+    OBJECTS_DIR = Build/Objects/macx
     DESTDIR = Build/Binaries/MacOS
     LIBS += -framework \
         QGLViewer \
         -lopenbabel
-    CONFIG(debug, debug|release):DYLD_IMAGE_SUFFIX = _debug
 }
 linux-g++ { 
+    MOC_DIR = Build/Temp/linux
+    RCC_DIR = Build/Temp/linux
+    UI_DIR = Build/Temp/linux
+    OBJECTS_DIR = Build/Objects/linux
     DESTDIR = Build/Binaries/Linux
     LIBS *= -lqglviewer-qt4 \
         -lopenbabel

@@ -32,7 +32,7 @@ bool obFormatCompare(OpenBabel::OBFormat* first,
   return QString(first->Description()) < QString(second->Description());
 }
 
-ImportStructureFromFileDialog::ImportStructureFromFileDialog(
+ImportMoleculeFromFileDialog::ImportMoleculeFromFileDialog(
     MainWindow* mainWindow) :
     QDialog(mainWindow),
     mainWindow_(mainWindow),
@@ -54,7 +54,7 @@ ImportStructureFromFileDialog::ImportStructureFromFileDialog(
 
 // Slots.
 
-void ImportStructureFromFileDialog::accepted()
+void ImportMoleculeFromFileDialog::accepted()
 {
   if (QFile::exists(fileName_))
   {
@@ -63,22 +63,21 @@ void ImportStructureFromFileDialog::accepted()
   }
 }
 
-void ImportStructureFromFileDialog::setCurrentObFormatIndex(int index)
+void ImportMoleculeFromFileDialog::setCurrentObFormatIndex(int index)
 {
   currentObFormatIndex_ = index;
 }
 
-void ImportStructureFromFileDialog::showOpenFileDialog()
+void ImportMoleculeFromFileDialog::showOpenFileDialog()
 {
   OpenBabel::OBFormat* obFormat;
   int obFormatIndex;
   QString fileName = QFileDialog::getOpenFileName(
-      this,
-      tr("Choose file"),
-      mainWindow_->getWorkDir());
+      this,  tr("Choose file"), mainWindow_->dir());
 
   if (fileName != 0)
   {
+    mainWindow_->setDir(QFileInfo(fileName).absolutePath());
     fileName_ = fileName;
     ui_.lineEditFileName->setText(fileName);
     obFormat = OpenBabel::OBConversion::FormatFromExt(
@@ -91,7 +90,7 @@ void ImportStructureFromFileDialog::showOpenFileDialog()
   }
 }
 
-void ImportStructureFromFileDialog::fillComboBoxFileType()
+void ImportMoleculeFromFileDialog::fillComboBoxFileType()
 {
   // Don't delete obConversion!
   OpenBabel::OBConversion obConversion;

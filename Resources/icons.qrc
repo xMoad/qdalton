@@ -1,10 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/16x16/actionStructureExportImage.png</file>
-        <file>icons/16x16/actionJobOpen.png</file>
-        <file>icons/16x16/actionJobImportDalton.png</file>
-        <file>icons/16x16/actionJobNew.png</file>
         <file>icons/16x16/actionHelpHelp.png</file>
-        <file>icons/16x16/actionStructureImportFile.png</file>
+        <file>icons/16x16/actionMoleculeEditMolFile.png</file>
+        <file>icons/16x16/actionMoleculeImportFromFile.png</file>
+        <file>icons/16x16/actionMoleculeNew.png</file>
+        <file>icons/16x16/actionMoleculeOpen.png</file>
+        <file>icons/16x16/actionMoleculeSave.png</file>
     </qresource>
 </RCC>

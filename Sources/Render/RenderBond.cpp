@@ -30,14 +30,25 @@ const GLfloat Render::Bond::STICK_THIKNESS = 0.15f;
 
 Render::Bond::Bond(const Render::Bond& bond) :
     obBond_(bond.obBond_),
-    isSelected_(bond.isSelected_)
+    isSelected_(bond.isSelected_),
+    planeNormalVector_(bond.planeNormalVector_),
+    displayListBond_(0),
+    displayListStick_(0)
 {
 }
 
 Render::Bond::Bond(OpenBabel::OBBond* obBond) :
     obBond_(obBond),
-    isSelected_(false)
+    isSelected_(false),
+    planeNormalVector_(Eigen::Vector3f(0.0f, 0.0f, 1.0f)),
+    displayListBond_(0),
+    displayListStick_(0)
 {
+}
+
+Render::Bond::~Bond()
+{
+  deleteDisplayLists();
 }
 
 OpenBabel::OBBond* Render::Bond::obBond() const
@@ -45,94 +56,34 @@ OpenBabel::OBBond* Render::Bond::obBond() const
   return obBond_;
 }
 
-void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
-                        const Eigen::Vector3f& planeNormalVector,
-                        Render::Quality quality) const
+const Eigen::Vector3f& Render::Bond::planeNormalVector() const
 {
-  float shift;
-  Render::Cylinder cylinder1;
-  Render::Cylinder cylinder2;
+  return planeNormalVector_;
+}
+void Render::Bond::setPlaneNormalVector(const Eigen::Vector3f& vector)
+{
+  planeNormalVector_ = vector;
+  createDisplayLists();
+}
 
-  Render::Atom atom1(obBond_->GetParent()->GetAtom(obBond_->GetBeginAtomIdx()));
-  Render::Atom atom2(obBond_->GetParent()->GetAtom(obBond_->GetEndAtomIdx()));
-  Render::Material material1(atom1.color(), true);
-  Render::Material material2(atom2.color(), true);
-
-  // Compute the centre of bond
-  Eigen::Vector3f vec1 = atom2.centre() - atom1.centre();
-  vec1 = vec1 * (vec1.norm() - atom2.drawRadius()) / vec1.norm();
-  vec1 = vec1 + atom1.centre();
-  Eigen::Vector3f vec2 = atom1.centre() - atom2.centre();
-  vec2 = vec2 * (vec2.norm() - atom1.drawRadius()) / vec2.norm();
-  vec2 = vec2 + atom2.centre();
-  Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
-
-  cylinder1.setVertex1(atom1.centre());
-  cylinder1.setVertex2(vMiddle);
-  cylinder1.setMaterial(material1);
-
-  cylinder2.setVertex1(vMiddle);
-  cylinder2.setVertex2(atom2.centre());
-  cylinder2.setMaterial(material2);
-
-  if (drawStyle == Render::Bond::DrawStyleBond)
+void Render::Bond::draw(Render::Bond::DrawStyle drawStyle)
+{
+  if (displayListBond_ == 0)
+    createDisplayLists();
+  switch (drawStyle)
   {
-    cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
-    cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
-
-    if (obBond_->GetBondOrder() < 3)
-    {
-      shift = 0.1f;
-    }
-    else
-    {
-      shift = 0.2f;
-    }
-
-    cylinder1.drawMulti(Render::StyleFill,
-                        quality,
-                        obBond_->GetBondOrder(),
-                        shift,
-                        planeNormalVector);
-    cylinder2.drawMulti(Render::StyleFill,
-                        quality,
-                        obBond_->GetBondOrder(),
-                        shift,
-                        planeNormalVector);
-  }
-  else
-  {
-    cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
-    cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
-
-    cylinder1.draw(Render::StyleFill, quality);
-    cylinder2.draw(Render::StyleFill, quality);
+  case Render::Bond::DrawStyleBond:
+    glCallList(displayListBond_);
+    break;
+  case Render::Bond::DrawStyleStick:
+    glCallList(displayListStick_);
+    break;
   }
 }
 
-void Render::Bond::drawSelection(Render::Quality quality) const
+void Render::Bond::update()
 {
-  OpenBabel::OBAtom* obAtomPtr;
-  Render::Cylinder cylinder;
-  Render::Material material(Color::selection(), true);
-
-  obAtomPtr = obBond_->GetBeginAtom();
-  cylinder.setVertex1(Eigen::Vector3f(obAtomPtr->GetX(),
-                                      obAtomPtr->GetY(),
-                                      obAtomPtr->GetZ()));
-  obAtomPtr = obBond_->GetEndAtom();
-  cylinder.setVertex2(Eigen::Vector3f(obAtomPtr->GetX(),
-                                      obAtomPtr->GetY(),
-                                      obAtomPtr->GetZ()));
-
-  cylinder.setRadius(0.2f);
-  cylinder.setMaterial(material);
-  // Enable blending
-  glEnable(GL_BLEND);
-  //  glDisable(GL_DEPTH_TEST);
-  cylinder.draw(Render::StyleFill, quality);
-  glDisable(GL_BLEND);
-  //  glEnable(GL_DEPTH_TEST);
+  createDisplayLists();
 }
 
 bool Render::Bond::isSelected() const
@@ -155,6 +106,7 @@ void Render::Bond::toggleSelected()
   {
     setSelected(true);
   }
+  createDisplayLists();
 }
 
 void Render::Bond::cycleOrder()
@@ -168,4 +120,80 @@ void Render::Bond::cycleOrder()
   {
     obBond_->SetBondOrder(order + 1);
   }
+  createDisplayLists();
+}
+
+void Render::Bond::createDisplayLists()
+{
+  deleteDisplayLists();
+
+  float shift;
+  Render::Cylinder cylinder1;
+  Render::Cylinder cylinder2;
+
+  Render::Atom atom1(obBond_->GetParent()->GetAtom(obBond_->GetBeginAtomIdx()));
+  Render::Atom atom2(obBond_->GetParent()->GetAtom(obBond_->GetEndAtomIdx()));
+  Render::Material material1(atom1.color(), true);
+  Render::Material material2(atom2.color(), true);
+
+  // Compute the centre of bond
+  Eigen::Vector3f vec1 = atom2.centre() - atom1.centre();
+  vec1 = vec1 * (vec1.norm() - atom2.drawRadius()) / vec1.norm();
+  vec1 = vec1 + atom1.centre();
+  Eigen::Vector3f vec2 = atom1.centre() - atom2.centre();
+  vec2 = vec2 * (vec2.norm() - atom1.drawRadius()) / vec2.norm();
+  vec2 = vec2 + atom2.centre();
+  Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
+
+  cylinder1.setVertex1(atom1.centre());
+  cylinder1.setVertex2(vMiddle);
+  if (!isSelected_)
+    cylinder1.setMaterial(material1);
+  else
+    cylinder1.setMaterial(Render::Material(Render::Color::selection(), true));
+
+  cylinder2.setVertex1(vMiddle);
+  cylinder2.setVertex2(atom2.centre());
+  if (!isSelected_)
+    cylinder2.setMaterial(material2);
+  else
+    cylinder2.setMaterial(Render::Material(Render::Color::selection(), true));
+
+  cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
+  cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
+
+  displayListStick_ = glGenLists(1);
+  glNewList(displayListStick_, GL_COMPILE);
+  {
+    cylinder1.draw(Render::StyleFill);
+    cylinder2.draw(Render::StyleFill);
+  }
+  glEndList();
+
+  if (obBond_->GetBondOrder() < 3)
+    shift = 0.1f;
+  else
+    shift = 0.2f;
+  cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
+  cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
+
+  displayListBond_ = glGenLists(1);
+  glNewList(displayListBond_, GL_COMPILE);
+  {
+    cylinder1.drawMulti(Render::StyleFill,
+                        obBond_->GetBondOrder(),
+                        shift,
+                        planeNormalVector_);
+    cylinder2.drawMulti(Render::StyleFill,
+                        obBond_->GetBondOrder(),
+                        shift,
+                        planeNormalVector_);
+  }
+  glEndList();
+}
+
+void Render::Bond::deleteDisplayLists()
+{
+  glDeleteLists(displayListBond_, 1);
+  glDeleteLists(displayListStick_, 1);
 }

@@ -66,7 +66,7 @@ namespace Chemistry
     OpenBabel::OBAtom* obAtom(quint16 index) const;
     OpenBabel::OBBond* obBond(quint16 index) const;
 
-    void addAtom(quint8 atomicNumber);
+    OpenBabel::OBAtom* newAtom(quint8 atomicNumber);
     void addObAtom(OpenBabel::OBAtom& obAtom);
     void deleteAtom(OpenBabel::OBAtom* obAtom);
     void deleteBond(OpenBabel::OBBond* obBond);
@@ -86,15 +86,15 @@ namespace Chemistry
 
     void rebond();
 
-    void optimize(OpenBabel::OBForceField* obForceField,
-                  Chemistry::Algorithm algorithm,
+    void setObForceFieldName(const QString& obFoceFieldName);
+
+    void optimize(Chemistry::Algorithm algorithm,
                   double convergenceCriteria,
                   quint16 maxSteps,
                   quint8 stepsPerUpdate,
                   std::ostream* logOstream);
 
-    void searchConformers(OpenBabel::OBForceField* obForceField,
-                          Chemistry::SearchType searchType,
+    void searchConformers(Chemistry::SearchType searchType,
                           quint16 conformers,
                           quint16 steps,
                           std::ostream* logOstream);
@@ -110,10 +110,12 @@ namespace Chemistry
     void becameEmpty();
     void becameNonempty();
     void geometryChanged();
+    void optimizationFinished();
     void conformationalSearchFinished();
 
   private:
     OpenBabel::OBMol* obMol_;
+    QString obFoceFieldName_;
   };
 }
 

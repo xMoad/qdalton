@@ -23,7 +23,8 @@
 #define RENDER_BOND_H
 
 #include <Eigen/Array>
-#include "Render/RenderQuality.h"
+
+#include "Render/RenderGL.h"
 
 namespace OpenBabel
 {
@@ -43,14 +44,15 @@ namespace Render
 
     Bond(const Render::Bond& bond);
     Bond(OpenBabel::OBBond* obBond);
+    ~Bond();
 
     OpenBabel::OBBond* obBond() const;
 
-    void draw(Render::Bond::DrawStyle drawStyle,
-              const Eigen::Vector3f& planeNormalVector,
-              Render::Quality quality) const;
+    const Eigen::Vector3f& planeNormalVector() const;
+    void setPlaneNormalVector(const Eigen::Vector3f& vector);
 
-    void drawSelection(Quality quality) const;
+    void draw(Render::Bond::DrawStyle drawStyle);
+    void update();
 
     bool isSelected() const;
     void setSelected(bool selected);
@@ -61,8 +63,13 @@ namespace Render
     static const GLfloat BOND_THIKNESS;
     static const GLfloat STICK_THIKNESS;
   private:
+    void createDisplayLists();
+    void deleteDisplayLists();
     OpenBabel::OBBond* obBond_;
     bool isSelected_;
+    Eigen::Vector3f planeNormalVector_;
+    GLuint displayListBond_;
+    GLuint displayListStick_;
   };
 }
 

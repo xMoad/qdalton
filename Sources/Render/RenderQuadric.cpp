@@ -31,7 +31,7 @@ Render::Quadric::~Quadric()
   gluDeleteQuadric(gluQuadricObj_);
 }
 
-void Render::Quadric::prepare(Style style) const
+void Render::Quadric::prepare(Render::Style style) const
 {
   switch (style)
   {

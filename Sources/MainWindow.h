@@ -23,11 +23,11 @@ class MainWindow: public QMainWindow
 
 public:
   MainWindow(QWidget* parent = 0);
-  void setWorkDir(const QString& work_dir);
-  QString& getWorkDir();
   void addToLog(const QString& string);
   void importMoleculeFromFile(const QString& fileName,
                               OpenBabel::OBFormat* obFormat);
+  const QString& dir() const;
+  void setDir(const QString& dir);
 
 public slots:
   void newMolecule();
@@ -37,27 +37,28 @@ public slots:
   void goToTab(int index);
   void showImportStructureFromFileDialog();
   void showAboutDialog();
+  void showFileMolGeneratorDialog();
   void setActionsViewEnabled(bool enabled);
   void updateActionsForEmptyMolecule();
   void updateActionsForNonemptyMolecule();
+  void startOptimization();
+  void onOptimizationFinished();
   void startConformationalSearch();
   void onConformationalSearchFinished();
+  void onTableWidgetConformersCurrentCellChanged(int currentRow);
 
 private:
   Ui::MainWindow ui_;
   Render::Viewer* viewer_;
   std::ostringstream os_;
   OpenBabel::OBForceField* obForceField_;
-  QString workDir_;
+  QString dir_;
 
 private slots:
   void on_comboBoxForceField_currentIndexChanged(QString );
   void on_comboBoxAtom_editTextChanged(QString );
-  void on_actionViewConformersTable_toggled(bool );
   void on_actionViewToolbox_toggled(bool );
   void on_actionViewLog_toggled(bool checked);
-  void on_tableWidgetConformers_cellClicked(int row, int column);
-  void on_pushButtonOptimize_clicked();
   void on_tabWidget_currentChanged(int index);
   void on_checkBoxDebugInfo_clicked(bool checked);
   void on_checkBoxAxes_toggled(bool checked);

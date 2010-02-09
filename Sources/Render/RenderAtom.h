@@ -26,7 +26,6 @@
 #include <Eigen/Array>
 #include <openbabel/atom.h>
 
-#include "Render/RenderQuality.h"
 #include "Render/RenderGL.h"
 
 namespace Render
@@ -50,6 +49,10 @@ namespace Render
 
     Atom(const Atom& atom);
     Atom(OpenBabel::OBAtom* obAtom);
+    ~Atom();
+
+    quint8 atomicNumber() const;
+    void setAtomicNumber(quint8 atomicNumber);
 
     GLfloat drawRadius() const;
     GLfloat vanderwaalsRadius() const;
@@ -59,11 +62,7 @@ namespace Render
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
 
-    void draw(Render::Atom::DrawStyle style,
-              Render::Quality quality) const;
-
-    void drawSelection(Render::Atom::DrawStyle style,
-                       Render::Quality quality) const;
+    void draw(Render::Atom::DrawStyle style);
 
     OpenBabel::OBAtom* obAtom() const;
 
@@ -72,9 +71,15 @@ namespace Render
     void toggleSelected();
 
     static const GLfloat SELECTON_RADIUS;
+
   private:
+    void createDisplayLists();
+    void deleteDisplayLists();
     OpenBabel::OBAtom* obAtom_;
     bool isSelected_;
+    GLuint displayListAtom_;
+    GLuint displayListConnector_;
+    GLuint displayListVdW_;
   };
 }
 
