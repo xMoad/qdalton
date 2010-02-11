@@ -296,7 +296,7 @@
     <value type="QString">WINDOWSSDKDIR=C:\Program Files\Microsoft SDKs\Windows\v6.0A\</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">X:/Documents/QDalton/Project/QDalton.pro</value>
+    <value type="QString">Y:/Documents/QDalton/Project/QDalton.pro</value>
     <value type="QString">-spec</value>
     <value type="QString">win32-msvc2008</value>
     <value type="QString">-r</value>
@@ -304,7 +304,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">c:/qt/4.6.0/bin/qmake.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">X:/Documents/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString">Y:/Documents/QDalton/Project</value>
   </valuemap>
  </data>
  <data>
@@ -359,7 +359,7 @@
    <valuelist key="abstractProcess.arguments" type="QVariantList"/>
    <value key="abstractProcess.command" type="QString">C:/Program Files/Microsoft Visual Studio 9.0/VC/BIN/nmake.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">X:/Documents/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString">Y:/Documents/QDalton/Project</value>
   </valuemap>
  </data>
  <data>
@@ -416,7 +416,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">C:/Program Files/Microsoft Visual Studio 9.0/VC/BIN/nmake.exe</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">X:/Documents/QDalton/Project</value>
+   <value key="abstractProcess.workingDirectory" type="QString">Y:/Documents/QDalton/Project</value>
    <value key="cleanConfig" type="bool">true</value>
    <valuelist key="makeargs" type="QVariantList">
     <value type="QString">clean</value>

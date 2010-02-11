@@ -301,6 +301,7 @@ void MainWindow::showAboutDialog()
 void MainWindow::showFileMolGeneratorDialog()
 {
   FileMolGeneratorDialog dialog(this);
+  viewer_->fileMol().generate();
   dialog.setText(viewer_->fileMol().text());
   dialog.exec();
 }

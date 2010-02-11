@@ -13,6 +13,7 @@ namespace File
     Mol(const File::Mol& fileMol);
 
     bool parse(bool doAutoRebond);
+    bool generate();
 
     Chemistry::Molecule* molecule();
     void setMolecule(const Chemistry::Molecule& molecule);
