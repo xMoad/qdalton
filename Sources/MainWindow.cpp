@@ -117,7 +117,7 @@ void MainWindow::addToLog(const QString& string)
 void MainWindow::importMoleculeFromFile(const QString& fileName,
                                         OpenBabel::OBFormat* obFormat)
 {
-  Chemistry::Molecule molecule;
+  Render::Molecule molecule;
 
   if (!fileName.isEmpty())
   {
@@ -216,17 +216,17 @@ void MainWindow::fillConformersTable(double threshold)
 
   QList<bool> list;
 
-  for (int i = 0; i < viewer_->fileMol().molecule()->conformersCount(); ++i)
+  for (int i = 0; i < viewer_->fileMol().molecule().conformersCount(); ++i)
     list.append(true);
 
   for (quint16 i = 0; i < list.count(); ++i)
     if (list[i])
       for (quint16 j = i + 1; j < list.count(); ++j)
-        if (list[j] && qAbs(viewer_->fileMol().molecule()->conformerEnergy(i) -
-                            viewer_->fileMol().molecule()->conformerEnergy(j)) <= threshold)
+        if (list[j] && qAbs(viewer_->fileMol().molecule().conformerEnergy(i) -
+                            viewer_->fileMol().molecule().conformerEnergy(j)) <= threshold)
           list[j] = false;
 
-  for (int i = 0; i < viewer_->fileMol().molecule()->conformersCount(); ++i)
+  for (int i = 0; i < viewer_->fileMol().molecule().conformersCount(); ++i)
     if (list[i])
     {
       ui_.tableWidgetConformers->insertRow(
@@ -237,7 +237,7 @@ void MainWindow::fillConformersTable(double threshold)
           ui_.tableWidgetConformers->rowCount() - 1, 0, newItem);
 
       newItem = new QTableWidgetItem(QString::number(
-          viewer_->fileMol().molecule()->conformerEnergy(i)));
+          viewer_->fileMol().molecule().conformerEnergy(i)));
       ui_.tableWidgetConformers->setItem(
           ui_.tableWidgetConformers->rowCount() - 1, 1, newItem);
     }
@@ -258,29 +258,29 @@ void MainWindow::goToTab(int index)
 {
   if (viewer_ != 0)
   {
-    viewer_->fileMol().molecule()->disconnect();
+    viewer_->fileMol().molecule().disconnect();
     disconnect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-            viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
+               &viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
     disconnect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
-            viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
+               &viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
 
   }
   viewer_ = ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>();
   // Set connections.
-  connect(viewer_->fileMol().molecule(), SIGNAL(becameEmpty()),
+  connect(&viewer_->fileMol().molecule(), SIGNAL(becameEmpty()),
           this, SLOT(updateActionsForEmptyMolecule()));
-  connect(viewer_->fileMol().molecule(), SIGNAL(becameNonempty()),
+  connect(&viewer_->fileMol().molecule(), SIGNAL(becameNonempty()),
           this, SLOT(updateActionsForNonemptyMolecule()));
-  connect(viewer_->fileMol().molecule(), SIGNAL(geometryChanged()),
-          viewer_, SLOT(updateMolecule()));
-  connect(viewer_->fileMol().molecule(), SIGNAL(optimizationFinished()),
+  connect(&viewer_->fileMol().molecule(), SIGNAL(geometryChanged()),
+          viewer_, SLOT(updateGL()));
+  connect(&viewer_->fileMol().molecule(), SIGNAL(optimizationFinished()),
           this, SLOT(onOptimizationFinished()));
-  connect(viewer_->fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
+  connect(&viewer_->fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
           this, SLOT(onConformationalSearchFinished()));
   connect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-          viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
+          &viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
   connect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
-          viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
+          &viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
 }
 
 void MainWindow::showImportStructureFromFileDialog()
@@ -334,12 +334,18 @@ void MainWindow::startOptimization()
   ui_.centralWidget->setEnabled(false);
   ui_.menuBar->setEnabled(false);
   ui_.toolBar->setEnabled(false);
-  viewer_->fileMol().molecule()->setObForceFieldName(
+  viewer_->fileMol().molecule().setObForceFieldName(
       ui_.comboBoxForceField->currentText());
+//  viewer_->fileMol().molecule().optimize(
+//      (Render::Algorithm)ui_.comboBoxAlgorithm->currentIndex(),
+//      powf(10, -ui_.spinBoxConvergence->value()),
+//      ui_.spinBoxMaxSteps->value(),
+//      ui_.spinBoxStepsPerUpdate->value(),
+//      &os_);
   QFuture<void> future = QtConcurrent::run(
       viewer_->fileMol().molecule(),
-      &Chemistry::Molecule::optimize,
-      (Chemistry::Algorithm)ui_.comboBoxAlgorithm->currentIndex(),
+      &Render::Molecule::optimize,
+      (Render::Algorithm)ui_.comboBoxAlgorithm->currentIndex(),
       powf(10, -ui_.spinBoxConvergence->value()),
       ui_.spinBoxMaxSteps->value(),
       ui_.spinBoxStepsPerUpdate->value(),
@@ -354,7 +360,7 @@ void MainWindow::onOptimizationFinished()
   addToLog(QString::fromStdString(os_.str()));
   os_.clear();
   os_.seekp(0);
-  viewer_->updateMolecule();
+  viewer_->updateGL();
 }
 
 void MainWindow::startConformationalSearch()
@@ -362,12 +368,12 @@ void MainWindow::startConformationalSearch()
   ui_.centralWidget->setEnabled(false);
   ui_.menuBar->setEnabled(false);
   ui_.toolBar->setEnabled(false);
-  viewer_->fileMol().molecule()->setObForceFieldName(
+  viewer_->fileMol().molecule().setObForceFieldName(
       ui_.comboBoxForceField->currentText());
   QFuture<void> future = QtConcurrent::run(
       viewer_->fileMol().molecule(),
-      &Chemistry::Molecule::searchConformers,
-      (Chemistry::SearchType)ui_.comboBoxSearchType->currentIndex(),
+      &Render::Molecule::searchConformers,
+      (Render::SearchType)ui_.comboBoxSearchType->currentIndex(),
       ui_.spinBoxConformersCount->value(),
       ui_.spinBoxStepsCount->value(),
       &os_);
@@ -381,7 +387,7 @@ void MainWindow::onConformationalSearchFinished()
   addToLog(QString::fromStdString(os_.str()));
   os_.clear();
   os_.seekp(0);
-  if (viewer_->fileMol().molecule()->conformersCount() > 1)
+  if (viewer_->fileMol().molecule().conformersCount() > 1)
   {
     fillConformersTable(ui_.doubleSpinBox->value());
     ui_.toolBox->setCurrentIndex(2);
@@ -409,7 +415,7 @@ void MainWindow::on_doubleSpinBoxAxesSize_valueChanged(double value)
 
 void MainWindow::on_comboBoxView_currentIndexChanged(int index)
 {
- viewer_->setView(Render::Viewer::View(index));
+ viewer_->setView(Render::Molecule::View(index));
 }
 
 void MainWindow::on_actionStructureExportImage_triggered()

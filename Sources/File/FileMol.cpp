@@ -48,12 +48,12 @@ File::Mol::Mol(const Mol& fileMol) :
 {
 }
 
-Chemistry::Molecule* File::Mol::molecule()
+Render::Molecule& File::Mol::molecule()
 {
-  return &molecule_;
+  return molecule_;
 }
 
-void File::Mol::setMolecule(const Chemistry::Molecule& molecule)
+void File::Mol::setMolecule(const Render::Molecule& molecule)
 {
   molecule_ = molecule;
 }
@@ -66,7 +66,7 @@ bool File::Mol::parse(bool doAutoRebond)
       {
         if (doAutoRebond)
         {
-          molecule_.rebond();
+          molecule().rebond();
         }
         return true;
       }
@@ -76,7 +76,7 @@ bool File::Mol::parse(bool doAutoRebond)
 
 bool File::Mol::generate()
 {
-  strings_.clear();
+/*  strings_.clear();
 
   addString(basisType_);
   addString(basisSet_);
@@ -84,9 +84,9 @@ bool File::Mol::generate()
 
   QList<OpenBabel::OBAtom*> obAtomsList;
 
-  for (quint16 i = 0; i < molecule_.atomsCount(); ++i)
+  for (quint16 i = 0; i < molecule().atomsCount(); ++i)
   {
-    obAtomsList << molecule_.obAtom(i);
+    obAtomsList << molecule().obAtom(i);
   }
 
   while (obAtomsList.count() > 0)
@@ -116,7 +116,7 @@ bool File::Mol::generate()
       addString(QString("%1").arg(
           QString(obAtomsOfTheSameTypeList[i]->GetType())));
     }
-  }
+  }*/
 
 
   return true;
@@ -235,11 +235,11 @@ bool File::Mol::parseGeneralString()
   n = regExp.indexIn(strings_[generalStringIndex_]);
   if (n != -1)
   {
-    molecule_.setCharge(regExp.cap(1).toInt(&ok, 10));
+    molecule().setCharge(regExp.cap(1).toInt(&ok, 10));
   }
   else
   {
-    molecule_.setCharge(0);
+    molecule().setCharge(0);
   }
 
   return true;
@@ -265,15 +265,14 @@ bool File::Mol::parseAtoms()
         i++;
         if (regExpAtom.indexIn(this->strings_[i]) != -1)
         {
-          OpenBabel::OBAtom obatom;
-          obatom.SetAtomicNum(protons);
-          obatom.SetIsotope(0);
+          Render::Atom atom = molecule().newAtom();
+          atom.setAtomicNumber(protons);
+//          atom.setIsotope(0);
           // TODO Fix label!
-          QString label = regExpAtom.cap(1);
-          obatom.SetVector(regExpAtom.cap(2).toFloat(&ok),
-                           regExpAtom.cap(3).toFloat(&ok),
-                           regExpAtom.cap(4).toFloat(&ok));
-          molecule_.addObAtom(obatom);
+          //QString label = regExpAtom.cap(1);
+          atom.setCentre(Eigen::Vector3f(regExpAtom.cap(2).toFloat(&ok),
+                                         regExpAtom.cap(3).toFloat(&ok),
+                                         regExpAtom.cap(4).toFloat(&ok)));
         }
       }
     }

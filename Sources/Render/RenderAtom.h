@@ -24,9 +24,13 @@
 
 #include <QString>
 #include <Eigen/Array>
-#include <openbabel/atom.h>
 
 #include "Render/RenderGL.h"
+
+namespace OpenBabel
+{
+  class OBAtom;
+}
 
 namespace Render
 {
@@ -47,9 +51,13 @@ namespace Render
       DrawStyleVdW
     };
 
-    Atom(const Atom& atom);
+    Atom(const Render::Atom& atom);
     Atom(OpenBabel::OBAtom* obAtom);
     ~Atom();
+
+    qreal exactMass() const;
+
+    OpenBabel::OBAtom* obAtom() const;
 
     quint8 atomicNumber() const;
     void setAtomicNumber(quint8 atomicNumber);
@@ -62,24 +70,12 @@ namespace Render
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
 
-    void draw(Render::Atom::DrawStyle style);
-
-    OpenBabel::OBAtom* obAtom() const;
-
-    bool isSelected() const;
-    void setSelected(bool selected);
-    void toggleSelected();
+    void draw(Render::Atom::DrawStyle style, bool isSelected);
 
     static const GLfloat SELECTON_RADIUS;
 
   private:
-    void createDisplayLists();
-    void deleteDisplayLists();
     OpenBabel::OBAtom* obAtom_;
-    bool isSelected_;
-    GLuint displayListAtom_;
-    GLuint displayListConnector_;
-    GLuint displayListVdW_;
   };
 }
 

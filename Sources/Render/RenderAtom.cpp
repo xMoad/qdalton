@@ -31,26 +31,27 @@
 const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
 
 Render::Atom::Atom(const Render::Atom& atom) :
-    obAtom_(atom.obAtom_),
-    isSelected_(atom.isSelected_),
-    displayListAtom_(0),
-    displayListConnector_(0),
-    displayListVdW_(0)
+    obAtom_(atom.obAtom_)
 {
 }
 
 Render::Atom::Atom(OpenBabel::OBAtom* obAtom) :
-    obAtom_(obAtom),
-    isSelected_(false),
-    displayListAtom_(0),
-    displayListConnector_(0),
-    displayListVdW_(0)
+    obAtom_(obAtom)
 {
 }
 
 Render::Atom::~Atom()
 {
-  deleteDisplayLists();
+}
+
+qreal Render::Atom::exactMass() const
+{
+  return obAtom_->GetExactMass();
+}
+
+OpenBabel::OBAtom* Render::Atom::obAtom() const
+{
+  return obAtom_;
 }
 
 quint8 Render::Atom::atomicNumber() const
@@ -61,15 +62,14 @@ quint8 Render::Atom::atomicNumber() const
 void Render::Atom::setAtomicNumber(quint8 atomicNumber)
 {
   obAtom_->SetAtomicNum(atomicNumber);
-  createDisplayLists();
 }
 
 GLfloat Render::Atom::drawRadius() const
 {
 #ifdef Q_CC_MSVC
-  return pow(obAtom_->GetExactMass(), 1.0/3.0) / 10.0f + 0.2f;
+  return pow(exactMass(), 1.0/3.0) / 10.0f + 0.2f;
 #else
-  return cbrt(obAtom_->GetExactMass()) / 10.0f + 0.2f;
+  return cbrt(exactMass()) / 10.0f + 0.2f;
 #endif
 }
 
@@ -80,107 +80,46 @@ GLfloat Render::Atom::vanderwaalsRadius() const
 
 Render::Color Render::Atom::color() const
 {
-  std::vector<double> rgb = OpenBabel::etab.GetRGB(obAtom_->GetAtomicNum());
+  std::vector<double> rgb =
+      OpenBabel::etab.GetRGB(atomicNumber());
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void Render::Atom::draw(Render::Atom::DrawStyle style)
+void Render::Atom::draw(Render::Atom::DrawStyle style, bool isSelected)
 {
-  if (displayListAtom_ == 0)
-    createDisplayLists();
-  switch (style)
-  {
-  case Render::Atom::DrawStyleAtom:
-    glCallList(displayListAtom_);
-    break;
-  case Render::Atom::DrawStyleConnector:
-    glCallList(displayListConnector_);
-    break;
-  case Render::Atom::DrawStyleVdW:
-    glCallList(displayListVdW_);
-    break;
-  }
-}
-
-Eigen::Vector3f Render::Atom::centre() const
-{
-  return Eigen::Vector3f(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());;
-}
-
-void Render::Atom::setCentre(const Eigen::Vector3f& point)
-{
-  obAtom_->SetVector(OpenBabel::vector3(point.x(), point.y(), point.z()));
-}
-
-bool Render::Atom::isSelected() const
-{
-  return isSelected_;
-}
-
-void Render::Atom::setSelected(bool selected)
-{
-  isSelected_ = selected;
-  createDisplayLists();
-}
-
-void Render::Atom::toggleSelected()
-{
-  if (isSelected())
-  {
-    setSelected(false);
-  }
-  else
-  {
-    setSelected(true);
-  }
-}
-
-OpenBabel::OBAtom* Render::Atom::obAtom() const
-{
-  return obAtom_;
-}
-
-void Render::Atom::createDisplayLists()
-{
-  deleteDisplayLists();
-
   Render::Sphere sphere;
   Render::Material material(color(), true);
-  if (isSelected_)
+
+  if (isSelected)
     material.setAmbient(Render::Color::selection());
+
   Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
 
   sphere.setCentre(centre);
   sphere.setMaterial(material);
-  sphere.setRadius(drawRadius());
 
-  displayListAtom_ = glGenLists(1);
-  glNewList(displayListAtom_, GL_COMPILE);
+  switch (style)
   {
-    sphere.draw(Render::StyleFill);
+  case Render::Atom::DrawStyleAtom:
+    sphere.setRadius(drawRadius());
+    break;
+  case Render::Atom::DrawStyleConnector:
+    sphere.setRadius(Render::Bond::STICK_THIKNESS);
+    break;
+  case Render::Atom::DrawStyleVdW:
+    sphere.setRadius(vanderwaalsRadius());
+    break;
   }
-  glEndList();
 
-  sphere.setRadius(Render::Bond::STICK_THIKNESS);
-  displayListConnector_ = glGenLists(1);
-  glNewList(displayListConnector_, GL_COMPILE);
-  {
-    sphere.draw(Render::StyleFill);
-  }
-  glEndList();
-
-  sphere.setRadius(vanderwaalsRadius());
-  displayListVdW_ = glGenLists(1);
-  glNewList(displayListVdW_, GL_COMPILE);
-  {
-    sphere.draw(Render::StyleFill);
-  }
-  glEndList();
+  sphere.draw(Render::StyleFill);
 }
 
-void Render::Atom::deleteDisplayLists()
+Eigen::Vector3f Render::Atom::centre() const
 {
-  glDeleteLists(displayListAtom_, 1);
-  glDeleteLists(displayListConnector_, 1);
-  glDeleteLists(displayListVdW_, 1);
+  return Eigen::Vector3f(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
+}
+
+void Render::Atom::setCentre(const Eigen::Vector3f& centre)
+{
+  obAtom_->SetVector(OpenBabel::vector3(centre.x(), centre.y(), centre.z()));
 }

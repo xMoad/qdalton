@@ -1,265 +1,458 @@
-#include "Render/RenderMolecule.h"
-#include "Render/RenderViewer.h"
+/**********************************************************************
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
+
+  This file is part of QDalton.
+  For more information, see <http://code.google.com/p/qdalton/>
+
+  QDalton is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  QDalton is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
+
+ **********************************************************************/
 
 #include <iostream>
-#include <openbabel/mol.h>
-#include <openbabel/forcefield.h>
+
 #include <openbabel/builder.h>
+#include <openbabel/mol.h>
 #include <openbabel/obconversion.h>
 
+#include "Render/RenderMolecule.h"
+
 Render::Molecule::Molecule() :
-    viewer_(0)
+    QObject(),
+    obMol_(new OpenBabel::OBMol()),
+    obFoceFieldName_(),
+    listSelectedAtoms_(),
+    listSelectedBonds_(),
+    planeNormalVector_()
 {
 }
 
-Render::Molecule::Molecule(Render::Viewer* viewer) :
-    viewer_(viewer)
+Render::Molecule::Molecule(const Render::Molecule& molecule) :
+    QObject(),
+    obMol_(new OpenBabel::OBMol(*molecule.obMol_)),
+    obFoceFieldName_(molecule.obFoceFieldName_),
+    listSelectedAtoms_(molecule.listSelectedAtoms_),
+    listSelectedBonds_(molecule.listSelectedBonds_),
+    planeNormalVector_(molecule.planeNormalVector_)
 {
 }
 
-bool Render::Molecule::importFromFile(Render::Format format,
-                                      const QString& fileName)
+Render::Molecule::~Molecule()
 {
-  OpenBabel::OBConversion conv;
+  delete obMol_;
+}
 
-  switch (format)
+Render::Molecule& Render::Molecule::operator=(const Render::Molecule& rhs)
+{
+  if (this == &rhs)
+    return *this;
+
+  if (obMol_ != 0)
+    delete obMol_;
+
+  obMol_ = new OpenBabel::OBMol(*rhs.obMol_);
+  obFoceFieldName_ = rhs.obFoceFieldName_;
+  listSelectedAtoms_ = rhs.listSelectedAtoms_;
+  listSelectedBonds_ = rhs.listSelectedBonds_;
+  planeNormalVector_ = rhs.planeNormalVector_;
+//  emit becameNonempty();
+  return *this;
+}
+
+//const Render::Atom& Render::Molecule::atom(quint16 index) const
+Render::Atom Render::Molecule::atom(quint16 index)
+{
+  return Render::Atom(obAtom(index));
+}
+
+//const Render::Bond& Render::Molecule::bond(quint16 index) const
+Render::Bond Render::Molecule::bond(quint16 index)
+{
+  return Render::Bond(obBond(index));
+}
+
+void Render::Molecule::removeAtom(quint16 index)
+{
+  obMol_->DeleteAtom(obAtom(index));
+
+  if (this->atomsCount() == 0)
+    emit becameEmpty();
+}
+
+void Render::Molecule::removeBond(quint16 index)
+{
+  obMol_->DeleteBond(obBond(index));
+}
+
+void Render::Molecule::draw(Render::Molecule::View view)
+{
+  switch (view)
   {
-  case (Render::FORMAT_GAUSSIAN_OUTPUT):
-    conv.SetInFormat("g03");
+  case (Render::Molecule::ViewBallsAndBonds):
+    for (int i = 0; i < atomsCount(); ++i)
+      if (listSelectedAtoms_.contains(i))
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleAtom, true);
+      else
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleAtom, false);
+    for (int i = 0; i < bondsCount(); ++i)
+      if (listSelectedBonds_.contains(i))
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleBond,
+                                     planeNormalVector(),
+                                     true);
+      else
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleBond,
+                                     planeNormalVector(),
+                                     false);
+    break;
+  case (Render::Molecule::ViewBallsAndSticks):
+    for (int i = 0; i < atomsCount(); ++i)
+      if (listSelectedAtoms_.contains(i))
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleAtom, true);
+      else
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleAtom, false);
+    for (int i = 0; i < bondsCount(); ++i)
+      if (listSelectedBonds_.contains(i))
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleStick,
+                                     planeNormalVector(),
+                                     true);
+      else
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleStick,
+                                     planeNormalVector(),
+                                     false);
+    break;
+  case (Render::Molecule::ViewSticks):
+    for (int i = 0; i < atomsCount(); ++i)
+      if (listSelectedAtoms_.contains(i))
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleConnector, true);
+      else
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleConnector, false);
+    for (int i = 0; i < bondsCount(); ++i)
+      if (listSelectedBonds_.contains(i))
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleStick,
+                                     planeNormalVector(),
+                                     true);
+      else
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleStick,
+                                     planeNormalVector(),
+                                     false);
+    break;
+  case (Render::Molecule::ViewVdWSpheres):
+    for (int i = 0; i < atomsCount(); ++i)
+      if (listSelectedAtoms_.contains(i))
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleVdW, true);
+      else
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleVdW, false);
     break;
   }
+}
 
-  if (conv.ReadFile(&obMol_, fileName.toStdString()))
+void Render::Molecule::drawWithNames(Render::Molecule::View view)
+{
+  int n = 0;
+
+  glInitNames();
+
+  for (int i = 0; i < atomsCount(); ++i)
   {
+    glPushName(n);
+    {
+      switch (view)
+      {
+      case Render::Molecule::ViewBallsAndBonds:
+      case Render::Molecule::ViewBallsAndSticks:
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleAtom, false);
+        break;
+      case Render::Molecule::ViewSticks:
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleConnector, false);
+        break;
+      case Render::Molecule::ViewVdWSpheres:
+        Render::Atom(obAtom(i)).draw(Render::Atom::DrawStyleVdW, false);
+        break;
+      }
+    }
+    glPopName();
+    n++;
+  }
+
+  if (view != Render::Molecule::ViewVdWSpheres)
+  {
+    for (int i = 0; i < bondsCount(); ++i)
+    {
+      glPushName(n);
+      {
+        Render::Bond(obBond(i)).draw(Render::Bond::DrawStyleStick,
+                                     planeNormalVector(),
+                                     false);
+      }
+      glPopName();
+      n++;
+    }
+  }
+}
+
+bool Render::Molecule::importFromFile(const QString& fileName,
+                                      OpenBabel::OBFormat* obFormat)
+{
+  OpenBabel::OBConversion obConversion;
+
+  obConversion.SetInFormat(obFormat);
+
+  if (obConversion.ReadFile(obMol_, fileName.toStdString()))
+  {
+    obMol_->Center();
+//    emit becameNonempty();
     return true;
   }
   else
-  {
     return false;
-  }
 }
 
-bool Render::Molecule::importFromString(Render::Format format,
-                                        const QString& string)
+QString Render::Molecule::formula() const
 {
-  std::string stdString;
-  std::stringstream ss;
-  OpenBabel::OBBuilder obbuilder;
-  OpenBabel::OBConversion conv;
-
-  switch (format)
-  {
-  case (Render::FORMAT_SMILES):
-    conv.SetInFormat("smi");
-    break;
-  case (Render::FORMAT_INCHI):
-    conv.SetInFormat("inchi");
-    break;
-  }
-
-  stdString = string.toStdString();
-  ss.str(stdString);
-  conv.SetInStream(&ss);
-
-  if (conv.Read(&obMol_))
-  {
-    obMol_.AddHydrogens();
-    obbuilder.Build(obMol_);
-    obMol_.Center();
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  // Change this code! GetFormula() returns wrong formula!
+  return QString::fromStdString(obMol_->GetFormula());
 }
 
-QString Render::Molecule::formula()
+Render::Atom Render::Molecule::newAtom()
 {
-  return QString::fromStdString(obMol_.GetFormula());
+  OpenBabel::OBAtom* obAtom = obMol_->NewAtom();
+
+  if (atomsCount() == 1)
+    emit becameNonempty();
+
+  return Render::Atom(obAtom);
 }
 
-OpenBabel::OBAtom* Render::Molecule::obAtom(quint16 index) const
-{
-  return obMol_.GetAtom(index + 1);
-}
-
-OpenBabel::OBBond* Render::Molecule::obBond(quint16 index) const
-{
-  return obMol_.GetBond(index);
-}
-
-void Render::Molecule::addAtom(quint8 atomicNumber)
-{
-  OpenBabel::OBAtom* obAtom;
-  obMol_.BeginModify();
-  {
-    obAtom = obMol_.NewAtom();
-    obAtom->SetAtomicNum(atomicNumber);
-  }
-  obMol_.EndModify();
-}
-
-void Render::Molecule::addObAtom(OpenBabel::OBAtom& obAtom)
-{
-#ifdef Q_CC_MSVC
-#undef AddAtom
-#endif
-  obMol_.BeginModify();
-  {
-    obMol_.AddAtom(obAtom);
-  }
-  obMol_.EndModify();
-}
-
-void Render::Molecule::deleteAtom(OpenBabel::OBAtom* obAtom)
-{
-  obMol_.BeginModify();
-  {
-    obMol_.DeleteAtom(obAtom);
-  }
-  obMol_.EndModify();
-}
-
-void Render::Molecule::addBond(OpenBabel::OBAtom* beginObAtom,
-                               OpenBabel::OBAtom* endObAtom,
+void Render::Molecule::addBond(quint16 beginAtomIndex,
+                               quint16 endAtomIndex,
                                quint8 bondOrder)
 {
-  OpenBabel::OBBond* obbond;
+  OpenBabel::OBBond* obBond;
 
-  obMol_.BeginModify();
+  obMol_->BeginModify();
   {
-    obbond = obMol_.NewBond();
-    obbond->SetBegin(beginObAtom);
-    obbond->SetEnd(endObAtom);
-    obbond->SetBondOrder(bondOrder);
-    beginObAtom->AddBond(obbond);
-    endObAtom->AddBond(obbond);
+    obBond = obMol_->NewBond();
+    obBond->SetBegin(atom(beginAtomIndex).obAtom());
+    obBond->SetEnd(atom(endAtomIndex).obAtom());
+    obBond->SetBondOrder(bondOrder);
+    atom(beginAtomIndex).obAtom()->AddBond(obBond);
+    atom(endAtomIndex).obAtom()->AddBond(obBond);
   }
-  obMol_.EndModify();
+  obMol_->EndModify();
 }
 
 void Render::Molecule::setCharge(quint8 charge)
 {
-  obMol_.SetTotalCharge(charge);
+  obMol_->SetTotalCharge(charge);
 }
 
 quint16 Render::Molecule::atomsCount() const
 {
-  return obMol_.NumAtoms();
+  return obMol_->NumAtoms();
 }
 
 quint16 Render::Molecule::bondsCount() const
 {
-  return obMol_.NumBonds();
+  return obMol_->NumBonds();
+}
+
+qreal Render::Molecule::radius() const
+{
+  if (atomsCount() >= 2)
+  {
+    qreal r = (obAtom(0)->GetVector() - obMol_->Center(0)).length();
+    for (quint16 i = 2; i <= obMol_->NumAtoms(); ++i)
+    {
+      qreal rr = (obAtom(0)->GetVector() - obMol_->Center(0)).length();
+      if (rr > r)
+      {
+        r = rr;
+      }
+    }
+    return r;
+  }
+  else
+  {
+    return 10.0;
+  }
+}
+
+quint16 Render::Molecule::conformersCount() const
+{
+  return obMol_->NumConformers();
 }
 
 void Render::Molecule::rebond()
 {
-  obMol_.ConnectTheDots();
+  obMol_->ConnectTheDots();
+  obMol_->PerceiveBondOrders();
 }
 
-void Render::Molecule::build()
+void Render::Molecule::setObForceFieldName(const QString& obFoceFieldName)
 {
-  OpenBabel::OBBuilder obbuilder;
-
-  obbuilder.Build(obMol_);
-  optimize(Render::FF_UFF,
-           Render::ALGORITHM_STEEPEST_DESCENT,
-           1.0e-7,
-           50,
-           0);
-  obMol_.Center();
+  obFoceFieldName_ = obFoceFieldName;
 }
 
 void Render::Molecule::addHydrogensAndBuild()
 {
   OpenBabel::OBBuilder obbuilder;
 
-  obbuilder.Build(obMol_);
-  obMol_.AddHydrogens();
-  obbuilder.Build(obMol_);
-  obMol_.Center();
+  obbuilder.Build(*obMol_);
+  obMol_->AddHydrogens();
+  obbuilder.Build(*obMol_);
+  obMol_->Center();
 }
 
 void Render::Molecule::removeHydrogens()
 {
-  obMol_.DeleteHydrogens();
+  obMol_->DeleteHydrogens();
 }
 
-void Render::Molecule::optimize(ForceField forceField,
-                                Algorithm algorithm,
+void Render::Molecule::optimize(Render::Algorithm algorithm,
                                 double convergenceCriteria,
                                 quint16 maxSteps,
-                                quint8 stepsPerUpdate)
+                                quint8 stepsPerUpdate,
+                                std::ostream* logOstream)
 {
-  OpenBabel::OBForceField* ff;
+  OpenBabel::OBForceField* obForceField = OpenBabel::OBForceField::FindForceField(
+      obFoceFieldName_.toStdString());
 
-  switch (forceField)
+  if (!obForceField->Setup(*obMol_))
   {
-  case (Render::FF_GHEMICAL):
-    ff = OpenBabel::OBForceField::FindForceField("Ghemical");
-    break;
-  case (Render::FF_MMFF94):
-    ff = OpenBabel::OBForceField::FindForceField("MMFF94");
-    break;
-  case (Render::FF_MMFF94s):
-    ff = OpenBabel::OBForceField::FindForceField("MMFF94s");
-    break;
-  case (Render::FF_UFF):
-    ff = OpenBabel::OBForceField::FindForceField("UFF");
-    break;
-  default:
-    break;
+    *logOstream << "Force field setup error." << std::endl;
   }
-
-  if (!ff)
+  else
   {
-    std::cout << "No FF!";
-  }
+    obForceField->SetLogFile(logOstream);
+    obForceField->SetLogLevel(OBFF_LOGLVL_LOW);
 
-  if (!ff->Setup(obMol_))
-  {
-    std::cout << "Setup error!";
-  }
-
-  ff->SetLogFile(&std::cout);
-  ff->SetLogLevel(OBFF_LOGLVL_LOW);
-
-  switch (algorithm)
-  {
-  case (ALGORITHM_STEEPEST_DESCENT):
-    if (stepsPerUpdate != 0)
+    switch (algorithm)
     {
-      ff->SteepestDescentInitialize(maxSteps, convergenceCriteria);
-      while (ff->SteepestDescentTakeNSteps(stepsPerUpdate))
+    case Render::AlgorithmSteepestDescent:
+      if (stepsPerUpdate != 0)
       {
-        ff->GetCoordinates(obMol_);
-        viewer_->updateMolecule();
+        obForceField->SteepestDescentInitialize(maxSteps, convergenceCriteria);
+        while (obForceField->SteepestDescentTakeNSteps(stepsPerUpdate))
+        {
+          obForceField->GetCoordinates(*obMol_);
+//          emit geometryChanged();
+        }
       }
-    }
-    else
-    {
-      ff->SteepestDescent(maxSteps, convergenceCriteria);
-      ff->GetCoordinates(obMol_);
-    }
-    break;
-  case (ALGORITHM_CONJUGATE_GRADIENTS):
-    if (stepsPerUpdate != 0)
-    {
-      ff->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
-      while (ff->ConjugateGradientsTakeNSteps(stepsPerUpdate))
+      else
       {
-        ff->GetCoordinates(obMol_);
-        viewer_->updateMolecule();
+        obForceField->SteepestDescent(maxSteps, convergenceCriteria);
+        obForceField->GetCoordinates(*obMol_);
       }
+      break;
+    case Render::AlgorithmConjugateGradients:
+      if (stepsPerUpdate != 0)
+      {
+        obForceField->ConjugateGradientsInitialize(maxSteps, convergenceCriteria);
+        while (obForceField->ConjugateGradientsTakeNSteps(stepsPerUpdate))
+        {
+          obForceField->GetCoordinates(*obMol_);
+//          emit geometryChanged();
+        }
+      }
+      else
+      {
+        obForceField->ConjugateGradients(maxSteps, convergenceCriteria);
+        obForceField->GetCoordinates(*obMol_);
+      }
+      break;
     }
-    else
-    {
-      ff->ConjugateGradients(maxSteps, convergenceCriteria);
-      ff->GetCoordinates(obMol_);
-    }
-    break;
+
+    emit optimizationFinished();
   }
-  viewer_->updateMolecule();
+}
+
+void Render::Molecule::searchConformers(
+    Render::SearchType searchType,
+    quint16 conformers,
+    quint16 steps,
+    std::ostream* logOstream)
+{
+  OpenBabel::OBForceField* obForceField = OpenBabel::OBForceField::FindForceField(
+      obFoceFieldName_.toStdString());
+
+  if (!obForceField->Setup(*obMol_))
+  {
+    *logOstream << "Force field setup error." << std::endl;
+  }
+  else
+  {
+    obForceField->SetLogFile(logOstream);
+    obForceField->SetLogLevel(OBFF_LOGLVL_LOW);
+
+    switch (searchType)
+    {
+    case Render::SearchTypeSystematicRotor:
+      obForceField->SystematicRotorSearch(steps);
+      break;
+    case Render::SearchTypeRandomRotor:
+      obForceField->RandomRotorSearch(conformers, steps);
+      break;
+    case Render::SearchTypeWeightedRotor:
+      obForceField->WeightedRotorSearch(conformers, steps);
+      break;
+    }
+
+    obForceField->GetConformers(*obMol_);
+    emit conformationalSearchFinished();
+  }
+}
+
+void Render::Molecule::setConformer(quint16 index)
+{
+  obMol_->SetConformer(index);
+}
+
+qreal Render::Molecule::conformerEnergy(quint16 index) const
+{
+  return obMol_->GetEnergy(index);
+}
+
+const Eigen::Vector3f& Render::Molecule::planeNormalVector() const
+{
+  return planeNormalVector_;
+}
+void Render::Molecule::setPlaneNormalVector(const Eigen::Vector3f& vector)
+{
+  planeNormalVector_ = vector;
+}
+
+void Render::Molecule::toggleSelectionOfAtom(quint16 index)
+{
+  if (listSelectedAtoms_.contains(index))
+    listSelectedAtoms_.removeOne(index);
+  else
+    listSelectedAtoms_.append(index);
+}
+
+void Render::Molecule::toggleSelectionOfBond(quint16 index)
+{
+  if (listSelectedBonds_.contains(index))
+    listSelectedBonds_.removeOne(index);
+  else
+    listSelectedBonds_.append(index);
+}
+
+OpenBabel::OBAtom* Render::Molecule::obAtom(quint16 index) const
+{
+  return obMol_->GetAtom(index + 1);
+}
+
+OpenBabel::OBBond* Render::Molecule::obBond(quint16 index) const
+{
+  return obMol_->GetBond(index);
 }

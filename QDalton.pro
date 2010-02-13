@@ -24,6 +24,7 @@ HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderCone.h \
     Sources/Render/RenderCylinder.h \
     Sources/Render/RenderMaterial.h \
+    Sources/Render/RenderMolecule.h \
     Sources/Render/RenderStyle.h \
     Sources/Render/RenderQuadric.h \
     Sources/Render/RenderSphere.h \
@@ -35,7 +36,6 @@ HEADERS += Sources/MainWindow.h \
     Sources/File/FileModule.h \
     Sources/File/FileDal.h \
     Sources/AboutDialog.h \
-    Sources/Chemistry/ChemistryMolecule.h \
     Sources/Chemistry/ChemistryForceField.h \
     Sources/ImportMoleculeFromFileDialog.h \
     Sources/FileMolGeneratorDialog.h
@@ -48,6 +48,7 @@ SOURCES = Sources/main.cpp \
     Sources/Render/RenderCone.cpp \
     Sources/Render/RenderCylinder.cpp \
     Sources/Render/RenderMaterial.cpp \
+    Sources/Render/RenderMolecule.cpp \
     Sources/Render/RenderQuadric.cpp \
     Sources/Render/RenderSphere.cpp \
     Sources/Render/RenderViewer.cpp \
@@ -58,7 +59,6 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileModule.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
-    Sources/Chemistry/ChemistryMolecule.cpp \
     Sources/ImportMoleculeFromFileDialog.cpp \
     Sources/FileMolGeneratorDialog.cpp
 FORMS += Sources/MainWindow.ui \

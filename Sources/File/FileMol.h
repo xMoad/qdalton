@@ -2,7 +2,7 @@
 #define FILE_MOL_H
 
 #include "File/FileText.h"
-#include "Chemistry/ChemistryMolecule.h"
+#include "Render/RenderMolecule.h"
 
 namespace File
 {
@@ -15,8 +15,8 @@ namespace File
     bool parse(bool doAutoRebond);
     bool generate();
 
-    Chemistry::Molecule* molecule();
-    void setMolecule(const Chemistry::Molecule& molecule);
+    Render::Molecule& molecule();
+    void setMolecule(const Render::Molecule& molecule);
 
     const QString& comment() const;
     int atomTypes() const;
@@ -27,7 +27,7 @@ namespace File
     void setCartesian(bool isCartesian);
 
   private:
-    Chemistry::Molecule molecule_;
+    Render::Molecule molecule_;
     // General string contains most important information
     int generalStringIndex_;
     QString basisType_;

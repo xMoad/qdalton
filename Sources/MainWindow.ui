@@ -501,7 +501,7 @@
          <x>0</x>
          <y>0</y>
          <width>340</width>
-         <height>249</height>
+         <height>253</height>
         </rect>
        </property>
        <attribute name="label">
@@ -614,8 +614,8 @@
      </property>
      <addaction name="actionMoleculeImportFromFile"/>
     </widget>
-    <addaction name="actionMoleculeOpen"/>
     <addaction name="actionMoleculeNew"/>
+    <addaction name="actionMoleculeOpen"/>
     <addaction name="menuImportFrom"/>
     <addaction name="actionMoleculeSave"/>
     <addaction name="separator"/>
@@ -677,8 +677,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionMoleculeOpen"/>
    <addaction name="actionMoleculeNew"/>
+   <addaction name="actionMoleculeOpen"/>
    <addaction name="actionMoleculeImportFromFile"/>
    <addaction name="actionMoleculeSave"/>
    <addaction name="actionMoleculeEditMolFile"/>

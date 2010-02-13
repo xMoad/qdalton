@@ -4,7 +4,7 @@
 //#include <openbabel/forcefield.h>
 
 #include "ui_MainWindow.h"
-#include "Chemistry/ChemistryMolecule.h"
+#include "Render/RenderMolecule.h"
 
 namespace File
 {

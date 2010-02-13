@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -43,34 +43,23 @@ namespace Render
     Q_OBJECT
 
   public:
-    enum View
-    {
-      ViewBallsAndBonds,
-      ViewBallsAndSticks,
-      ViewSticks,
-      ViewVdWSpheres
-    };
-
     Viewer(QWidget* parent);
     ~Viewer();
 
     File::Mol& fileMol();
     void setFileMol(const File::Mol& fileMol);
 
-    void setView(View view);
+    void setView(Render::Molecule::View view);
     void setAtomicNumber(quint8 atomicNumber);
 
     void setAxes(bool visibility, GLfloat size);
     void setDebugInfoVisibility(bool visibility);
-    void addAtom(const Render::Atom& atom);
-    void addBond(const Render::Bond& bond);
 
     void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 
-  public slots:
-    void updateMolecule();
+//  public slots:
 
   protected:
     virtual void init();
@@ -83,7 +72,7 @@ namespace Render
 
   private:
     File::Mol fileMol_;
-    View view_;
+    Render::Molecule::View view_;
     // added atom atomic number
     quint8 atomicNumber_;
     // visibility flags
@@ -91,14 +80,7 @@ namespace Render
     bool isAxesVisible_;
     GLfloat axesSize_;
 
-    Render::Atom* atomSelectedBefore_;
-    OpenBabel::OBAtom* obAtomNew_;
-
-    QList<Render::Atom> atomsList_;
-    QList<Render::Bond> bondsList_;
-
-    void updateRenderAtoms();
-    void updateRenderBonds();
+    qint32 atomSelectedBeforeIndex_;
 
     void mouseLeftButtonPressEvent(QMouseEvent* e);
     void mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e);
