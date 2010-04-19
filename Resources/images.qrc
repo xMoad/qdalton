@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="/" >
+    <qresource prefix="/">
         <file>images/daltonlogo.gif</file>
+        <file>images/font.png</file>
     </qresource>
 </RCC>

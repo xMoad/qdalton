@@ -2,18 +2,14 @@ QT *= core \
     gui \
     opengl \
     xml
-
-# QMAKE_CXXFLAGS *= -Wold-style-cast -Wfloat-equal -Woverloaded-virtual -Wshadow -Wundef
 TEMPLATE = app
 CONFIG += qt \
     opengl \
     warn_on \
     thread \
     rtti \
-    console \
     embed_manifest_exe
-INCLUDEPATH += Sources \
-    Include
+INCLUDEPATH += Sources
 HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderGL.h \
     Sources/Render/RenderGLU.h \
@@ -25,7 +21,6 @@ HEADERS += Sources/MainWindow.h \
     Sources/Render/RenderCylinder.h \
     Sources/Render/RenderMaterial.h \
     Sources/Render/RenderMolecule.h \
-    Sources/Render/RenderStyle.h \
     Sources/Render/RenderQuadric.h \
     Sources/Render/RenderSphere.h \
     Sources/Render/RenderViewer.h \
@@ -36,9 +31,10 @@ HEADERS += Sources/MainWindow.h \
     Sources/File/FileModule.h \
     Sources/File/FileDal.h \
     Sources/AboutDialog.h \
-    Sources/Chemistry/ChemistryForceField.h \
     Sources/ImportMoleculeFromFileDialog.h \
-    Sources/FileMolGeneratorDialog.h
+    Sources/FileMolGeneratorDialog.h \
+    Sources/Render/RenderConstants.h \
+    Sources/Constants.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -68,6 +64,8 @@ FORMS += Sources/MainWindow.ui \
 RESOURCES += Resources/icons.qrc \
     Resources/images.qrc
 win32 { 
+    INCLUDEPATH += Include \
+        Include/QGLViewer
     MOC_DIR = Build/Temp/win32
     RCC_DIR = Build/Temp/win32
     UI_DIR = Build/Temp/win32
@@ -77,7 +75,10 @@ win32 {
         -lQGLViewer2 \
         -lopenbabel-2
 }
-macx { 
+macx {
+    INCLUDEPATH += /usr/local/include/openbabel-2.0 \
+        /usr/local/include/eigen2 \
+        /usr/include/QGLViewer
     MOC_DIR = Build/Temp/macx
     RCC_DIR = Build/Temp/macx
     UI_DIR = Build/Temp/macx
@@ -87,7 +88,10 @@ macx {
         QGLViewer \
         -lopenbabel
 }
-linux-g++ { 
+linux-g++ {
+    INCLUDEPATH += /usr/include/openbabel-2.0 \
+        /usr/include/eigen2 \
+        /usr/include/qglviewer-qt4
     MOC_DIR = Build/Temp/linux
     RCC_DIR = Build/Temp/linux
     UI_DIR = Build/Temp/linux

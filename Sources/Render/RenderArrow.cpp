@@ -85,7 +85,7 @@ void Render::Arrow::draw(Render::Style style) const
   cylinder.setVertex2(point);
   cylinder.setRadius(radius_);
   cylinder.setMaterial(material_);
-  cylinder.draw(style);
+  cylinder.draw(style, 24);
 
   cone.setVertex1(point);
   cone.setVertex2(terminus_);

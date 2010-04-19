@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -26,6 +26,7 @@
 #include <Eigen/Array>
 
 #include "Render/RenderGL.h"
+#include "Render/RenderConstants.h"
 
 namespace OpenBabel
 {
@@ -44,13 +45,6 @@ namespace Render
   class Atom
   {
   public:
-    enum DrawStyle
-    {
-      DrawStyleAtom,
-      DrawStyleConnector,
-      DrawStyleVdW
-    };
-
     Atom(const Render::Atom& atom);
     Atom(OpenBabel::OBAtom* obAtom);
     ~Atom();
@@ -62,6 +56,11 @@ namespace Render
     quint8 atomicNumber() const;
     void setAtomicNumber(quint8 atomicNumber);
 
+    quint8 isotope() const;
+    void setIsotope(quint8 isotope);
+
+    QString symbol() const;
+
     GLfloat drawRadius() const;
     GLfloat vanderwaalsRadius() const;
 
@@ -70,9 +69,9 @@ namespace Render
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
 
-    void draw(Render::Atom::DrawStyle style, bool isSelected);
-
-    static const GLfloat SELECTON_RADIUS;
+    void draw(Render::View view,
+              bool isSelected,
+              bool fast) const;
 
   private:
     OpenBabel::OBAtom* obAtom_;

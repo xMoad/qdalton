@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -19,18 +19,41 @@
 
  **********************************************************************/
 
-#ifndef CHEMISTRY_FORCE_FIELD_H
-#define CHEMISTRY_FORCE_FIELD_H
+#ifndef RENDER_CONSTANTS_H
+#define RENDER_CONSTANTS_H
 
-namespace Chemistry
+#include "Render/RenderGL.h"
+
+namespace Render
 {
-  enum ForceField
+  enum View
   {
-    ForceFieldGhemical,
-    ForceFieldMmff94,
-    ForceFieldMmff94s,
-    ForceFieldUff
+    ViewBallsAndBonds,
+    ViewBallsAndSticks,
+    ViewSticks,
+    ViewVdWSpheres
   };
+
+  enum Style
+  {
+    StyleFill,
+    StyleLine,
+    StyleSilhouette,
+    StylePoint
+  };
+
+  enum LabelsOnAtoms
+  {
+    LabelsOnAtomsNone,
+    LabelsOnAtomsSymbol
+  };
+
+  const GLfloat bondThikness = 0.075f;
+  const GLfloat stickThikness = 0.15f;
+  const GLfloat selectionRadius = 0.10f;
+
+  const GLint slicesForFastDrawing = 8;
+  const GLint slicesForDrawing = 24;
 }
 
-#endif // CHEMISTRY_FORCE_FIELD_H
+#endif // RENDER_CONSTANTS_H

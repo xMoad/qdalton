@@ -83,6 +83,12 @@ const Render::Color& Render::Color::red()
   return color;
 }
 
+const Render::Color& Render::Color::white()
+{
+  static Render::Color color(1.0f, 1.0f, 1.0f, 1.0f);
+  return color;
+}
+
 const Render::Color& Render::Color::yellow()
 {
   static Render::Color color(1.0f, 1.0f, 0.0f, 1.0f);

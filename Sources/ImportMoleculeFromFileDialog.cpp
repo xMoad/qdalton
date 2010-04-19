@@ -27,7 +27,7 @@
 #include "ImportMoleculeFromFileDialog.h"
 
 bool obFormatCompare(OpenBabel::OBFormat* first,
-                   OpenBabel::OBFormat* second)
+                     OpenBabel::OBFormat* second)
 {
   return QString(first->Description()) < QString(second->Description());
 }
@@ -35,6 +35,7 @@ bool obFormatCompare(OpenBabel::OBFormat* first,
 ImportMoleculeFromFileDialog::ImportMoleculeFromFileDialog(
     MainWindow* mainWindow) :
     QDialog(mainWindow),
+    ui_(),
     mainWindow_(mainWindow),
     fileName_(""),
     currentObFormatIndex_(0)
@@ -101,14 +102,10 @@ void ImportMoleculeFromFileDialog::fillComboBoxFileType()
   while (OpenBabel::OBConversion::GetNextFormat(formapos, str, obFormat))
   {
     if (!obFormat || (obFormat->Flags() & NOTREADABLE))
-    {
       continue;
-    }
 
     if (!obFormatList_.contains(obFormat))
-    {
       obFormatList_.append(obFormat);
-    }
   }
 
   qSort(obFormatList_.begin(), obFormatList_.end(), obFormatCompare);

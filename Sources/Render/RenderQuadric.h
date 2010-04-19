@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -22,8 +22,8 @@
 #ifndef RENDER_QUADRIC_H
 #define RENDER_QUADRIC_H
 
+#include "Render/RenderConstants.h"
 #include "Render/RenderGLU.h"
-#include "Render/RenderStyle.h"
 
 namespace Render
 {

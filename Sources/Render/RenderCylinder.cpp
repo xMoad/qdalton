@@ -47,11 +47,10 @@ Render::Cylinder::Cylinder():
 {
 }
 
-void Render::Cylinder::draw(Render::Style style) const
+void Render::Cylinder::draw(Render::Style style, GLint slices) const
 {
   material_.prepare();
   quadric_.prepare(style);
-  GLint slices = 24;
 
   // construct the 4D transformation matrix
   Eigen::Matrix4f matrix;
@@ -77,11 +76,11 @@ void Render::Cylinder::draw(Render::Style style) const
 void Render::Cylinder::drawMulti(Render::Style style,
                                  quint8 order,
                                  float shift,
-                                 const Eigen::Vector3f& planeNormalVector) const
+                                 const Eigen::Vector3f& planeNormalVector,
+                                 GLint slices) const
 {
   material_.prepare();
   quadric_.prepare(style);
-  GLint slices = 24;
 
   // construct the 4D transformation matrix
   Eigen::Matrix4f matrix;

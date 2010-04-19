@@ -23,6 +23,7 @@
 
 #include <QCompleter>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSplitter>
@@ -42,9 +43,8 @@
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     ui_(),
-    viewer_(0),
     os_(),
-    obForceField_(0),
+    obForceFieldName_(),
     dir_(QDir::homePath())
 {
   ui_.setupUi(this);
@@ -52,13 +52,7 @@ MainWindow::MainWindow(QWidget* parent):
   newTab("untitled.mol");
   goToTab(0);
 
-  setActionsViewEnabled(true);
-
-#ifdef Q_OS_MAC
-  ui_.toolBar->setIconSize(QSize(24, 24));
-#endif
-
-  ui_.logPlainTextEdit->hide();
+  ui_.plainTextEditLog->hide();
 
   QStringList headerLabels;
   headerLabels << tr("Number") << tr("Energy");
@@ -75,7 +69,7 @@ MainWindow::MainWindow(QWidget* parent):
   QCompleter* completer = new QCompleter(stringList, ui_.comboBoxAtom);
   ui_.comboBoxAtom->setCompleter(completer);
 
-  ui_.comboBoxForceField->setCurrentIndex(2);
+
 
   connect(ui_.doubleSpinBox, SIGNAL(valueChanged(double)),
           this, SLOT(fillConformersTable(double)));
@@ -88,12 +82,28 @@ MainWindow::MainWindow(QWidget* parent):
           this, SLOT(showImportStructureFromFileDialog()));
   connect(ui_.actionMoleculeEditMolFile, SIGNAL(triggered()),
           this, SLOT(showFileMolGeneratorDialog()));
+  connect(ui_.actionMoleculeSave, SIGNAL(triggered()),
+          this, SLOT(saveMolecule()));
+  connect(ui_.actionMoleculeSaveAs, SIGNAL(triggered()),
+          this, SLOT(saveMoleculeAs()));
+
+  connect(ui_.actionViewToolBox, SIGNAL(toggled(bool)),
+          ui_.toolBox, SLOT(setVisible(bool)));
+  connect(ui_.actionViewLog, SIGNAL(toggled(bool)),
+          ui_.plainTextEditLog, SLOT(setVisible(bool)));
 
   connect(ui_.actionHelpAbout, SIGNAL(triggered()),
           this, SLOT(showAboutDialog()));
   connect(ui_.actionHelpAboutQt, SIGNAL(triggered()),
           qApp, SLOT(aboutQt()));
 
+  connect(ui_.pushButtonLabelsOnAtomsFont, SIGNAL(clicked()),
+          this, SLOT(showFontDialogForLabelsOnAtoms()));
+
+  connect(ui_.comboBoxForceField, SIGNAL(currentIndexChanged(QString)),
+          this, SLOT(setObForceFieldName(QString)));
+  connect(ui_.comboBoxSearchType, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(onSearchTypeChanged(int)));
   connect(ui_.pushButtonOptimize, SIGNAL(clicked()),
           this, SLOT(startOptimization()));
   connect(ui_.pushButtonSearch, SIGNAL(clicked()),
@@ -104,14 +114,16 @@ MainWindow::MainWindow(QWidget* parent):
 
   connect(ui_.tableWidgetConformers, SIGNAL(currentCellChanged(int,int,int,int)),
           this, SLOT(onTableWidgetConformersCurrentCellChanged(int)));
+
+  ui_.comboBoxForceField->setCurrentIndex(2);
 }
 
 void MainWindow::addToLog(const QString& string)
 {
   QDateTime dateTime_ = QDateTime::currentDateTime();
-  ui_.logPlainTextEdit->appendHtml(QString("<b>%1</b>").arg(dateTime_.time().toString()));
-  ui_.logPlainTextEdit->appendPlainText(string);
-  ui_.logPlainTextEdit->appendPlainText("");
+  ui_.plainTextEditLog->appendHtml(QString("<b>%1</b>").arg(dateTime_.time().toString()));
+  ui_.plainTextEditLog->appendPlainText(string);
+  ui_.plainTextEditLog->appendPlainText("");
 }
 
 void MainWindow::importMoleculeFromFile(const QString& fileName,
@@ -125,13 +137,11 @@ void MainWindow::importMoleculeFromFile(const QString& fileName,
     if (molecule.importFromFile(fileName, obFormat))
     {
       addToLog("Import succeeded.");
-      newTab(QFileInfo(fileName).baseName() + ".mol*");
-      ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
+      newTab("untitled.mol");
       File::Mol fileMol;
-      fileMol.setAbsoluteFilePath(QFileInfo(fileName).baseName() + ".mol*");
       fileMol.setMolecule(molecule);
-      viewer_->setFileMol(fileMol);
-      setActionsViewEnabled(true);
+      viewer(-1).setFileMol(fileMol);
+      ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
       updateActionsForNonemptyMolecule();
     }
     else
@@ -164,11 +174,25 @@ void MainWindow::newMolecule()
 void MainWindow::openMolecule()
 {
   QString fileName = QFileDialog::getOpenFileName(
-      this, tr("Open *.mol file"), dir_, tr("*.mol files(*.mol)"));
+      this, tr("Open *.mol file"), dir(), tr("*.mol files(*.mol)"));
 
   if (!fileName.isEmpty())
   {
-    dir_ = QFileInfo(fileName).absolutePath();
+    for (int i = 0; i < ui_.tabWidget->count(); ++i)
+      if (ui_.tabWidget->widget(i)->findChild<Render::Viewer*>()->fileMol().absoluteFilePath() == fileName)
+      {
+      if (QMessageBox::information(
+          this,
+          QCoreApplication::applicationName(),
+          QString("File %1 already opened. Show it?").arg(fileName),
+          QMessageBox::Ok | QMessageBox::Cancel,
+          QMessageBox::Ok) == QMessageBox::Ok)
+        ui_.tabWidget->setCurrentIndex(i);
+        return;
+      }
+
+
+    setDir(QFileInfo(fileName).absolutePath());
     addToLog(QString(
         tr("Reading from *.mol file started. \nFileName: %1")).arg(fileName));
     File::Mol molFile;
@@ -181,8 +205,9 @@ void MainWindow::openMolecule()
       {
         addToLog(tr("Parsing succeeded."));
         newTab(molFile.fileName());
+        viewer(-1).setFileMol(molFile);
         ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
-        viewer_->setFileMol(molFile);
+        updateActionsForNonemptyMolecule();
       }
       else
       {
@@ -191,9 +216,9 @@ void MainWindow::openMolecule()
         messageBox.setIcon(QMessageBox::Critical);
         messageBox.setText(tr("Can't parse *.mol file ")
                            + molFile.fileName());
-  //      messageBox.setInformativeText("Error at line #" + QString::number(
-  //          molFile.parseError().index + 1));
-  //      messageBox.setDetailedText(molFile.parseError().message);
+        messageBox.setInformativeText("Error at line #" + QString::number(
+            molFile.parseErrorIndex() + 1));
+        messageBox.setDetailedText(molFile.parseErrorMessage());
         messageBox.setStandardButtons(QMessageBox::Ok);
         messageBox.exec();
       }
@@ -209,6 +234,41 @@ void MainWindow::openMolecule()
   }
 }
 
+void MainWindow::saveMolecule()
+{
+  if (currentViewer().fileMol().absoluteFilePath().isEmpty())
+    saveMoleculeAs();
+  else
+    saveMoleculeAs(currentViewer().fileMol().absoluteFilePath());
+}
+
+void MainWindow::saveMoleculeAs(const QString& absoluteFilePath)
+{
+  QString fileName;
+
+  if (absoluteFilePath.isEmpty())
+    fileName = QFileDialog::getSaveFileName(
+       this, tr("Save *.mol file"), dir(), tr("*.mol files(*.mol)"));
+  else
+    fileName = absoluteFilePath;
+
+  if (!fileName.isEmpty())
+  {
+    setDir(QFileInfo(fileName).absolutePath());
+    addToLog(QString(
+        tr("Saving *.mol file started. \nFileName: %1")).arg(fileName));
+    if (currentViewer().fileMol().generate())
+    {
+      if (currentViewer().fileMol().save(fileName))
+      {
+        ui_.tabWidget->setTabText(ui_.tabWidget->currentIndex(),
+                                  currentViewer().fileMol().fileName());
+        addToLog(tr("Saving succeeded."));
+      }
+    }
+  }
+}
+
 void MainWindow::fillConformersTable(double threshold)
 {
   ui_.tableWidgetConformers->clearContents();
@@ -216,33 +276,33 @@ void MainWindow::fillConformersTable(double threshold)
 
   QList<bool> list;
 
-  for (int i = 0; i < viewer_->fileMol().molecule().conformersCount(); ++i)
+  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
     list.append(true);
 
   for (quint16 i = 0; i < list.count(); ++i)
     if (list[i])
       for (quint16 j = i + 1; j < list.count(); ++j)
-        if (list[j] && qAbs(viewer_->fileMol().molecule().conformerEnergy(i) -
-                            viewer_->fileMol().molecule().conformerEnergy(j)) <= threshold)
+        if (list[j] && qAbs(currentViewer().fileMol().molecule().conformerEnergy(i) -
+                            currentViewer().fileMol().molecule().conformerEnergy(j)) <= threshold)
           list[j] = false;
 
-  for (int i = 0; i < viewer_->fileMol().molecule().conformersCount(); ++i)
+  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
     if (list[i])
     {
-      ui_.tableWidgetConformers->insertRow(
-          ui_.tableWidgetConformers->rowCount());
-      QTableWidgetItem* newItem = new QTableWidgetItem(
-          QString::number(i + 1).rightJustified(3, '0'));
-      ui_.tableWidgetConformers->setItem(
-          ui_.tableWidgetConformers->rowCount() - 1, 0, newItem);
+    ui_.tableWidgetConformers->insertRow(
+        ui_.tableWidgetConformers->rowCount());
+    QTableWidgetItem* newItem = new QTableWidgetItem(
+        QString::number(i + 1).rightJustified(3, '0'));
+    ui_.tableWidgetConformers->setItem(
+        ui_.tableWidgetConformers->rowCount() - 1, 0, newItem);
 
-      newItem = new QTableWidgetItem(QString::number(
-          viewer_->fileMol().molecule().conformerEnergy(i)));
-      ui_.tableWidgetConformers->setItem(
-          ui_.tableWidgetConformers->rowCount() - 1, 1, newItem);
-    }
+    newItem = new QTableWidgetItem(QString::number(
+        currentViewer().fileMol().molecule().conformerEnergy(i)));
+    ui_.tableWidgetConformers->setItem(
+        ui_.tableWidgetConformers->rowCount() - 1, 1, newItem);
+  }
 
-  viewer_->displayConformer(0);
+  currentViewer().displayConformer(0);
 }
 
 void MainWindow::newTab(const QString& title)
@@ -256,31 +316,50 @@ void MainWindow::newTab(const QString& title)
 
 void MainWindow::goToTab(int index)
 {
-  if (viewer_ != 0)
-  {
-    viewer_->fileMol().molecule().disconnect();
-    disconnect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-               &viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
-    disconnect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
-               &viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
+  currentViewer().fileMol().molecule().disconnect();
+  ui_.actionStructureAddHydrogens->disconnect();
+  ui_.actionStructureRemoveHydrogens->disconnect();
+  ui_.checkBoxAxes->disconnect();
+  ui_.doubleSpinBoxAxesSize->disconnect();
+  ui_.checkBoxDebugInfo->disconnect();
+  ui_.comboBoxView->disconnect();
+  ui_.comboBoxAtom->disconnect();
 
-  }
-  viewer_ = ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>();
+  ui_.checkBoxAxes->setChecked(currentViewer().isAxesVisible());
+  ui_.doubleSpinBoxAxesSize->setValue(currentViewer().axesSize());
+  ui_.checkBoxDebugInfo->setChecked(currentViewer().isDebugInfoVisible());
+  ui_.comboBoxView->setCurrentIndex(currentViewer().view());
+  ui_.comboBoxAtom->lineEdit()->setText(currentViewer().atomSymbol());
+
   // Set connections.
-  connect(&viewer_->fileMol().molecule(), SIGNAL(becameEmpty()),
+  connect(&currentViewer().fileMol().molecule(), SIGNAL(becameEmpty()),
           this, SLOT(updateActionsForEmptyMolecule()));
-  connect(&viewer_->fileMol().molecule(), SIGNAL(becameNonempty()),
+  connect(&currentViewer().fileMol().molecule(), SIGNAL(becameNonempty()),
           this, SLOT(updateActionsForNonemptyMolecule()));
-  connect(&viewer_->fileMol().molecule(), SIGNAL(geometryChanged()),
-          viewer_, SLOT(updateGL()));
-  connect(&viewer_->fileMol().molecule(), SIGNAL(optimizationFinished()),
+  connect(&currentViewer().fileMol().molecule(), SIGNAL(geometryChanged()),
+          &currentViewer(), SLOT(updateGL()));
+  connect(&currentViewer().fileMol().molecule(), SIGNAL(optimizationFinished()),
           this, SLOT(onOptimizationFinished()));
-  connect(&viewer_->fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
+  connect(&currentViewer().fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
           this, SLOT(onConformationalSearchFinished()));
+
   connect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-          &viewer_->fileMol().molecule(), SLOT(addHydrogensAndBuild()));
+          &currentViewer().fileMol().molecule(), SLOT(addHydrogensAndBuild()));
   connect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
-          &viewer_->fileMol().molecule(), SLOT(removeHydrogens()));
+          &currentViewer().fileMol().molecule(), SLOT(removeHydrogens()));
+
+  connect(ui_.checkBoxAxes, SIGNAL(toggled(bool)),
+          &currentViewer(), SLOT(setAxesVisible(bool)));
+  connect(ui_.doubleSpinBoxAxesSize, SIGNAL(valueChanged(double)),
+          &currentViewer(), SLOT(setAxesSize(double)));
+  connect(ui_.checkBoxDebugInfo, SIGNAL(toggled(bool)),
+          &currentViewer(), SLOT(setDebugInfoVisible(bool)));
+  connect(ui_.comboBoxView, SIGNAL(currentIndexChanged(int)),
+          &currentViewer(), SLOT(setView(int)));
+  connect(ui_.comboBoxLabelsOnAtoms, SIGNAL(currentIndexChanged(int)),
+          &currentViewer(), SLOT(setLabelsOnAtoms(int)));
+  connect(ui_.comboBoxAtom, SIGNAL(editTextChanged(QString)),
+          &currentViewer(), SLOT(setAtomSymbol(QString)));
 }
 
 void MainWindow::showImportStructureFromFileDialog()
@@ -300,16 +379,11 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::showFileMolGeneratorDialog()
 {
-  FileMolGeneratorDialog dialog(this);
-  viewer_->fileMol().generate();
-  dialog.setText(viewer_->fileMol().text());
-  dialog.exec();
-}
+  currentViewer().fileMol().generate();
 
-void MainWindow::setActionsViewEnabled(bool enabled)
-{
-  ui_.actionViewLog->setEnabled(enabled);
-  ui_.actionViewToolbox->setEnabled(enabled);
+  FileMolGeneratorDialog dialog(&currentViewer().fileMol(), this);
+  dialog.setWindowTitle(currentViewer().fileMol().fileName());
+  dialog.exec();
 }
 
 void MainWindow::updateActionsForEmptyMolecule()
@@ -334,20 +408,10 @@ void MainWindow::startOptimization()
   ui_.centralWidget->setEnabled(false);
   ui_.menuBar->setEnabled(false);
   ui_.toolBar->setEnabled(false);
-  viewer_->fileMol().molecule().setObForceFieldName(
-      ui_.comboBoxForceField->currentText());
-//  viewer_->fileMol().molecule().optimize(
-//      (Render::Algorithm)ui_.comboBoxAlgorithm->currentIndex(),
-//      powf(10, -ui_.spinBoxConvergence->value()),
-//      ui_.spinBoxMaxSteps->value(),
-//      ui_.spinBoxStepsPerUpdate->value(),
-//      &os_);
-  QFuture<void> future = QtConcurrent::run(
-      viewer_->fileMol().molecule(),
-      &Render::Molecule::optimize,
-      (Render::Algorithm)ui_.comboBoxAlgorithm->currentIndex(),
-      powf(10, -ui_.spinBoxConvergence->value()),
-      ui_.spinBoxMaxSteps->value(),
+  QCoreApplication::processEvents();
+  currentViewer().fileMol().molecule().optimize(
+      ui_.comboBoxForceField->currentText(),
+      ui_.spinBoxMaxStepsCount->value(),
       ui_.spinBoxStepsPerUpdate->value(),
       &os_);
 }
@@ -360,7 +424,7 @@ void MainWindow::onOptimizationFinished()
   addToLog(QString::fromStdString(os_.str()));
   os_.clear();
   os_.seekp(0);
-  viewer_->updateGL();
+  currentViewer().updateGL();
 }
 
 void MainWindow::startConformationalSearch()
@@ -368,14 +432,12 @@ void MainWindow::startConformationalSearch()
   ui_.centralWidget->setEnabled(false);
   ui_.menuBar->setEnabled(false);
   ui_.toolBar->setEnabled(false);
-  viewer_->fileMol().molecule().setObForceFieldName(
-      ui_.comboBoxForceField->currentText());
-  QFuture<void> future = QtConcurrent::run(
-      viewer_->fileMol().molecule(),
-      &Render::Molecule::searchConformers,
+  QCoreApplication::processEvents();
+  currentViewer().fileMol().molecule().searchConformers(
+      ui_.comboBoxForceField->currentText(),
       (Render::SearchType)ui_.comboBoxSearchType->currentIndex(),
       ui_.spinBoxConformersCount->value(),
-      ui_.spinBoxStepsCount->value(),
+      ui_.spinBoxMaxStepsCount->value(),
       &os_);
 }
 
@@ -387,7 +449,7 @@ void MainWindow::onConformationalSearchFinished()
   addToLog(QString::fromStdString(os_.str()));
   os_.clear();
   os_.seekp(0);
-  if (viewer_->fileMol().molecule().conformersCount() > 1)
+  if (currentViewer().fileMol().molecule().conformersCount() > 1)
   {
     fillConformersTable(ui_.doubleSpinBox->value());
     ui_.toolBox->setCurrentIndex(2);
@@ -402,25 +464,29 @@ void MainWindow::onTableWidgetConformersCurrentCellChanged(int currentRow)
   {
     quint16 n = ui_.tableWidgetConformers->item(currentRow, 0)->text().toUInt(&ok);
     if (ok)
-      viewer_->displayConformer(n - 1);
+      currentViewer().displayConformer(n - 1);
+  }
+}
+
+void MainWindow::onSearchTypeChanged(int index)
+{
+  if (index == 0)
+  {
+    ui_.spinBoxConformersCount->setEnabled(false);
+    ui_.labelConformersCount->setEnabled(false);
+  }
+  else
+  {
+    ui_.spinBoxConformersCount->setEnabled(true);
+    ui_.labelConformersCount->setEnabled(true);
   }
 }
 
 //----------
 
-void MainWindow::on_doubleSpinBoxAxesSize_valueChanged(double value)
-{
-  viewer_->setAxes(true, value);
-}
-
-void MainWindow::on_comboBoxView_currentIndexChanged(int index)
-{
- viewer_->setView(Render::Molecule::View(index));
-}
-
 void MainWindow::on_actionStructureExportImage_triggered()
 {
-  viewer_->saveSnapshot(false, false);
+  currentViewer().saveSnapshot(false, false);
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -434,83 +500,27 @@ void MainWindow::on_actionExit_triggered()
     close();
 }
 
-void MainWindow::on_checkBoxAxes_toggled(bool checked)
+void MainWindow::setObForceFieldName(const QString& obForceFieldName)
 {
-  if (checked)
-  {
-    ui_.doubleSpinBoxAxesSize->setEnabled(true);
-    ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>()->setAxes(
-        true, ui_.doubleSpinBoxAxesSize->value());
-  }
-  else
-  {
-    ui_.doubleSpinBoxAxesSize->setEnabled(false);
-    ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>()->setAxes(
-        false, ui_.doubleSpinBoxAxesSize->value());
-  }
+  obForceFieldName_ = obForceFieldName;
 }
 
-void MainWindow::on_checkBoxDebugInfo_clicked(bool checked)
+void MainWindow::showFontDialogForLabelsOnAtoms()
 {
-  ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>()->setDebugInfoVisibility(checked);
+  currentViewer().setLabelsOnAtomsFont(QFontDialog::getFont(
+      0, currentViewer().labelsOnAtomsFont()));
 }
 
-void MainWindow::on_tabWidget_currentChanged(int index)
+//--------------------------------
+
+Render::Viewer& MainWindow::currentViewer()
 {
-  if (index == 3)
-  {
-    ui_.actionStructureExportImage->setEnabled(true);
-  }
-  else
-  {
-    ui_.actionStructureExportImage->setEnabled(false);
-  }
+  return *ui_.tabWidget->currentWidget()->findChild<Render::Viewer*>();
 }
 
-void MainWindow::on_actionViewLog_toggled(bool checked)
+Render::Viewer& MainWindow::viewer(int index)
 {
-  if (checked)
-  {
-    ui_.logPlainTextEdit->show();
-  }
-  else
-  {
-    ui_.logPlainTextEdit->hide();
-  }
-}
-
-void MainWindow::on_actionViewToolbox_toggled(bool checked)
-{
-  if (checked)
-  {
-    ui_.toolBox->show();
-  }
-  else
-  {
-    ui_.toolBox->hide();
-  }
-}
-
-void MainWindow::on_comboBoxAtom_editTextChanged(QString string)
-{
-  QByteArray byteArray = string.toLatin1();
-  const char* s_char = byteArray.data();
-  viewer_->setAtomicNumber(OpenBabel::etab.GetAtomicNum(s_char));
-}
-
-void MainWindow::on_comboBoxForceField_currentIndexChanged(QString string)
-{
-  obForceField_ = OpenBabel::OBForceField::FindForceField(string.toStdString());
-  if (obForceField_ == 0)
-  {
-    addToLog(QString("Force field %1 not found.").arg(string));
-    ui_.groupBoxOptimization->setEnabled(false);
-    ui_.groupBoxConformationalSearch->setEnabled(false);
-  }
-  else
-  {
-    addToLog(QString("Force field %1 found.").arg(string));
-    ui_.groupBoxOptimization->setEnabled(true);
-    ui_.groupBoxConformationalSearch->setEnabled(true);
-  }
+  if (index < 0)
+    index = ui_.tabWidget->count() + index;
+  return *ui_.tabWidget->widget(index)->findChild<Render::Viewer*>();
 }

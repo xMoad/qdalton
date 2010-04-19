@@ -34,62 +34,58 @@
 Render::Viewer::Viewer(QWidget* parent) :
     QGLViewer(parent),
     fileMol_(),
-    view_(Render::Molecule::ViewBallsAndBonds),
+    view_(Render::ViewBallsAndBonds),
+    isDebugInfoVisible_(false),
+    isAxesVisible_(false),
+    axesSize_(1.0f),
+    atomicNumber_(6),
     atomSelectedBeforeIndex_(-1),
-    displayListAxes_(0)
+    labelsOnAtoms_(Render::LabelsOnAtomsNone),
+    labelsOnAtomsFont_()
 {
-  isAxesVisible_ = true;
-  isDebugInfoVisible_ = false;
-  axesSize_ = 1.0f;
-  atomicNumber_ = 6;
   setMouseBinding(Qt::CTRL + Qt::LeftButton, FRAME, TRANSLATE);
 }
 
 Render::Viewer::~Viewer()
 {
-  glDeleteLists(displayListAxes_, 0);
 }
 
 void Render::Viewer::draw()
 {
   if (isAxesVisible_)
-    glCallList(displayListAxes_);
+    drawAxes(axesSize_);
 
-  fileMol().molecule().draw(view_);
+  fileMol().molecule().draw(view_, false);
 
   if (isDebugInfoVisible_)
+    drawDebugInfo();
+
+  if (labelsOnAtoms() == Render::LabelsOnAtomsSymbol)
   {
-    // Save current color
     GLfloat color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
-    glColor3f(0.0f, 1.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 0.0f);
 
-    QFont font;
+    for (int i = 0; i < fileMol().molecule().atomsCount(); ++i)
+    {
+      Render::Atom atom(fileMol().molecule().atom(i));
+      Eigen::Vector3f v = atom.centre() - cameraPosition();
+      v = v * (v.norm() - atom.drawRadius() - 0.1f) / v.norm();
+      v = v + cameraPosition();
 
-    font.setBold(true);
-    renderText(10, 15, "Debug Info", font);
-    font.setBold(false);
-
-    renderText(20, 30, "Mode: View", font);
-    renderText(20, 45,
-               QString("Molecule: %1 (%2 atoms)").arg(fileMol().molecule().formula(),
-                   QString::number(fileMol().molecule().atomsCount())),
-               font);
+      renderText(v.x(), v.y(), v.z(), atom.symbol(), labelsOnAtomsFont());
+    }
 
     glColor4fv(color);
   }
-/*
-  GLfloat color[4];
-  glGetFloatv(GL_CURRENT_COLOR, color);
-  glColor3f(0.0f, 1.0f, 0.0f);
-  for (int i = 0; i < atomsList_.size(); ++i)
-  {
-    renderText(atomsList_[i].centre().x(),
-               atomsList_[i].centre().y(),
-               atomsList_[i].centre().z(),
-               "H");
-  }
-  glColor4fv(color); */
+}
+
+void Render::Viewer::fastDraw()
+{
+  if (isAxesVisible_)
+    drawAxes(axesSize_);
+
+  fileMol().molecule().draw(view_, true);
 }
 
 void Render::Viewer::drawWithNames()
@@ -143,30 +139,17 @@ void Render::Viewer::init()
   setSceneRadius(10.0f);
   showEntireScene();
 
-/* Place inside draw()?
-  const float fogColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  glEnable(GL_FOG);
-  glFogi(GL_FOG_MODE, GL_LINEAR);
-  glFogfv(GL_FOG_COLOR, fogColor);
-  glFogf(GL_FOG_DENSITY, 0.002f);
-  glHint(GL_FOG_HINT, GL_NICEST);
-  glFogf(GL_FOG_START, -sceneRadius());
-  glFogf(GL_FOG_END, sceneRadius());
-*/
-
   glEnable(GL_NORMALIZE);
 
   // As mentioned in QGLViewer documentation for select() method,
   // one can encounter problems with backface culling.
-  // If so one can try to glDisable(GL_CULL_FACE). It works! Not always. =(
+  // If so one can try to glDisable(GL_CULL_FACE).
   glDisable(GL_CULL_FACE);
-
-  displayListAxes_ = makeAxes(axesSize_);
 
   setManipulatedFrame(new qglviewer::ManipulatedFrame());
 }
 
-GLuint Render::Viewer::makeAxes(GLfloat size)
+void Render::Viewer::drawAxes(float size)
 {
   Render::Arrow x;
   Render::Arrow y;
@@ -187,40 +170,111 @@ GLuint Render::Viewer::makeAxes(GLfloat size)
   z.setRadius(0.04f);
   z.setMaterial(Render::Material::blue());
 
-  GLuint list = glGenLists(1);
-  glNewList(list, GL_COMPILE);
-  {
-    x.draw(Render::StyleFill);
-    y.draw(Render::StyleFill);
-    z.draw(Render::StyleFill);
-  }
-  glEndList();
-
-  return list;
+  x.draw(Render::StyleFill);
+  y.draw(Render::StyleFill);
+  z.draw(Render::StyleFill);
 }
 
-void Render::Viewer::setView(Render::Molecule::View view)
+void Render::Viewer::drawDebugInfo()
 {
-  view_ = view;
+  GLfloat color[4];
+
+  glGetFloatv(GL_CURRENT_COLOR, color);
+
+  glColor3f(0.0f, 1.0f, 0.0f);
+
+  QFont font;
+
+  font.setBold(true);
+  renderText(10, 15, "Debug Info", font);
+  font.setBold(false);
+
+  renderText(20, 30, QString("Distance: %1").arg(sceneRadius()), font);
+  renderText(20, 45,
+             QString("Molecule: %1 (%2 atoms)").arg(fileMol().molecule().formula(),
+                 QString::number(fileMol().molecule().atomsCount())),
+             font);
+  renderText(20, 60, QString("%1 %2 %3").arg(cameraPosition().x()).arg(cameraPosition().y()).arg(cameraPosition().z()), font);
+
+  glColor4fv(color);
+}
+
+Render::View Render::Viewer::view() const
+{
+  return view_;
+}
+
+Render::LabelsOnAtoms Render::Viewer::labelsOnAtoms() const
+{
+  return labelsOnAtoms_;
+}
+
+const QFont& Render::Viewer::labelsOnAtomsFont() const
+{
+  return labelsOnAtomsFont_;
+}
+
+void Render::Viewer::setView(int view)
+{
+  view_ = (Render::View)view;
   updateGL();
 }
 
-void Render::Viewer::setAxes(bool visibility, GLfloat size)
+void Render::Viewer::setLabelsOnAtoms(int labelsOnAtoms)
 {
-  isAxesVisible_ = visibility;
+  labelsOnAtoms_ = (Render::LabelsOnAtoms)labelsOnAtoms;
+  updateGL();
+}
+
+void Render::Viewer::setLabelsOnAtomsFont(const QFont& font)
+{
+  labelsOnAtomsFont_ = font;
+  updateGL();
+}
+
+bool Render::Viewer::isAxesVisible() const
+{
+  return isAxesVisible_;
+}
+
+void Render::Viewer::setAxesVisible(bool visible)
+{
+  isAxesVisible_ = visible;
+  updateGL();
+}
+
+float Render::Viewer::axesSize() const
+{
+  return axesSize_;
+}
+
+void Render::Viewer::setAxesSize(double size)
+{
   axesSize_ = size;
-
-  glDeleteLists(displayListAxes_, 1);
-
-  displayListAxes_ = makeAxes(axesSize_);
-
   updateGL();
 }
 
-void Render::Viewer::setDebugInfoVisibility(bool visibility)
+bool Render::Viewer::isDebugInfoVisible() const
 {
-  isDebugInfoVisible_ = visibility;
+  return isDebugInfoVisible_;
+}
+
+void Render::Viewer::setDebugInfoVisible(bool visible)
+{
+  isDebugInfoVisible_ = visible;
   updateGL();
+}
+
+void Render::Viewer::setAtomSymbol(const QString& atomSymbol)
+{
+  QByteArray byteArray = atomSymbol.toLatin1();
+  const char* s_char = byteArray.data();
+  atomicNumber_ = OpenBabel::etab.GetAtomicNum(s_char);
+}
+
+QString Render::Viewer::atomSymbol() const
+{
+  return QString(OpenBabel::etab.GetSymbol(atomicNumber_));
 }
 
 File::Mol& Render::Viewer::fileMol()
@@ -231,13 +285,8 @@ File::Mol& Render::Viewer::fileMol()
 void Render::Viewer::setFileMol(const File::Mol& fileMol)
 {
   fileMol_ = fileMol;
-  setSceneRadius(fileMol_.molecule().radius() + 10.0f);
+  setSceneRadius(fileMol_.molecule().radius() + 5.0f);
   showEntireScene();
-}
-
-void Render::Viewer::setAtomicNumber(quint8 atomicNumber)
-{
-  atomicNumber_ = atomicNumber;
 }
 
 void Render::Viewer::displayConformer(quint16 index)
@@ -257,6 +306,13 @@ bool Render::Viewer::isSomethingUnderPixel(const QPoint& pixel)
   camera()->pointUnderPixel(pixel, found);
 
   return found;
+}
+
+Eigen::Vector3f Render::Viewer::cameraPosition()
+{
+  return Eigen::Vector3f(camera()->position().x,
+                         camera()->position().y,
+                         camera()->position().z);
 }
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
@@ -279,9 +335,6 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
 
 void Render::Viewer::mousePressEvent(QMouseEvent* e)
 {
-//  for (int i = 0; i < bondsList_.size(); ++i)
-//    bondsList_[i].draw(Render::Bond::DrawStyleStick);
-
   switch (e->button())
   {
   case Qt::LeftButton:

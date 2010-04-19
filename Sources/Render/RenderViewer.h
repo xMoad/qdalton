@@ -30,7 +30,7 @@
 
 #include <QMouseEvent>
 #include <QTableWidget>
-#include <QGLViewer/qglviewer.h>
+#include <qglviewer.h>
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
@@ -49,21 +49,36 @@ namespace Render
     File::Mol& fileMol();
     void setFileMol(const File::Mol& fileMol);
 
-    void setView(Render::Molecule::View view);
-    void setAtomicNumber(quint8 atomicNumber);
+    bool isAxesVisible() const;
+    float axesSize() const;
+    bool isDebugInfoVisible() const;
 
-    void setAxes(bool visibility, GLfloat size);
-    void setDebugInfoVisibility(bool visibility);
+    Render::View view() const;
+
+    Render::LabelsOnAtoms labelsOnAtoms() const;
+    const QFont& labelsOnAtomsFont() const;
+    void setLabelsOnAtomsFont(const QFont& font);
+
+    QString atomSymbol() const;
 
     void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 
-//  public slots:
+    Eigen::Vector3f cameraPosition();
+
+  public slots:
+    void setAxesVisible(bool visible);
+    void setAxesSize(double size);
+    void setDebugInfoVisible(bool visible);
+    void setView(int view);
+    void setLabelsOnAtoms(int labelsOnAtoms);
+    void setAtomSymbol(const QString& atomSymbol);
 
   protected:
     virtual void init();
     virtual void draw();
+    virtual void fastDraw();
     virtual void drawWithNames();
 
     virtual void mouseMoveEvent(QMouseEvent* e);
@@ -72,15 +87,21 @@ namespace Render
 
   private:
     File::Mol fileMol_;
-    Render::Molecule::View view_;
-    // added atom atomic number
-    quint8 atomicNumber_;
-    // visibility flags
+    Render::View view_;
+
     bool isDebugInfoVisible_;
     bool isAxesVisible_;
     GLfloat axesSize_;
 
+    // added atom atomic number
+    quint8 atomicNumber_;
     qint32 atomSelectedBeforeIndex_;
+
+    Render::LabelsOnAtoms labelsOnAtoms_;
+    QFont labelsOnAtomsFont_;
+
+    void drawAxes(float size);
+    void drawDebugInfo();
 
     void mouseLeftButtonPressEvent(QMouseEvent* e);
     void mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e);
@@ -93,12 +114,6 @@ namespace Render
 
     void mouseLeftButtonReleaseEvent(QMouseEvent* e);
     void mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e);
-
-    // GLLists, Low & High Quality.
-    GLuint displayListAxes_;
-
-    // GLLists generators.
-    GLuint makeAxes(GLfloat size);
   };
 }
 

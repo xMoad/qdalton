@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -24,6 +24,7 @@
 
 #include <Eigen/Array>
 
+#include "Render/RenderConstants.h"
 #include "Render/RenderGL.h"
 
 namespace OpenBabel
@@ -36,32 +37,20 @@ namespace Render
   class Bond
   {
   public:
-    enum DrawStyle
-    {
-      DrawStyleBond,
-      DrawStyleStick
-    };
-
     Bond(OpenBabel::OBBond* obBond);
     Bond(const Render::Bond& bond);
     ~Bond();
 
     OpenBabel::OBBond* obBond() const;
 
-    void draw(Render::Bond::DrawStyle drawStyle,
+    void draw(Render::View view,
               const Eigen::Vector3f& planeNormalVector,
-              bool isSelected);
-
-    bool isSelected() const;
-    void setSelected(bool selected);
-    void toggleSelected();
+              bool isSelected,
+              bool fast) const;
 
     quint8 bondOrder() const;
     void setBondOrder(quint8 bondOrder);
     void cycleOrder();
-
-    static const GLfloat BOND_THIKNESS;
-    static const GLfloat STICK_THIKNESS;
 
   private:
     OpenBabel::OBBond* obBond_;

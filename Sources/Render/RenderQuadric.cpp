@@ -41,7 +41,7 @@ void Render::Quadric::prepare(Render::Style style) const
   case Render::StyleLine:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_LINE);
     break;
-  case Render::StlePoint:
+  case Render::StylePoint:
     gluQuadricDrawStyle(gluQuadricObj_, GLU_POINT);
     break;
   case Render::StyleSilhouette:

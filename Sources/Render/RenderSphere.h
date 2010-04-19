@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -43,7 +43,8 @@ namespace Render
     const Render::Material& material() const;
     void setMaterial(const Render::Material& material);
 
-    void draw(Render::Style style) const;
+    void draw(Render::Style style, GLint slices) const;
+
   private:
     Eigen::Vector3f centre_;
     GLfloat radius_;

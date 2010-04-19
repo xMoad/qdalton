@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -25,7 +25,6 @@
 #include <Eigen/Array>
 
 #include "Render/RenderMaterial.h"
-#include "Render/RenderStyle.h"
 #include "Render/RenderQuadric.h"
 
 namespace Render

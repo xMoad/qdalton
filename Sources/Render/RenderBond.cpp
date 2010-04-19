@@ -25,9 +25,6 @@
 #include "Render/RenderBond.h"
 #include "Render/RenderCylinder.h"
 
-const GLfloat Render::Bond::BOND_THIKNESS = 0.05f;
-const GLfloat Render::Bond::STICK_THIKNESS = 0.15f;
-
 Render::Bond::Bond(OpenBabel::OBBond* obBond) :
     obBond_(obBond)
 {
@@ -47,19 +44,23 @@ OpenBabel::OBBond* Render::Bond::obBond() const
   return obBond_;
 }
 
-void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
+void Render::Bond::draw(Render::View view,
                         const Eigen::Vector3f& planeNormalVector,
-                        bool isSelected)
+                        bool isSelected,
+                        bool fast) const
 {
   float shift;
+
+  if (obBond_->GetBondOrder() < 3)
+    shift = 0.125f;
+  else
+    shift = 0.2f;
+
+  Render::Atom atom1(obBond_->GetBeginAtom());
+  Render::Atom atom2(obBond_->GetEndAtom());
+
   Render::Cylinder cylinder1;
   Render::Cylinder cylinder2;
-
-  // Change this code! Without creating Render::Atoms
-  Render::Atom atom1(obBond_->GetParent()->GetAtom(obBond_->GetBeginAtomIdx()));
-  Render::Atom atom2(obBond_->GetParent()->GetAtom(obBond_->GetEndAtomIdx()));
-  Render::Material material1(atom1.color(), true);
-  Render::Material material2(atom2.color(), true);
 
   // Compute the centre of bond
   Eigen::Vector3f vec1 = atom2.centre() - atom1.centre();
@@ -72,43 +73,69 @@ void Render::Bond::draw(Render::Bond::DrawStyle drawStyle,
 
   cylinder1.setVertex1(atom1.centre());
   cylinder1.setVertex2(vMiddle);
-  if (!isSelected)
-    cylinder1.setMaterial(material1);
-  else
-    cylinder1.setMaterial(Render::Material(Render::Color::selection(), true));
 
   cylinder2.setVertex1(vMiddle);
   cylinder2.setVertex2(atom2.centre());
-  if (!isSelected)
-    cylinder2.setMaterial(material2);
-  else
-    cylinder2.setMaterial(Render::Material(Render::Color::selection(), true));
 
-  if (obBond_->GetBondOrder() < 3)
-    shift = 0.1f;
-  else
-    shift = 0.2f;
-
-
-  switch (drawStyle)
+  if (isSelected)
   {
-  case Render::Bond::DrawStyleBond:
-    cylinder1.setRadius(Render::Bond::BOND_THIKNESS);
-    cylinder2.setRadius(Render::Bond::BOND_THIKNESS);
-    cylinder1.drawMulti(Render::StyleFill,
-                        obBond_->GetBondOrder(),
-                        shift,
-                        planeNormalVector);
-    cylinder2.drawMulti(Render::StyleFill,
-                        obBond_->GetBondOrder(),
-                        shift,
-                        planeNormalVector);
+    cylinder1.setMaterial(Render::Material::selection());
+    cylinder2.setMaterial(Render::Material::selection());
+  }
+  else
+  {
+    cylinder1.setMaterial(Render::Material(atom1.color(), true));
+    cylinder2.setMaterial(Render::Material(atom2.color(), true));
+  }
+
+  switch (view)
+  {
+  case Render::ViewBallsAndBonds:
+    cylinder1.setRadius(Render::bondThikness);
+    cylinder2.setRadius(Render::bondThikness);
+    if (fast)
+    {
+      cylinder1.drawMulti(Render::StyleFill,
+                          obBond_->GetBondOrder(),
+                          shift,
+                          planeNormalVector,
+                          Render::slicesForFastDrawing);
+      cylinder2.drawMulti(Render::StyleFill,
+                          obBond_->GetBondOrder(),
+                          shift,
+                          planeNormalVector,
+                          Render::slicesForFastDrawing);
+    }
+    else
+    {
+      cylinder1.drawMulti(Render::StyleFill,
+                          obBond_->GetBondOrder(),
+                          shift,
+                          planeNormalVector,
+                          Render::slicesForDrawing);
+      cylinder2.drawMulti(Render::StyleFill,
+                          obBond_->GetBondOrder(),
+                          shift,
+                          planeNormalVector,
+                          Render::slicesForDrawing);
+    }
     break;
-  case Render::Bond::DrawStyleStick:
-    cylinder1.setRadius(Render::Bond::STICK_THIKNESS);
-    cylinder2.setRadius(Render::Bond::STICK_THIKNESS);
-    cylinder1.draw(Render::StyleFill);
-    cylinder2.draw(Render::StyleFill);
+  case Render::ViewBallsAndSticks:
+  case Render::ViewSticks:
+    cylinder1.setRadius(Render::stickThikness);
+    cylinder2.setRadius(Render::stickThikness);
+    if (fast)
+    {
+      cylinder1.draw(Render::StyleFill, Render::slicesForFastDrawing);
+      cylinder2.draw(Render::StyleFill, Render::slicesForFastDrawing);
+    }
+    else
+    {
+      cylinder1.draw(Render::StyleFill, Render::slicesForDrawing);
+      cylinder2.draw(Render::StyleFill, Render::slicesForDrawing);
+    }
+    break;
+  case Render::ViewVdWSpheres:
     break;
   }
 }
@@ -126,12 +153,9 @@ void Render::Bond::setBondOrder(quint8 bondOrder)
 void Render::Bond::cycleOrder()
 {
   quint8 order = bondOrder();
+
   if (order == 3)
-  {
     setBondOrder(1);
-  }
   else
-  {
     setBondOrder(order + 1);
-  }
 }

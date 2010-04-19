@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -30,7 +30,7 @@
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
-#include "Chemistry/ChemistryForceField.h"
+#include "Render/RenderConstants.h"
 
 namespace OpenBabel
 {
@@ -39,11 +39,6 @@ namespace OpenBabel
 
 namespace Render
 {
-  enum Algorithm
-  {
-    AlgorithmSteepestDescent,
-    AlgorithmConjugateGradients
-  };
 
   enum SearchType
   {
@@ -57,14 +52,6 @@ namespace Render
     Q_OBJECT
 
   public:
-    enum View
-    {
-      ViewBallsAndBonds,
-      ViewBallsAndSticks,
-      ViewSticks,
-      ViewVdWSpheres
-    };
-
     Molecule();
     Molecule(const Render::Molecule& molecule);
     ~Molecule();
@@ -77,8 +64,8 @@ namespace Render
     void removeAtom(quint16 index);
     void removeBond(quint16 index);
 
-    void draw(Render::Molecule::View view);
-    void drawWithNames(Render::Molecule::View view);
+    void draw(Render::View view, bool fast);
+    void drawWithNames(Render::View view);
 
     bool importFromFile(const QString& fileName, OpenBabel::OBFormat* obFormat);
 
@@ -88,7 +75,8 @@ namespace Render
                  quint16 endAtomIndex,
                  quint8 bondOrder);
 
-    void setCharge(quint8 charge);
+    qint8 charge() const;
+    void setCharge(qint8 charge);
 
     QString formula() const;
 
@@ -100,15 +88,13 @@ namespace Render
 
     void rebond();
 
-    void setObForceFieldName(const QString& obFoceFieldName);
-
-    void optimize(Render::Algorithm algorithm,
-                  double convergenceCriteria,
+    void optimize(const QString& obForceFieldName,
                   quint16 maxSteps,
                   quint8 stepsPerUpdate,
                   std::ostream* logOstream);
 
-    void searchConformers(Render::SearchType searchType,
+    void searchConformers(const QString& obForceFieldName,
+                          Render::SearchType searchType,
                           quint16 conformers,
                           quint16 steps,
                           std::ostream* logOstream);
@@ -121,6 +107,8 @@ namespace Render
 
     void toggleSelectionOfAtom(quint16 index);
     void toggleSelectionOfBond(quint16 index);
+
+    QList<quint16> bondsIndicesForAtom(quint16 index) const;
 
   public slots:
     void addHydrogensAndBuild();
@@ -137,7 +125,6 @@ namespace Render
     OpenBabel::OBAtom* obAtom(quint16 index) const;
     OpenBabel::OBBond* obBond(quint16 index) const;
     OpenBabel::OBMol* obMol_;
-    QString obFoceFieldName_;
     QList<quint16> listSelectedAtoms_;
     QList<quint16> listSelectedBonds_;
     Eigen::Vector3f planeNormalVector_;

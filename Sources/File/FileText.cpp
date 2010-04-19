@@ -27,13 +27,17 @@
 
 File::Text::Text() :
     absoluteFilePath_(),
-    strings_()
+    strings_(),
+    parseErrorIndex_(-1),
+    parseErrorMessage_()
 {
 }
 
 File::Text::Text(const File::Text &fileText):
     absoluteFilePath_(fileText.absoluteFilePath_),
-    strings_(fileText.strings_)
+    strings_(fileText.strings_),
+    parseErrorIndex_(fileText.parseErrorIndex_),
+    parseErrorMessage_(fileText.parseErrorMessage_)
 {
 }
 
@@ -47,20 +51,42 @@ void File::Text::setAbsoluteFilePath(const QString& absoluteFilePath)
   absoluteFilePath_ = absoluteFilePath;
 }
 
+void File::Text::clear()
+{
+  strings_.clear();
+}
+
 bool File::Text::read()
 {
-  QFile file(absoluteFilePath_);
+  QFile file(absoluteFilePath());
 
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     return false;
 
   strings_.clear();
+
   QTextStream in(&file);
   while (!in.atEnd())
   {
     QString line = in.readLine();
     strings_.append(line);
   }
+
+  return true;
+}
+
+bool File::Text::save(const QString& absoluteFilePath)
+{
+  QFile file(absoluteFilePath);
+
+  if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+    return false;
+
+  QTextStream out(&file);
+  out << text();
+
+  setAbsoluteFilePath(absoluteFilePath);
+
   return true;
 }
 
@@ -79,7 +105,33 @@ QString File::Text::text() const
   return strings_.join("\n");
 }
 
+const QString& File::Text::string(int index)
+{
+  return strings_.at(index);
+}
+
 void File::Text::addString(const QString& string)
 {
   strings_ << string;
+}
+
+void File::Text::insertString(int index, const QString& string)
+{
+  strings_.insert(index, string);
+}
+
+void File::Text::setParseError(int index, const QString& message)
+{
+  parseErrorIndex_ = index;
+  parseErrorMessage_ = message;
+}
+
+int File::Text::parseErrorIndex() const
+{
+  return parseErrorIndex_;
+}
+
+const QString& File::Text::parseErrorMessage() const
+{
+  return parseErrorMessage_;
 }

@@ -21,11 +21,13 @@
 
 #include "Render/RenderMaterial.h"
 
-Render::Material::Material(const Render::Material& material):
-    ambient_(material.ambient_), diffuse_(material.diffuse_),
-    emission_(material.emission_), specular_(material.specular_),
-    shininess_(material.shininess_)
+Render::Material::Material()
 {
+  ambient_   = defaultComponent(Render::Material::ComponentAmbient);
+  diffuse_   = defaultComponent(Render::Material::ComponentDiffuse);
+  emission_  = defaultComponent(Render::Material::ComponentEmission);
+  specular_  = defaultComponent(Render::Material::ComponentSpecular);
+  shininess_ = defaultShininess();
 }
 
 Render::Material::Material(const Render::Color& ambient,
@@ -36,15 +38,6 @@ Render::Material::Material(const Render::Color& ambient,
 ambient_(ambient), diffuse_(diffuse), emission_(emission),
 specular_(specular), shininess_(shininess)
 {
-}
-
-Render::Material::Material()
-{
-  ambient_   = defaultComponent(Render::Material::ComponentAmbient);
-  diffuse_   = defaultComponent(Render::Material::ComponentDiffuse);
-  emission_  = defaultComponent(Render::Material::ComponentEmission);
-  specular_  = defaultComponent(Render::Material::ComponentSpecular);
-  shininess_ = defaultShininess();
 }
 
 Render::Material::Material(const Render::Color& ambient, bool optimal)
@@ -64,6 +57,13 @@ Render::Material::Material(const Render::Color& ambient, bool optimal)
     specular_  = defaultComponent(Render::Material::ComponentSpecular);
     shininess_ = defaultShininess();
   }
+}
+
+Render::Material::Material(const Render::Material& material):
+    ambient_(material.ambient_), diffuse_(material.diffuse_),
+    emission_(material.emission_), specular_(material.specular_),
+    shininess_(material.shininess_)
+{
 }
 
 const Render::Color& Render::Material::ambient() const
@@ -159,10 +159,11 @@ Render::Color& Render::Material::optimalComponent(Component component)
   switch (component)
   {
   case Render::Material::ComponentAmbient:
-    c = new Color(0.8f, 0.8f, 0.8f, 1.0f);
+    c = new Color(0.2f, 0.2f, 0.2f, 1.0f);
     break;
   case Render::Material::ComponentDiffuse:
-    c = new Color(0.4f, 0.4f, 0.4f, 1.0f);
+//    c = new Color(0.4f, 0.4f, 0.4f, 1.0f);
+    c = new Color(0.2f, 0.2f, 0.2f, 1.0f);
     break;
   case Render::Material::ComponentEmission:
     c = new Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -187,28 +188,36 @@ GLfloat Render::Material::optimalShininess()
 
 const Render::Material& Render::Material::blue()
 {
-  static Material* m = new Material();
-  m->ambient_ = Color::blue();
+  static Material* m = new Material(Render::Color::blue(), false);
   return *m;
 }
 
 const Render::Material& Render::Material::green()
 {
-  static Material* m = new Material();
-  m->ambient_ = Color::green();
+  static Material* m = new Material(Render::Color::green(), false);
   return *m;
 }
 
 const Render::Material& Render::Material::red()
 {
-  static Material* m = new Material();
-  m->ambient_ = Color::red();
+  static Material* m = new Material(Render::Color::red(), false);
   return *m;
 }
 
 const Render::Material& Render::Material::yellow()
 {
-  static Material* m = new Material();
-  m->ambient_ = Color::yellow();
+  static Material* m = new Material(Render::Color::yellow(), false);
+  return *m;
+}
+
+const Render::Material& Render::Material::white()
+{
+  static Material* m = new Material(Render::Color::white(), false);
+  return *m;
+}
+
+const Render::Material& Render::Material::selection()
+{
+  static Material* m = new Material(Render::Color::selection(), false);
   return *m;
 }

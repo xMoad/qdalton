@@ -1,5 +1,5 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009 Anton Simakov
+  Copyright (C) 2008, 2009, 2010 Anton Simakov
 
   This file is part of QDalton.
   For more information, see <http://code.google.com/p/qdalton/>
@@ -61,15 +61,18 @@ namespace Render
 
     void prepare() const;
     // OpenGL default material properties of the objects
-    static Color& defaultComponent(Component component);
-    static Color& optimalComponent(Component component);
+    static Render::Color& defaultComponent(Component component);
+    static Render::Color& optimalComponent(Component component);
     static GLfloat optimalShininess();
     static GLfloat defaultShininess();
 
-    static const Material& blue();
-    static const Material& green();
-    static const Material& red();
-    static const Material& yellow();
+    static const Render::Material& blue();
+    static const Render::Material& green();
+    static const Render::Material& red();
+    static const Render::Material& yellow();
+    static const Render::Material& white();
+    static const Render::Material& selection();
+
   private:
     Render::Color ambient_;
     Render::Color diffuse_;

@@ -7,5 +7,6 @@
         <file>icons/16x16/actionMoleculeNew.png</file>
         <file>icons/16x16/actionMoleculeOpen.png</file>
         <file>icons/16x16/actionMoleculeSave.png</file>
+        <file>icons/16x16/actionMoleculeSaveAs.png</file>
     </qresource>
 </RCC>

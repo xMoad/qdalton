@@ -53,17 +53,15 @@ void Render::Sphere::setMaterial(const Render::Material& material)
   material_ = material;
 }
 
-void Render::Sphere::draw(Render::Style style) const
+void Render::Sphere::draw(Render::Style style, GLint slices) const
 {
   material_.prepare();
   quadric_.prepare(style);
-  GLint slices = 24;
-  GLint stacks = 24;
 
   glPushMatrix();
   {
     glTranslatef(centre_.x(), centre_.y(), centre_.z());
-    gluSphere(quadric_.gluQuadricObj_, radius_, slices, stacks);
+    gluSphere(quadric_.gluQuadricObj_, radius_, slices, slices);
   }
   glPopMatrix();
   glFlush();

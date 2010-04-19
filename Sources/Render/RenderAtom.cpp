@@ -28,8 +28,6 @@
 #include "Render/RenderBond.h"
 #include "Render/RenderSphere.h"
 
-const GLfloat Render::Atom::SELECTON_RADIUS = 0.15f;
-
 Render::Atom::Atom(const Render::Atom& atom) :
     obAtom_(atom.obAtom_)
 {
@@ -64,6 +62,21 @@ void Render::Atom::setAtomicNumber(quint8 atomicNumber)
   obAtom_->SetAtomicNum(atomicNumber);
 }
 
+quint8 Render::Atom::isotope() const
+{
+  return obAtom_->GetIsotope();
+}
+
+void Render::Atom::setIsotope(quint8 isotope)
+{
+  obAtom_->SetIsotope(isotope);
+}
+
+QString Render::Atom::symbol() const
+{
+  return QString(OpenBabel::etab.GetSymbol(atomicNumber()));
+}
+
 GLfloat Render::Atom::drawRadius() const
 {
 #ifdef Q_CC_MSVC
@@ -85,33 +98,36 @@ Render::Color Render::Atom::color() const
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void Render::Atom::draw(Render::Atom::DrawStyle style, bool isSelected)
+void Render::Atom::draw(Render::View view, bool isSelected, bool fast) const
 {
   Render::Sphere sphere;
-  Render::Material material(color(), true);
-
-  if (isSelected)
-    material.setAmbient(Render::Color::selection());
 
   Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
 
   sphere.setCentre(centre);
-  sphere.setMaterial(material);
+  if (isSelected)
+    sphere.setMaterial(Render::Material::selection());
+  else
+    sphere.setMaterial(Render::Material(color(), true));
 
-  switch (style)
+  switch (view)
   {
-  case Render::Atom::DrawStyleAtom:
+  case Render::ViewBallsAndSticks:
+  case Render::ViewBallsAndBonds:
     sphere.setRadius(drawRadius());
     break;
-  case Render::Atom::DrawStyleConnector:
-    sphere.setRadius(Render::Bond::STICK_THIKNESS);
+  case Render::ViewSticks:
+    sphere.setRadius(Render::stickThikness);
     break;
-  case Render::Atom::DrawStyleVdW:
+  case Render::ViewVdWSpheres:
     sphere.setRadius(vanderwaalsRadius());
     break;
   }
 
-  sphere.draw(Render::StyleFill);
+  if (fast)
+    sphere.draw(Render::StyleFill, Render::slicesForFastDrawing);
+  else
+    sphere.draw(Render::StyleFill, Render::slicesForDrawing);
 }
 
 Eigen::Vector3f Render::Atom::centre() const
