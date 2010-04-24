@@ -22,54 +22,86 @@
 #include <QDebug>
 #include <cmath>
 
-#include <openbabel/mol.h>
+//#include <openbabel/mol.h>
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
+#include "Render/RenderMolecule.h"
 #include "Render/RenderSphere.h"
 
+Render::Atom::Atom(Render::Molecule* molecule,
+                   quint8 atomicNumber,
+                   quint8 isotope,
+                   const Eigen::Vector3f& centre) :
+    molecule_(molecule),
+    atomicNumber_(atomicNumber),
+    isotope_(isotope),
+    centre_(centre),
+    selected_(false)
+{
+}
+
 Render::Atom::Atom(const Render::Atom& atom) :
-    obAtom_(atom.obAtom_)
+    molecule_(atom.molecule_),
+    atomicNumber_(atom.atomicNumber_),
+    isotope_(atom.isotope_),
+    centre_(atom.centre_),
+    selected_(atom.selected_)
 {
 }
 
-Render::Atom::Atom(OpenBabel::OBAtom* obAtom) :
-    obAtom_(obAtom)
-{
+Render::Atom& Render::Atom::operator=(const Render::Atom& rhs)
+                                     {
+  if (this == &rhs)
+    return *this;
+
+  molecule_ = rhs.molecule_;
+  atomicNumber_ = rhs.atomicNumber_;
+  isotope_ = rhs.isotope_;
+  centre_ = rhs.centre_;
+  selected_ = rhs.selected_;
+
+  return *this;
 }
 
-Render::Atom::~Atom()
+bool Render::Atom::operator==(const Render::Atom& atom) const
 {
+  return this == &atom;
 }
 
-qreal Render::Atom::exactMass() const
+bool Render::Atom::operator!=(const Render::Atom& atom) const
 {
-  return obAtom_->GetExactMass();
+  return !(*this == atom);
 }
 
-OpenBabel::OBAtom* Render::Atom::obAtom() const
+quint16 Render::Atom::index() const
 {
-  return obAtom_;
+  return molecule_->indexOfAtom(*this);
+}
+
+float Render::Atom::exactMass() const
+{
+  return OpenBabel::isotab.GetExactMass(atomicNumber_, isotope_);
 }
 
 quint8 Render::Atom::atomicNumber() const
 {
-  return obAtom_->GetAtomicNum();
+  return atomicNumber_;
 }
 
 void Render::Atom::setAtomicNumber(quint8 atomicNumber)
 {
-  obAtom_->SetAtomicNum(atomicNumber);
+  atomicNumber_ = atomicNumber;
 }
 
 quint8 Render::Atom::isotope() const
 {
-  return obAtom_->GetIsotope();
+  return isotope_;
 }
 
 void Render::Atom::setIsotope(quint8 isotope)
 {
-  obAtom_->SetIsotope(isotope);
+  isotope_ = isotope;
 }
 
 QString Render::Atom::symbol() const
@@ -80,7 +112,7 @@ QString Render::Atom::symbol() const
 GLfloat Render::Atom::drawRadius() const
 {
 #ifdef Q_CC_MSVC
-  return pow(exactMass(), 1.0/3.0) / 10.0f + 0.2f;
+  return pow(exactMass(), 1.0f/3.0f) / 10.0f + 0.2f;
 #else
   return cbrt(exactMass()) / 10.0f + 0.2f;
 #endif
@@ -88,7 +120,7 @@ GLfloat Render::Atom::drawRadius() const
 
 GLfloat Render::Atom::vanderwaalsRadius() const
 {
-  return (GLfloat) OpenBabel::etab.GetVdwRad(obAtom_->GetAtomicNum());
+  return (GLfloat) OpenBabel::etab.GetVdwRad(atomicNumber());
 }
 
 Render::Color Render::Atom::color() const
@@ -98,14 +130,12 @@ Render::Color Render::Atom::color() const
   return Color(rgb[0], rgb[1], rgb[2], 1.0f);
 }
 
-void Render::Atom::draw(Render::View view, bool isSelected, bool fast) const
+void Render::Atom::draw(Render::View view, bool fast) const
 {
   Render::Sphere sphere;
 
-  Eigen::Vector3f centre(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
-
-  sphere.setCentre(centre);
-  if (isSelected)
+  sphere.setCentre(centre());
+  if (isSelected())
     sphere.setMaterial(Render::Material::selection());
   else
     sphere.setMaterial(Render::Material(color(), true));
@@ -130,12 +160,27 @@ void Render::Atom::draw(Render::View view, bool isSelected, bool fast) const
     sphere.draw(Render::StyleFill, Render::slicesForDrawing);
 }
 
+bool Render::Atom::isSelected() const
+{
+  return selected_;
+}
+
+void Render::Atom::setSelected(bool selected)
+{
+  selected_ = selected;
+}
+
 Eigen::Vector3f Render::Atom::centre() const
 {
-  return Eigen::Vector3f(obAtom_->GetX(), obAtom_->GetY(), obAtom_->GetZ());
+  return centre_;
 }
 
 void Render::Atom::setCentre(const Eigen::Vector3f& centre)
 {
-  obAtom_->SetVector(OpenBabel::vector3(centre.x(), centre.y(), centre.z()));
+  centre_ = centre;
+}
+
+void Render::Atom::toggleSelection()
+{
+  selected_ = !selected_;
 }

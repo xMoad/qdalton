@@ -43,11 +43,11 @@ namespace Render
     Q_OBJECT
 
   public:
-    Viewer(QWidget* parent);
+    Viewer(QWidget* parent, const File::Mol& fileMol);
     ~Viewer();
 
     File::Mol& fileMol();
-    void setFileMol(const File::Mol& fileMol);
+//    void setFileMol(const File::Mol& fileMol);
 
     bool isAxesVisible() const;
     float axesSize() const;
@@ -61,7 +61,7 @@ namespace Render
 
     QString atomSymbol() const;
 
-    void displayConformer(quint16 index);
+//    void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 

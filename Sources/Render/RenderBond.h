@@ -27,33 +27,46 @@
 #include "Render/RenderConstants.h"
 #include "Render/RenderGL.h"
 
-namespace OpenBabel
-{
-  class OBBond;
-}
-
 namespace Render
 {
+  class Atom;
+  class Molecule;
+
   class Bond
   {
   public:
-    Bond(OpenBabel::OBBond* obBond);
+    Bond(Render::Molecule* molecule,
+         Render::Atom* beginAtom,
+         Render::Atom* endAtom,
+         quint8 bondOrder);
     Bond(const Render::Bond& bond);
-    ~Bond();
+    Render::Bond& operator=(const Render::Bond& rhs);
 
-    OpenBabel::OBBond* obBond() const;
+    bool operator==(const Render::Bond& bond) const;
+    bool operator!=(const Render::Bond& bond) const;
+
+    quint16 index() const;
+
+    const Render::Atom& beginAtom() const;
+    const Render::Atom& endAtom() const;
 
     void draw(Render::View view,
               const Eigen::Vector3f& planeNormalVector,
-              bool isSelected,
               bool fast) const;
 
     quint8 bondOrder() const;
     void setBondOrder(quint8 bondOrder);
-    void cycleOrder();
+    void cycleBondOrder();
+
+    bool isSelected() const;
+    void toggleSelection();
 
   private:
-    OpenBabel::OBBond* obBond_;
+    Render::Molecule* molecule_;
+    Render::Atom* beginAtom_;
+    Render::Atom* endAtom_;
+    quint8 bondOrder_;
+    bool selected_;
   };
 }
 

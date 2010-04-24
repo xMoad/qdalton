@@ -31,9 +31,9 @@
 #include "Render/RenderMaterial.h"
 #include "Render/RenderArrow.h"
 
-Render::Viewer::Viewer(QWidget* parent) :
+Render::Viewer::Viewer(QWidget* parent, const File::Mol& fileMol) :
     QGLViewer(parent),
-    fileMol_(),
+    fileMol_(fileMol),
     view_(Render::ViewBallsAndBonds),
     isDebugInfoVisible_(false),
     isAxesVisible_(false),
@@ -68,7 +68,7 @@ void Render::Viewer::draw()
 
     for (int i = 0; i < fileMol().molecule().atomsCount(); ++i)
     {
-      Render::Atom atom(fileMol().molecule().atom(i));
+      Render::Atom& atom = fileMol().molecule().atom(i);
       Eigen::Vector3f v = atom.centre() - cameraPosition();
       v = v * (v.norm() - atom.drawRadius() - 0.1f) / v.norm();
       v = v + cameraPosition();
@@ -147,6 +147,9 @@ void Render::Viewer::init()
   glDisable(GL_CULL_FACE);
 
   setManipulatedFrame(new qglviewer::ManipulatedFrame());
+
+  setSceneRadius(fileMol_.molecule().radius());
+  showEntireScene();
 }
 
 void Render::Viewer::drawAxes(float size)
@@ -195,6 +198,10 @@ void Render::Viewer::drawDebugInfo()
                  QString::number(fileMol().molecule().atomsCount())),
              font);
   renderText(20, 60, QString("%1 %2 %3").arg(cameraPosition().x()).arg(cameraPosition().y()).arg(cameraPosition().z()), font);
+  renderText(20, 75, QString("%1 %2 %3").arg(
+      fileMol().molecule().centreOfMass().x()).arg(
+          fileMol().molecule().centreOfMass().y()).arg(
+              fileMol().molecule().centreOfMass().z()), font);
 
   glColor4fv(color);
 }
@@ -282,17 +289,17 @@ File::Mol& Render::Viewer::fileMol()
   return fileMol_;
 }
 
-void Render::Viewer::setFileMol(const File::Mol& fileMol)
-{
-  fileMol_ = fileMol;
-  setSceneRadius(fileMol_.molecule().radius() + 5.0f);
-  showEntireScene();
-}
+//void Render::Viewer::setFileMol(const File::Mol& fileMol)
+//{
+//  fileMol_ = fileMol;
+//  setSceneRadius(fileMol_.molecule().radius() + 5.0f);
+//  showEntireScene();
+//}
 
-void Render::Viewer::displayConformer(quint16 index)
-{
-  fileMol().molecule().setConformer(index);
-}
+//void Render::Viewer::displayConformer(quint16 index)
+//{
+//  fileMol().molecule().setConformer(index);
+//}
 
 bool Render::Viewer::isSomethingUnderPixel(const QPoint& pixel)
 {
@@ -383,7 +390,8 @@ void Render::Viewer::mouseLeftButtonPressEvent(QMouseEvent* e)
 
 void Render::Viewer::mouseLeftButtonWithNoModifierPressEvent(QMouseEvent* e)
 {
-  if (isSomethingUnderPixel(e->pos()) && selectedName() < fileMol().molecule().atomsCount())
+  if (isSomethingUnderPixel(e->pos()) &&
+      selectedName() < fileMol().molecule().atomsCount())
   {
     camera()->setRevolveAroundPoint(qglviewer::Vec(
         fileMol().molecule().atom(selectedName()).centre().x(),
@@ -401,10 +409,10 @@ void Render::Viewer::mouseLeftButtonWithShiftPressEvent(QMouseEvent* e)
   if (isSomethingUnderPixel(e->pos()))
   {
     if (selectedName() < fileMol().molecule().atomsCount())
-      fileMol().molecule().toggleSelectionOfAtom(selectedName());
+      fileMol().molecule().atom(selectedName()).toggleSelection();
     else
-      fileMol().molecule().toggleSelectionOfBond(
-          selectedName() - fileMol().molecule().atomsCount());
+      fileMol().molecule().bond(
+          selectedName() - fileMol().molecule().atomsCount()).toggleSelection();
   }
 }
 
@@ -416,16 +424,13 @@ void Render::Viewer::mouseLeftButtonWithCtrlPressEvent(QMouseEvent* e)
       atomSelectedBeforeIndex_ = selectedName();
     else
       fileMol().molecule().bond(
-          selectedName() - fileMol().molecule().atomsCount()).cycleOrder();
+          selectedName() - fileMol().molecule().atomsCount()).cycleBondOrder();
   }
   else
   {
     atomSelectedBeforeIndex_ = -1;
     if (fileMol().molecule().atomsCount() == 0)
-    {
-      Render::Atom atom = fileMol().molecule().newAtom();
-      atom.setAtomicNumber(atomicNumber_);
-    }
+      fileMol().molecule().newAtom(atomicNumber_, 0, Eigen::Vector3f(0.0f, 0.0f, 0.0f));
   }
 }
 
@@ -504,17 +509,15 @@ void Render::Viewer::mouseLeftButtonWithCtrlReleaseEvent(QMouseEvent* e)
               manipulatedFrame()->position().y,
               fileMol().molecule().atom(atomSelectedBeforeIndex_).centre().z() +
               manipulatedFrame()->position().z);
-          Render::Atom atom = fileMol().molecule().newAtom();
-          atom.setCentre(p);
-          atom.setAtomicNumber(atomicNumber_);
-          fileMol().molecule().addBond(
+          fileMol().molecule().newAtom(atomicNumber_, 0, p);
+          fileMol().molecule().newBond(
               atomSelectedBeforeIndex_,
               fileMol().molecule().atomsCount() - 1,
               1);
         }
         else
         {
-          fileMol().molecule().addBond(
+          fileMol().molecule().newBond(
               atomSelectedBeforeIndex_,
               selectedName(),
               1);

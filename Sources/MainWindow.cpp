@@ -49,7 +49,8 @@ MainWindow::MainWindow(QWidget* parent):
 {
   ui_.setupUi(this);
 
-  newTab("untitled.mol");
+  File::Mol fileMol;
+  newTab("untitled.mol", fileMol);
   goToTab(0);
 
   ui_.plainTextEditLog->hide();
@@ -111,6 +112,8 @@ MainWindow::MainWindow(QWidget* parent):
 
   connect(ui_.tabWidget, SIGNAL(currentChanged(int)),
           this, SLOT(goToTab(int)));
+  connect(ui_.tabWidget, SIGNAL(tabCloseRequested(int)),
+          this, SLOT(onTabCloseRequested(int)));
 
   connect(ui_.tableWidgetConformers, SIGNAL(currentCellChanged(int,int,int,int)),
           this, SLOT(onTableWidgetConformersCurrentCellChanged(int)));
@@ -136,11 +139,11 @@ void MainWindow::importMoleculeFromFile(const QString& fileName,
     addToLog(QString("Import structure from %1 started.").arg(fileName));
     if (molecule.importFromFile(fileName, obFormat))
     {
+      File::Mol fileMol(molecule);
+
       addToLog("Import succeeded.");
-      newTab("untitled.mol");
-      File::Mol fileMol;
-      fileMol.setMolecule(molecule);
-      viewer(-1).setFileMol(fileMol);
+      newTab("untitled.mol", fileMol);
+
       ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
       updateActionsForNonemptyMolecule();
     }
@@ -167,7 +170,8 @@ void MainWindow::setDir(const QString &dir)
 
 void MainWindow::newMolecule()
 {
-  newTab("untitled.mol");
+  File::Mol fileMol;
+  newTab("untitled.mol", fileMol);
   ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
 }
 
@@ -204,8 +208,7 @@ void MainWindow::openMolecule()
       if (molFile.parse(true))
       {
         addToLog(tr("Parsing succeeded."));
-        newTab(molFile.fileName());
-        viewer(-1).setFileMol(molFile);
+        newTab(molFile.fileName(), molFile);
         ui_.tabWidget->setCurrentIndex(ui_.tabWidget->count() - 1);
         updateActionsForNonemptyMolecule();
       }
@@ -269,97 +272,100 @@ void MainWindow::saveMoleculeAs(const QString& absoluteFilePath)
   }
 }
 
-void MainWindow::fillConformersTable(double threshold)
-{
-  ui_.tableWidgetConformers->clearContents();
-  ui_.tableWidgetConformers->setRowCount(0);
+//void MainWindow::fillConformersTable(double threshold)
+//{
+//  ui_.tableWidgetConformers->clearContents();
+//  ui_.tableWidgetConformers->setRowCount(0);
+//
+//  QList<bool> list;
+//
+//  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
+//    list.append(true);
+//
+//  for (quint16 i = 0; i < list.count(); ++i)
+//    if (list[i])
+//      for (quint16 j = i + 1; j < list.count(); ++j)
+//        if (list[j] && qAbs(currentViewer().fileMol().molecule().conformerEnergy(i) -
+//                            currentViewer().fileMol().molecule().conformerEnergy(j)) <= threshold)
+//          list[j] = false;
+//
+//  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
+//    if (list[i])
+//    {
+//    ui_.tableWidgetConformers->insertRow(
+//        ui_.tableWidgetConformers->rowCount());
+//    QTableWidgetItem* newItem = new QTableWidgetItem(
+//        QString::number(i + 1).rightJustified(3, '0'));
+//    ui_.tableWidgetConformers->setItem(
+//        ui_.tableWidgetConformers->rowCount() - 1, 0, newItem);
+//
+//    newItem = new QTableWidgetItem(QString::number(
+//        currentViewer().fileMol().molecule().conformerEnergy(i)));
+//    ui_.tableWidgetConformers->setItem(
+//        ui_.tableWidgetConformers->rowCount() - 1, 1, newItem);
+//  }
+//
+//  currentViewer().displayConformer(0);
+//}
 
-  QList<bool> list;
-
-  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
-    list.append(true);
-
-  for (quint16 i = 0; i < list.count(); ++i)
-    if (list[i])
-      for (quint16 j = i + 1; j < list.count(); ++j)
-        if (list[j] && qAbs(currentViewer().fileMol().molecule().conformerEnergy(i) -
-                            currentViewer().fileMol().molecule().conformerEnergy(j)) <= threshold)
-          list[j] = false;
-
-  for (int i = 0; i < currentViewer().fileMol().molecule().conformersCount(); ++i)
-    if (list[i])
-    {
-    ui_.tableWidgetConformers->insertRow(
-        ui_.tableWidgetConformers->rowCount());
-    QTableWidgetItem* newItem = new QTableWidgetItem(
-        QString::number(i + 1).rightJustified(3, '0'));
-    ui_.tableWidgetConformers->setItem(
-        ui_.tableWidgetConformers->rowCount() - 1, 0, newItem);
-
-    newItem = new QTableWidgetItem(QString::number(
-        currentViewer().fileMol().molecule().conformerEnergy(i)));
-    ui_.tableWidgetConformers->setItem(
-        ui_.tableWidgetConformers->rowCount() - 1, 1, newItem);
-  }
-
-  currentViewer().displayConformer(0);
-}
-
-void MainWindow::newTab(const QString& title)
+void MainWindow::newTab(const QString& title, const File::Mol& fileMol)
 {
   QWidget* tab = new QWidget();
   QGridLayout* gridLayout = new QGridLayout(tab);
-  Render::Viewer* viewer = new Render::Viewer(tab);
+  Render::Viewer* viewer = new Render::Viewer(tab, fileMol);
   gridLayout->addWidget(viewer, 0, 0, 1, 1);
   ui_.tabWidget->addTab(tab, title);
 }
 
 void MainWindow::goToTab(int index)
 {
-  currentViewer().fileMol().molecule().disconnect();
-  ui_.actionStructureAddHydrogens->disconnect();
-  ui_.actionStructureRemoveHydrogens->disconnect();
-  ui_.checkBoxAxes->disconnect();
-  ui_.doubleSpinBoxAxesSize->disconnect();
-  ui_.checkBoxDebugInfo->disconnect();
-  ui_.comboBoxView->disconnect();
-  ui_.comboBoxAtom->disconnect();
+  if (index >= 0)
+  {
+    currentViewer().fileMol().molecule().disconnect();
+    ui_.actionStructureAddHydrogens->disconnect();
+    ui_.actionStructureRemoveHydrogens->disconnect();
+    ui_.checkBoxAxes->disconnect();
+    ui_.doubleSpinBoxAxesSize->disconnect();
+    ui_.checkBoxDebugInfo->disconnect();
+    ui_.comboBoxView->disconnect();
+    ui_.comboBoxAtom->disconnect();
 
-  ui_.checkBoxAxes->setChecked(currentViewer().isAxesVisible());
-  ui_.doubleSpinBoxAxesSize->setValue(currentViewer().axesSize());
-  ui_.checkBoxDebugInfo->setChecked(currentViewer().isDebugInfoVisible());
-  ui_.comboBoxView->setCurrentIndex(currentViewer().view());
-  ui_.comboBoxAtom->lineEdit()->setText(currentViewer().atomSymbol());
+    ui_.checkBoxAxes->setChecked(currentViewer().isAxesVisible());
+    ui_.doubleSpinBoxAxesSize->setValue(currentViewer().axesSize());
+    ui_.checkBoxDebugInfo->setChecked(currentViewer().isDebugInfoVisible());
+    ui_.comboBoxView->setCurrentIndex(currentViewer().view());
+    ui_.comboBoxAtom->lineEdit()->setText(currentViewer().atomSymbol());
 
-  // Set connections.
-  connect(&currentViewer().fileMol().molecule(), SIGNAL(becameEmpty()),
-          this, SLOT(updateActionsForEmptyMolecule()));
-  connect(&currentViewer().fileMol().molecule(), SIGNAL(becameNonempty()),
-          this, SLOT(updateActionsForNonemptyMolecule()));
-  connect(&currentViewer().fileMol().molecule(), SIGNAL(geometryChanged()),
-          &currentViewer(), SLOT(updateGL()));
-  connect(&currentViewer().fileMol().molecule(), SIGNAL(optimizationFinished()),
-          this, SLOT(onOptimizationFinished()));
-  connect(&currentViewer().fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
-          this, SLOT(onConformationalSearchFinished()));
+    // Set connections.
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(becameEmpty()),
+            this, SLOT(updateActionsForEmptyMolecule()));
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(becameNonempty()),
+            this, SLOT(updateActionsForNonemptyMolecule()));
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(geometryChanged()),
+            &currentViewer(), SLOT(updateGL()));
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(optimizationFinished()),
+            this, SLOT(onOptimizationFinished()));
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
+            this, SLOT(onConformationalSearchFinished()));
 
-  connect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-          &currentViewer().fileMol().molecule(), SLOT(addHydrogensAndBuild()));
-  connect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
-          &currentViewer().fileMol().molecule(), SLOT(removeHydrogens()));
+    connect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
+            &currentViewer().fileMol().molecule(), SLOT(addHydrogensAndBuild()));
+    connect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
+            &currentViewer().fileMol().molecule(), SLOT(removeHydrogens()));
 
-  connect(ui_.checkBoxAxes, SIGNAL(toggled(bool)),
-          &currentViewer(), SLOT(setAxesVisible(bool)));
-  connect(ui_.doubleSpinBoxAxesSize, SIGNAL(valueChanged(double)),
-          &currentViewer(), SLOT(setAxesSize(double)));
-  connect(ui_.checkBoxDebugInfo, SIGNAL(toggled(bool)),
-          &currentViewer(), SLOT(setDebugInfoVisible(bool)));
-  connect(ui_.comboBoxView, SIGNAL(currentIndexChanged(int)),
-          &currentViewer(), SLOT(setView(int)));
-  connect(ui_.comboBoxLabelsOnAtoms, SIGNAL(currentIndexChanged(int)),
-          &currentViewer(), SLOT(setLabelsOnAtoms(int)));
-  connect(ui_.comboBoxAtom, SIGNAL(editTextChanged(QString)),
-          &currentViewer(), SLOT(setAtomSymbol(QString)));
+    connect(ui_.checkBoxAxes, SIGNAL(toggled(bool)),
+            &currentViewer(), SLOT(setAxesVisible(bool)));
+    connect(ui_.doubleSpinBoxAxesSize, SIGNAL(valueChanged(double)),
+            &currentViewer(), SLOT(setAxesSize(double)));
+    connect(ui_.checkBoxDebugInfo, SIGNAL(toggled(bool)),
+            &currentViewer(), SLOT(setDebugInfoVisible(bool)));
+    connect(ui_.comboBoxView, SIGNAL(currentIndexChanged(int)),
+            &currentViewer(), SLOT(setView(int)));
+    connect(ui_.comboBoxLabelsOnAtoms, SIGNAL(currentIndexChanged(int)),
+            &currentViewer(), SLOT(setLabelsOnAtoms(int)));
+    connect(ui_.comboBoxAtom, SIGNAL(editTextChanged(QString)),
+            &currentViewer(), SLOT(setAtomSymbol(QString)));
+  }
 }
 
 void MainWindow::showImportStructureFromFileDialog()
@@ -398,8 +404,8 @@ void MainWindow::updateActionsForEmptyMolecule()
 void MainWindow::updateActionsForNonemptyMolecule()
 {
   ui_.actionStructureAddHydrogens->setEnabled(true);
-  ui_.actionStructureRemoveHydrogens->setEnabled(true);
-  ui_.actionStructureConformations->setEnabled(true);
+//  ui_.actionStructureRemoveHydrogens->setEnabled(true);
+//  ui_.actionStructureConformations->setEnabled(true);
   ui_.actionStructureExportImage->setEnabled(true);
 }
 
@@ -427,46 +433,46 @@ void MainWindow::onOptimizationFinished()
   currentViewer().updateGL();
 }
 
-void MainWindow::startConformationalSearch()
-{
-  ui_.centralWidget->setEnabled(false);
-  ui_.menuBar->setEnabled(false);
-  ui_.toolBar->setEnabled(false);
-  QCoreApplication::processEvents();
-  currentViewer().fileMol().molecule().searchConformers(
-      ui_.comboBoxForceField->currentText(),
-      (Render::SearchType)ui_.comboBoxSearchType->currentIndex(),
-      ui_.spinBoxConformersCount->value(),
-      ui_.spinBoxMaxStepsCount->value(),
-      &os_);
-}
+//void MainWindow::startConformationalSearch()
+//{
+//  ui_.centralWidget->setEnabled(false);
+//  ui_.menuBar->setEnabled(false);
+//  ui_.toolBar->setEnabled(false);
+//  QCoreApplication::processEvents();
+//  currentViewer().fileMol().molecule().searchConformers(
+//      ui_.comboBoxForceField->currentText(),
+//      (Render::SearchType)ui_.comboBoxSearchType->currentIndex(),
+//      ui_.spinBoxConformersCount->value(),
+//      ui_.spinBoxMaxStepsCount->value(),
+//      &os_);
+//}
 
-void MainWindow::onConformationalSearchFinished()
-{
-  ui_.centralWidget->setEnabled(true);
-  ui_.menuBar->setEnabled(true);
-  ui_.toolBar->setEnabled(true);
-  addToLog(QString::fromStdString(os_.str()));
-  os_.clear();
-  os_.seekp(0);
-  if (currentViewer().fileMol().molecule().conformersCount() > 1)
-  {
-    fillConformersTable(ui_.doubleSpinBox->value());
-    ui_.toolBox->setCurrentIndex(2);
-  }
-}
+//void MainWindow::onConformationalSearchFinished()
+//{
+//  ui_.centralWidget->setEnabled(true);
+//  ui_.menuBar->setEnabled(true);
+//  ui_.toolBar->setEnabled(true);
+//  addToLog(QString::fromStdString(os_.str()));
+//  os_.clear();
+//  os_.seekp(0);
+//  if (currentViewer().fileMol().molecule().conformersCount() > 1)
+//  {
+//    fillConformersTable(ui_.doubleSpinBox->value());
+//    ui_.toolBox->setCurrentIndex(2);
+//  }
+//}
 
-void MainWindow::onTableWidgetConformersCurrentCellChanged(int currentRow)
-{
-  bool ok;
-
-  if (currentRow >= 0)
-  {
-    quint16 n = ui_.tableWidgetConformers->item(currentRow, 0)->text().toUInt(&ok);
-    if (ok)
-      currentViewer().displayConformer(n - 1);
-  }
-}
+//void MainWindow::onTableWidgetConformersCurrentCellChanged(int currentRow)
+//{
+//  bool ok;
+//
+//  if (currentRow >= 0)
+//  {
+//    quint16 n = ui_.tableWidgetConformers->item(currentRow, 0)->text().toUInt(&ok);
+//    if (ok)
+//      currentViewer().displayConformer(n - 1);
+//  }
+//}
 
 void MainWindow::onSearchTypeChanged(int index)
 {
@@ -497,7 +503,9 @@ void MainWindow::on_actionExit_triggered()
       QString("Exit %1?").arg(QCoreApplication::applicationName()),
       QMessageBox::Ok | QMessageBox::Cancel,
       QMessageBox::Cancel) == QMessageBox::Ok)
+  {
     close();
+  }
 }
 
 void MainWindow::setObForceFieldName(const QString& obForceFieldName)
@@ -509,6 +517,21 @@ void MainWindow::showFontDialogForLabelsOnAtoms()
 {
   currentViewer().setLabelsOnAtomsFont(QFontDialog::getFont(
       0, currentViewer().labelsOnAtomsFont()));
+}
+
+void MainWindow::onTabCloseRequested(int index)
+{
+//  if (index > 0)
+  if (QMessageBox::information(
+      this,
+      QCoreApplication::applicationName(),
+      QString("Close tab %1?").arg(ui_.tabWidget->tabText(index)),
+      QMessageBox::Ok | QMessageBox::Cancel,
+      QMessageBox::Cancel) == QMessageBox::Ok)
+  {
+    ui_.tabWidget->removeTab(index);
+    delete ui_.tabWidget->widget(index);
+  }
 }
 
 //--------------------------------

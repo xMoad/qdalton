@@ -55,8 +55,8 @@ public slots:
   void openMolecule();
   void saveMolecule();
   void saveMoleculeAs(const QString& absoluteFilePath = "");
-  void fillConformersTable(double threshold);
-  void newTab(const QString& title);
+//  void fillConformersTable(double threshold);
+  void newTab(const QString& title, const File::Mol& fileMol);
   void goToTab(int index);
   void showImportStructureFromFileDialog();
   void showAboutDialog();
@@ -65,12 +65,13 @@ public slots:
   void updateActionsForNonemptyMolecule();
   void startOptimization();
   void onOptimizationFinished();
-  void startConformationalSearch();
-  void onConformationalSearchFinished();
-  void onTableWidgetConformersCurrentCellChanged(int currentRow);
+//  void startConformationalSearch();
+//  void onConformationalSearchFinished();
+//  void onTableWidgetConformersCurrentCellChanged(int currentRow);
   void onSearchTypeChanged(int index);
   void setObForceFieldName(const QString& obForceFieldName);
   void showFontDialogForLabelsOnAtoms();
+  void onTabCloseRequested(int index);
 
 private:
   Render::Viewer& currentViewer();

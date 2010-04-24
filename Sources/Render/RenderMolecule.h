@@ -56,10 +56,22 @@ namespace Render
     Molecule(const Render::Molecule& molecule);
     ~Molecule();
 
-    Render::Molecule& operator=(const Render::Molecule& rhs);
+    Render::Atom& atom(quint16 index);
+    const Render::Atom& atom(quint16 index) const;
 
-    Render::Atom atom(quint16 index);
-    Render::Bond bond(quint16 index);
+    Render::Bond& bond(quint16 index);
+    const Render::Bond& bond(quint16 index) const;
+
+    quint16 indexOfAtom(const Render::Atom& atom) const;
+    quint16 indexOfBond(const Render::Bond& bond) const;
+
+    void newAtom(quint8 atomicNumber,
+                 quint8 isotope,
+                 const Eigen::Vector3f& centre);
+
+    void newBond(quint16 beginAtomIndex,
+                 quint16 endAtomIndex,
+                 quint8 bondOrder);
 
     void removeAtom(quint16 index);
     void removeBond(quint16 index);
@@ -69,12 +81,6 @@ namespace Render
 
     bool importFromFile(const QString& fileName, OpenBabel::OBFormat* obFormat);
 
-    Render::Atom newAtom();
-
-    void addBond(quint16 beginAtomIndex,
-                 quint16 endAtomIndex,
-                 quint8 bondOrder);
-
     qint8 charge() const;
     void setCharge(qint8 charge);
 
@@ -83,8 +89,8 @@ namespace Render
     quint16 atomsCount() const;
     quint16 bondsCount() const;
 
-    qreal radius() const;
-    quint16 conformersCount() const;
+    float radius() const;
+//    quint16 conformersCount() const;
 
     void rebond();
 
@@ -93,22 +99,22 @@ namespace Render
                   quint8 stepsPerUpdate,
                   std::ostream* logOstream);
 
-    void searchConformers(const QString& obForceFieldName,
-                          Render::SearchType searchType,
-                          quint16 conformers,
-                          quint16 steps,
-                          std::ostream* logOstream);
+//    void searchConformers(const QString& obForceFieldName,
+//                          Render::SearchType searchType,
+//                          quint16 conformers,
+//                          quint16 steps,
+//                          std::ostream* logOstream);
 
-    void setConformer(quint16 index);
-    qreal conformerEnergy(quint16 index) const;
+//    void setConformer(quint16 index);
+//    qreal conformerEnergy(quint16 index) const;
 
     const Eigen::Vector3f& planeNormalVector() const;
     void setPlaneNormalVector(const Eigen::Vector3f& vector);
 
-    void toggleSelectionOfAtom(quint16 index);
-    void toggleSelectionOfBond(quint16 index);
+    void clear();
 
-    QList<quint16> bondsIndicesForAtom(quint16 index) const;
+    Eigen::Vector3f centreOfMass() const;
+    void setOriginOfAxesToCentreOfMass();
 
   public slots:
     void addHydrogensAndBuild();
@@ -122,11 +128,19 @@ namespace Render
     void conformationalSearchFinished();
 
   private:
-    OpenBabel::OBAtom* obAtom(quint16 index) const;
-    OpenBabel::OBBond* obBond(quint16 index) const;
-    OpenBabel::OBMol* obMol_;
-    QList<quint16> listSelectedAtoms_;
-    QList<quint16> listSelectedBonds_;
+    Render::Molecule& operator=(const Render::Molecule& rhs);
+
+    OpenBabel::OBMol toOBMol() const;
+    void fromOBMol(OpenBabel::OBMol& obMol);
+
+    typedef QList<Render::Bond*> BondsList;
+    typedef QList<BondsList> IncidenceMatrix;
+
+    QList<Render::Atom> atoms_;
+    QList<Render::Bond> bonds_;
+    IncidenceMatrix incidenceMatrix_;
+
+    quint8 charge_;
     Eigen::Vector3f planeNormalVector_;
   };
 }

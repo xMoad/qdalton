@@ -20,9 +20,6 @@
    <layout class="QGridLayout" name="gridLayoutMain" rowstretch="0,0" columnstretch="0,0">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>-1</number>
-      </property>
       <property name="tabsClosable">
        <bool>true</bool>
       </property>
@@ -48,7 +45,7 @@
          <x>0</x>
          <y>0</y>
          <width>340</width>
-         <height>445</height>
+         <height>479</height>
         </rect>
        </property>
        <attribute name="label">
@@ -336,8 +333,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>340</width>
-         <height>445</height>
+         <width>239</width>
+         <height>282</height>
         </rect>
        </property>
        <attribute name="label">
@@ -628,8 +625,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>340</width>
-         <height>445</height>
+         <width>114</width>
+         <height>109</height>
         </rect>
        </property>
        <attribute name="label">
@@ -729,7 +726,7 @@
      <x>0</x>
      <y>0</y>
      <width>862</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMolecule">

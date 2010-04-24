@@ -34,13 +34,16 @@ namespace File
   {
   public:
     Mol();
+    Mol(const Render::Molecule& molecule);
     Mol(const File::Mol& fileMol);
+
+
 
     bool parse(bool doAutoRebond);
     bool generate();
 
     Render::Molecule& molecule();
-    void setMolecule(const Render::Molecule& molecule);
+//    void setMolecule(const Render::Molecule& molecule);
 
     const QString& comment() const;
     int atomTypes() const;
@@ -53,6 +56,8 @@ namespace File
     void setGaussiansType(GaussiansType gaussiansType);
 
   private:
+    File::Mol& operator=(const File::Mol& rhs);
+
     bool parseBasis();
     bool parseGeneralString();
     bool parseAtoms();

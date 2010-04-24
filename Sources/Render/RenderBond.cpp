@@ -19,73 +19,111 @@
 
  **********************************************************************/
 
-#include <openbabel/mol.h>
+//#include <openbabel/mol.h>
 
 #include "Render/RenderAtom.h"
 #include "Render/RenderBond.h"
 #include "Render/RenderCylinder.h"
+#include "Render/RenderMolecule.h"
 
-Render::Bond::Bond(OpenBabel::OBBond* obBond) :
-    obBond_(obBond)
+Render::Bond::Bond(Render::Molecule* molecule,
+                   Render::Atom* beginAtom,
+                   Render::Atom* endAtom,
+                   quint8 bondOrder) :
+    molecule_(molecule),
+    beginAtom_(beginAtom),
+    endAtom_(endAtom),
+    bondOrder_(bondOrder),
+    selected_(false)
 {
 }
 
 Render::Bond::Bond(const Render::Bond& bond) :
-    obBond_(bond.obBond_)
+    molecule_(bond.molecule_),
+    beginAtom_(bond.beginAtom_),
+    endAtom_(bond.endAtom_),
+    bondOrder_(bond.bondOrder_),
+    selected_(bond.selected_)
 {
 }
 
-Render::Bond::~Bond()
-{
+Render::Bond& Render::Bond::operator=(const Render::Bond& rhs)
+                                     {
+  if (this == &rhs)
+    return *this;
+
+  molecule_ = rhs.molecule_;
+  beginAtom_ = rhs.beginAtom_;
+  endAtom_ = rhs.endAtom_;
+  bondOrder_ = rhs.bondOrder_;
+  selected_ = rhs.selected_;
+
+  return *this;
 }
 
-OpenBabel::OBBond* Render::Bond::obBond() const
+bool Render::Bond::operator==(const Render::Bond& bond) const
 {
-  return obBond_;
+  return this == &bond;
+}
+
+bool Render::Bond::operator!=(const Render::Bond& bond) const
+{
+  return !(*this == bond);
+}
+
+quint16 Render::Bond::index() const
+{
+  return molecule_->indexOfBond(*this);
+}
+
+const Render::Atom& Render::Bond::beginAtom() const
+{
+  return *beginAtom_;
+}
+
+const Render::Atom& Render::Bond::endAtom() const
+{
+  return *endAtom_;
 }
 
 void Render::Bond::draw(Render::View view,
                         const Eigen::Vector3f& planeNormalVector,
-                        bool isSelected,
                         bool fast) const
 {
   float shift;
 
-  if (obBond_->GetBondOrder() < 3)
+  if (bondOrder() < 3)
     shift = 0.125f;
   else
     shift = 0.2f;
-
-  Render::Atom atom1(obBond_->GetBeginAtom());
-  Render::Atom atom2(obBond_->GetEndAtom());
 
   Render::Cylinder cylinder1;
   Render::Cylinder cylinder2;
 
   // Compute the centre of bond
-  Eigen::Vector3f vec1 = atom2.centre() - atom1.centre();
-  vec1 = vec1 * (vec1.norm() - atom2.drawRadius()) / vec1.norm();
-  vec1 = vec1 + atom1.centre();
-  Eigen::Vector3f vec2 = atom1.centre() - atom2.centre();
-  vec2 = vec2 * (vec2.norm() - atom1.drawRadius()) / vec2.norm();
-  vec2 = vec2 + atom2.centre();
+  Eigen::Vector3f vec1 = endAtom().centre() - beginAtom().centre();
+  vec1 = vec1 * (vec1.norm() - endAtom().drawRadius()) / vec1.norm();
+  vec1 = vec1 + beginAtom().centre();
+  Eigen::Vector3f vec2 = beginAtom().centre() - endAtom().centre();
+  vec2 = vec2 * (vec2.norm() - beginAtom().drawRadius()) / vec2.norm();
+  vec2 = vec2 + endAtom().centre();
   Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
 
-  cylinder1.setVertex1(atom1.centre());
+  cylinder1.setVertex1(beginAtom().centre());
   cylinder1.setVertex2(vMiddle);
 
   cylinder2.setVertex1(vMiddle);
-  cylinder2.setVertex2(atom2.centre());
+  cylinder2.setVertex2(endAtom().centre());
 
-  if (isSelected)
+  if (isSelected())
   {
     cylinder1.setMaterial(Render::Material::selection());
     cylinder2.setMaterial(Render::Material::selection());
   }
   else
   {
-    cylinder1.setMaterial(Render::Material(atom1.color(), true));
-    cylinder2.setMaterial(Render::Material(atom2.color(), true));
+    cylinder1.setMaterial(Render::Material(beginAtom().color(), true));
+    cylinder2.setMaterial(Render::Material(endAtom().color(), true));
   }
 
   switch (view)
@@ -96,12 +134,12 @@ void Render::Bond::draw(Render::View view,
     if (fast)
     {
       cylinder1.drawMulti(Render::StyleFill,
-                          obBond_->GetBondOrder(),
+                          bondOrder(),
                           shift,
                           planeNormalVector,
                           Render::slicesForFastDrawing);
       cylinder2.drawMulti(Render::StyleFill,
-                          obBond_->GetBondOrder(),
+                          bondOrder(),
                           shift,
                           planeNormalVector,
                           Render::slicesForFastDrawing);
@@ -109,12 +147,12 @@ void Render::Bond::draw(Render::View view,
     else
     {
       cylinder1.drawMulti(Render::StyleFill,
-                          obBond_->GetBondOrder(),
+                          bondOrder(),
                           shift,
                           planeNormalVector,
                           Render::slicesForDrawing);
       cylinder2.drawMulti(Render::StyleFill,
-                          obBond_->GetBondOrder(),
+                          bondOrder(),
                           shift,
                           planeNormalVector,
                           Render::slicesForDrawing);
@@ -142,15 +180,15 @@ void Render::Bond::draw(Render::View view,
 
 quint8 Render::Bond::bondOrder() const
 {
-  return obBond_->GetBondOrder();
+  return bondOrder_;
 }
 
 void Render::Bond::setBondOrder(quint8 bondOrder)
 {
-  obBond_->SetBondOrder(bondOrder);
+  bondOrder_ = bondOrder;
 }
 
-void Render::Bond::cycleOrder()
+void Render::Bond::cycleBondOrder()
 {
   quint8 order = bondOrder();
 
@@ -158,4 +196,14 @@ void Render::Bond::cycleOrder()
     setBondOrder(1);
   else
     setBondOrder(order + 1);
+}
+
+bool Render::Bond::isSelected() const
+{
+  return selected_;
+}
+
+void Render::Bond::toggleSelection()
+{
+  selected_ = !selected_;
 }

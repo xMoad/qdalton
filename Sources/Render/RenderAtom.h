@@ -28,16 +28,12 @@
 #include "Render/RenderGL.h"
 #include "Render/RenderConstants.h"
 
-namespace OpenBabel
-{
-  class OBAtom;
-}
-
 namespace Render
 {
+  class Molecule;
   class Color;
   /**
-   * @class Atom Atom.h "Render/Atom.h"
+   * @class Atom Atom.h "Render/RenderAtom.h"
    * @brief Represents and draw atom.
    * @author Anton Simakov
    * @version 0.1
@@ -45,13 +41,19 @@ namespace Render
   class Atom
   {
   public:
+    Atom(Render::Molecule* molecule,
+         quint8 atomicNumber,
+         quint8 isotope,
+         const Eigen::Vector3f& centre);
     Atom(const Render::Atom& atom);
-    Atom(OpenBabel::OBAtom* obAtom);
-    ~Atom();
+    Render::Atom& operator=(const Render::Atom& rhs);
 
-    qreal exactMass() const;
+    bool operator==(const Render::Atom& atom) const;
+    bool operator!=(const Render::Atom& atom) const;
 
-    OpenBabel::OBAtom* obAtom() const;
+    quint16 index() const;
+
+    float exactMass() const;
 
     quint8 atomicNumber() const;
     void setAtomicNumber(quint8 atomicNumber);
@@ -69,12 +71,19 @@ namespace Render
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
 
+    bool isSelected() const;
+    void setSelected(bool selected);
+    void toggleSelection();
+
     void draw(Render::View view,
-              bool isSelected,
               bool fast) const;
 
   private:
-    OpenBabel::OBAtom* obAtom_;
+    Render::Molecule* molecule_;
+    quint8 atomicNumber_;
+    quint8 isotope_;
+    Eigen::Vector3f centre_;
+    bool selected_;
   };
 }
 
