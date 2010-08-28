@@ -34,7 +34,8 @@ HEADERS += Sources/MainWindow.h \
     Sources/ImportMoleculeFromFileDialog.h \
     Sources/FileMolGeneratorDialog.h \
     Sources/Render/RenderConstants.h \
-    Sources/Constants.h
+    Sources/Constants.h \
+    Sources/File/FileParseError.h
 SOURCES = Sources/main.cpp \
     Sources/MainWindow.cpp \
     Sources/Render/RenderArrow.cpp \
@@ -56,7 +57,8 @@ SOURCES = Sources/main.cpp \
     Sources/File/FileDal.cpp \
     Sources/AboutDialog.cpp \
     Sources/ImportMoleculeFromFileDialog.cpp \
-    Sources/FileMolGeneratorDialog.cpp
+    Sources/FileMolGeneratorDialog.cpp \
+    Sources/File/FileParseError.cpp
 FORMS += Sources/MainWindow.ui \
     Sources/AboutDialog.ui \
     Sources/ImportMoleculeFromFileDialog.ui \
@@ -78,7 +80,7 @@ win32 {
 macx {
     INCLUDEPATH += /usr/local/include/openbabel-2.0 \
         /usr/local/include/eigen2 \
-        /usr/include/QGLViewer
+        /Library/Frameworks/QGLViewer.framework/Headers
     MOC_DIR = Build/Temp/macx
     RCC_DIR = Build/Temp/macx
     UI_DIR = Build/Temp/macx
@@ -91,7 +93,7 @@ macx {
 linux-g++ {
     INCLUDEPATH += /usr/include/openbabel-2.0 \
         /usr/include/eigen2 \
-        /usr/include/qglviewer-qt4
+        /usr/include/QGLViewer
     MOC_DIR = Build/Temp/linux
     RCC_DIR = Build/Temp/linux
     UI_DIR = Build/Temp/linux

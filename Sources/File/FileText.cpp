@@ -28,16 +28,14 @@
 File::Text::Text() :
     absoluteFilePath_(),
     strings_(),
-    parseErrorIndex_(-1),
-    parseErrorMessage_()
+    parseErrors_()
 {
 }
 
 File::Text::Text(const File::Text &fileText):
     absoluteFilePath_(fileText.absoluteFilePath_),
     strings_(fileText.strings_),
-    parseErrorIndex_(fileText.parseErrorIndex_),
-    parseErrorMessage_(fileText.parseErrorMessage_)
+    parseErrors_(fileText.parseErrors_)
 {
 }
 
@@ -120,18 +118,22 @@ void File::Text::insertString(int index, const QString& string)
   strings_.insert(index, string);
 }
 
-void File::Text::setParseError(int index, const QString& message)
+void File::Text::addParseError(const File::ParseError& parseError)
 {
-  parseErrorIndex_ = index;
-  parseErrorMessage_ = message;
+  parseErrors_ << parseError;
 }
 
-int File::Text::parseErrorIndex() const
+int File::Text::parseErrorsCount() const
 {
-  return parseErrorIndex_;
+    return parseErrors_.count();
 }
 
-const QString& File::Text::parseErrorMessage() const
+const File::ParseError& File::Text::parseError(int index) const
 {
-  return parseErrorMessage_;
+    return parseErrors_.at(index);
+}
+
+bool File::Text::parsedSuccessfully() const
+{
+    return parseErrors_.count() == 0;
 }

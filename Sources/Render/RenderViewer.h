@@ -59,13 +59,18 @@ namespace Render
     const QFont& labelsOnAtomsFont() const;
     void setLabelsOnAtomsFont(const QFont& font);
 
+    Render::LabelsOnBonds labelsOnBonds() const;
+    const QFont& labelsOnBondsFont() const;
+    void setLabelsOnBondsFont(const QFont& font);
+
     QString atomSymbol() const;
 
 //    void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 
-    Eigen::Vector3f cameraPosition();
+    Eigen::Vector3f cameraPosition() const;
+    Eigen::Vector3f cameraViewDirection() const;
 
   public slots:
     void setAxesVisible(bool visible);
@@ -73,6 +78,7 @@ namespace Render
     void setDebugInfoVisible(bool visible);
     void setView(int view);
     void setLabelsOnAtoms(int labelsOnAtoms);
+    void setLabelsOnBonds(int labelsOnBonds);
     void setAtomSymbol(const QString& atomSymbol);
 
   protected:
@@ -98,7 +104,9 @@ namespace Render
     qint32 atomSelectedBeforeIndex_;
 
     Render::LabelsOnAtoms labelsOnAtoms_;
+    Render::LabelsOnBonds labelsOnBonds_;
     QFont labelsOnAtomsFont_;
+    QFont labelsOnBondsFont_;
 
     void drawAxes(float size);
     void drawDebugInfo();

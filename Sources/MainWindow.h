@@ -71,6 +71,7 @@ public slots:
   void onSearchTypeChanged(int index);
   void setObForceFieldName(const QString& obForceFieldName);
   void showFontDialogForLabelsOnAtoms();
+  void showFontDialogForLabelsOnBonds();
   void onTabCloseRequested(int index);
 
 private:

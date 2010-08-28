@@ -41,9 +41,12 @@ Render::Viewer::Viewer(QWidget* parent, const File::Mol& fileMol) :
     atomicNumber_(6),
     atomSelectedBeforeIndex_(-1),
     labelsOnAtoms_(Render::LabelsOnAtomsNone),
-    labelsOnAtomsFont_()
+    labelsOnBonds_(Render::LabelsOnBondsNone),
+    labelsOnAtomsFont_(),
+    labelsOnBondsFont_()
 {
   setMouseBinding(Qt::CTRL + Qt::LeftButton, FRAME, TRANSLATE);
+  camera()->frame()->setSpinningSensitivity(100.0f);
 }
 
 Render::Viewer::~Viewer()
@@ -60,7 +63,7 @@ void Render::Viewer::draw()
   if (isDebugInfoVisible_)
     drawDebugInfo();
 
-  if (labelsOnAtoms() == Render::LabelsOnAtomsSymbol)
+  if (labelsOnAtoms() != Render::LabelsOnAtomsNone)
   {
     GLfloat color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
@@ -73,7 +76,47 @@ void Render::Viewer::draw()
       v = v * (v.norm() - atom.drawRadius() - 0.1f) / v.norm();
       v = v + cameraPosition();
 
-      renderText(v.x(), v.y(), v.z(), atom.symbol(), labelsOnAtomsFont());
+      QString text;
+
+      switch (labelsOnAtoms())
+      {
+      case Render::LabelsOnAtomsSymbol:
+        text = atom.symbol();
+        break;
+      case Render::LabelsOnAtomsIndex:
+        text = QString::number(atom.index() + 1);
+        break;
+      }
+
+      renderText(v.x(), v.y(), v.z(), text, labelsOnAtomsFont());
+    }
+
+    glColor4fv(color);
+  }
+
+  if (labelsOnBonds() != Render::LabelsOnBondsNone)
+  {
+    GLfloat color[4];
+    glGetFloatv(GL_CURRENT_COLOR, color);
+    glColor3f(0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < fileMol().molecule().bondsCount(); ++i)
+    {
+      Render::Bond& bond = fileMol().molecule().bond(i);
+      Eigen::Vector3f v = bond.centre() - cameraPosition();
+      v = v * (v.norm() - 1.0f) / v.norm();
+      v = v + cameraPosition();
+
+      QString text;
+
+      switch (labelsOnBonds())
+      {
+      case Render::LabelsOnBondsLength:
+        text = QString::number(bond.length(), 'g', 3);
+        break;
+      }
+
+      renderText(v.x(), v.y(), v.z(), text, labelsOnBondsFont());
     }
 
     glColor4fv(color);
@@ -114,8 +157,8 @@ void Render::Viewer::init()
   // Enable the depth buffer updating
   glEnable(GL_DEPTH_TEST);
 
-//  glLightModeli( GL_LIGHT_MODEL_COLOR_CONTROL_EXT,
-//                 GL_SEPARATE_SPECULAR_COLOR_EXT );
+  //  glLightModeli( GL_LIGHT_MODEL_COLOR_CONTROL_EXT,
+  //                 GL_SEPARATE_SPECULAR_COLOR_EXT );
 
   // Due to the bug found with Mesa 6.5.3 in the Radeon DRI driver
   // in radeon_state.c in radeonUpdateSpecular(),
@@ -136,19 +179,16 @@ void Render::Viewer::init()
   glLightfv(GL_LIGHT1, GL_POSITION, LIGHT1_POSITION);
   glEnable(GL_LIGHT1);
 
-  setSceneRadius(10.0f);
-  showEntireScene();
-
   glEnable(GL_NORMALIZE);
 
   // As mentioned in QGLViewer documentation for select() method,
   // one can encounter problems with backface culling.
-  // If so one can try to glDisable(GL_CULL_FACE).
+  // If so one can try to use glDisable(GL_CULL_FACE).
   glDisable(GL_CULL_FACE);
 
   setManipulatedFrame(new qglviewer::ManipulatedFrame());
 
-  setSceneRadius(fileMol_.molecule().radius());
+  setSceneRadius(fileMol_.molecule().radius() + 1.0f);
   showEntireScene();
 }
 
@@ -195,10 +235,17 @@ void Render::Viewer::drawDebugInfo()
   renderText(20, 30, QString("Distance: %1").arg(sceneRadius()), font);
   renderText(20, 45,
              QString("Molecule: %1 (%2 atoms)").arg(fileMol().molecule().formula(),
-                 QString::number(fileMol().molecule().atomsCount())),
+                                                    QString::number(fileMol().molecule().atomsCount())),
              font);
-  renderText(20, 60, QString("%1 %2 %3").arg(cameraPosition().x()).arg(cameraPosition().y()).arg(cameraPosition().z()), font);
-  renderText(20, 75, QString("%1 %2 %3").arg(
+  renderText(20, 60, QString("View direction: %1 %2 %3").arg(
+      camera()->viewDirection().x).arg(
+          camera()->viewDirection().y).arg(
+              camera()->viewDirection().z), font);
+  renderText(20, 75, QString("Camera position: %1 %2 %3").arg(
+      cameraPosition().x()).arg(
+          cameraPosition().y()).arg(
+              cameraPosition().z()), font);
+  renderText(20, 90, QString("%1 %2 %3").arg(
       fileMol().molecule().centreOfMass().x()).arg(
           fileMol().molecule().centreOfMass().y()).arg(
               fileMol().molecule().centreOfMass().z()), font);
@@ -216,26 +263,48 @@ Render::LabelsOnAtoms Render::Viewer::labelsOnAtoms() const
   return labelsOnAtoms_;
 }
 
-const QFont& Render::Viewer::labelsOnAtomsFont() const
-{
-  return labelsOnAtomsFont_;
-}
-
-void Render::Viewer::setView(int view)
-{
-  view_ = (Render::View)view;
-  updateGL();
-}
-
 void Render::Viewer::setLabelsOnAtoms(int labelsOnAtoms)
 {
   labelsOnAtoms_ = (Render::LabelsOnAtoms)labelsOnAtoms;
   updateGL();
 }
 
+const QFont& Render::Viewer::labelsOnAtomsFont() const
+{
+  return labelsOnAtomsFont_;
+}
+
 void Render::Viewer::setLabelsOnAtomsFont(const QFont& font)
 {
   labelsOnAtomsFont_ = font;
+  updateGL();
+}
+
+Render::LabelsOnBonds Render::Viewer::labelsOnBonds() const
+{
+  return labelsOnBonds_;
+}
+
+void Render::Viewer::setLabelsOnBonds(int labelsOnBonds)
+{
+  labelsOnBonds_ = (Render::LabelsOnBonds)labelsOnBonds;
+  updateGL();
+}
+
+const QFont& Render::Viewer::labelsOnBondsFont() const
+{
+  return labelsOnBondsFont_;
+}
+
+void Render::Viewer::setLabelsOnBondsFont(const QFont& font)
+{
+  labelsOnBondsFont_ = font;
+  updateGL();
+}
+
+void Render::Viewer::setView(int view)
+{
+  view_ = (Render::View)view;
   updateGL();
 }
 
@@ -315,11 +384,18 @@ bool Render::Viewer::isSomethingUnderPixel(const QPoint& pixel)
   return found;
 }
 
-Eigen::Vector3f Render::Viewer::cameraPosition()
+Eigen::Vector3f Render::Viewer::cameraPosition() const
 {
   return Eigen::Vector3f(camera()->position().x,
                          camera()->position().y,
                          camera()->position().z);
+}
+
+Eigen::Vector3f Render::Viewer::cameraViewDirection() const
+{
+  return Eigen::Vector3f(camera()->viewDirection().x,
+                         camera()->viewDirection().y,
+                         camera()->viewDirection().z);
 }
 
 void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
@@ -330,10 +406,10 @@ void Render::Viewer::mouseMoveEvent(QMouseEvent* e)
     QGLViewer::mouseMoveEvent(e);
     break;
   case Qt::RightButton:
-//    if (e->modifiers() == (Qt::NoModifier | Qt::MetaModifier))
-//    {
-      QGLViewer::mouseMoveEvent(e);
-//    }
+    //    if (e->modifiers() == (Qt::NoModifier | Qt::MetaModifier))
+    //    {
+    QGLViewer::mouseMoveEvent(e);
+    //    }
     break;
   default:
     break;

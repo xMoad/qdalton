@@ -58,6 +58,9 @@ namespace Render
     void setBondOrder(quint8 bondOrder);
     void cycleBondOrder();
 
+    float length() const;
+    Eigen::Vector3f centre() const;
+
     bool isSelected() const;
     void toggleSelection();
 

@@ -45,7 +45,14 @@ namespace Render
   enum LabelsOnAtoms
   {
     LabelsOnAtomsNone,
-    LabelsOnAtomsSymbol
+    LabelsOnAtomsSymbol,
+    LabelsOnAtomsIndex
+  };
+
+  enum LabelsOnBonds
+  {
+      LabelsOnBondsNone,
+      LabelsOnBondsLength
   };
 
   const GLfloat bondThikness = 0.075f;

@@ -37,9 +37,7 @@ namespace File
     Mol(const Render::Molecule& molecule);
     Mol(const File::Mol& fileMol);
 
-
-
-    bool parse(bool doAutoRebond);
+    void parse(bool doAutoRebond);
     bool generate();
 
     Render::Molecule& molecule();
@@ -58,9 +56,9 @@ namespace File
   private:
     File::Mol& operator=(const File::Mol& rhs);
 
-    bool parseBasis();
-    bool parseGeneralString();
-    bool parseAtoms();
+    void parseBasis();
+    void parseGeneralString();
+    void parseAtoms();
 
     Render::Molecule molecule_;
     // General string contains most important information

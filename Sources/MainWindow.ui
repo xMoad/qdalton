@@ -45,7 +45,7 @@
          <x>0</x>
          <y>0</y>
          <width>340</width>
-         <height>479</height>
+         <height>445</height>
         </rect>
        </property>
        <attribute name="label">
@@ -210,10 +210,56 @@
                <string>Symbols</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Indices</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="0" column="2">
             <widget class="QPushButton" name="pushButtonLabelsOnAtomsFont">
+             <property name="icon">
+              <iconset resource="../Resources/images.qrc">
+               <normaloff>:/images/font.png</normaloff>:/images/font.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelLabelsOnBonds">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>On bonds:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBoxLabelsOnBonds">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Length</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="pushButtonLabelsOnBondsFont">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
              <property name="icon">
               <iconset resource="../Resources/images.qrc">
                <normaloff>:/images/font.png</normaloff>:/images/font.png</iconset>
@@ -333,8 +379,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>239</width>
-         <height>282</height>
+         <width>340</width>
+         <height>445</height>
         </rect>
        </property>
        <attribute name="label">
@@ -478,6 +524,9 @@
         </item>
         <item row="7" column="0" colspan="2">
          <widget class="QGroupBox" name="groupBoxConformationalSearch">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="title">
            <string>Conformational search</string>
           </property>
@@ -621,12 +670,15 @@
        </layout>
       </widget>
       <widget class="QWidget" name="pageConformersTable">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>114</width>
-         <height>109</height>
+         <width>340</width>
+         <height>445</height>
         </rect>
        </property>
        <attribute name="label">
@@ -691,18 +743,6 @@
           <attribute name="verticalHeaderVisible">
            <bool>false</bool>
           </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
           <column/>
           <column/>
          </widget>
@@ -726,7 +766,7 @@
      <x>0</x>
      <y>0</y>
      <width>862</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMolecule">

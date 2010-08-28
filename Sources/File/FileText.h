@@ -24,6 +24,8 @@
 
 #include <QStringList>
 
+#include "File/FileParseError.h"
+
 namespace File
 {
   class Text
@@ -49,15 +51,17 @@ namespace File
     void addString(const QString& string);
     void insertString(int index, const QString& string);
 
-    void setParseError(int stringIndex, const QString& message);
-    int parseErrorIndex() const;
-    const QString& parseErrorMessage() const;
+    void addParseError(const File::ParseError& firstParseError);
+
+    int parseErrorsCount() const;
+    const File::ParseError& parseError(int index) const;
+
+    bool parsedSuccessfully() const;
 
   private:
     QString absoluteFilePath_;
     QStringList strings_;
-    int parseErrorIndex_;
-    QString parseErrorMessage_;
+    QList<File::ParseError> parseErrors_;
   };
 }
 

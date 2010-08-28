@@ -100,6 +100,8 @@ MainWindow::MainWindow(QWidget* parent):
 
   connect(ui_.pushButtonLabelsOnAtomsFont, SIGNAL(clicked()),
           this, SLOT(showFontDialogForLabelsOnAtoms()));
+  connect(ui_.pushButtonLabelsOnBondsFont, SIGNAL(clicked()),
+          this, SLOT(showFontDialogForLabelsOnBonds()));
 
   connect(ui_.comboBoxForceField, SIGNAL(currentIndexChanged(QString)),
           this, SLOT(setObForceFieldName(QString)));
@@ -192,8 +194,8 @@ void MainWindow::openMolecule()
           QMessageBox::Ok | QMessageBox::Cancel,
           QMessageBox::Ok) == QMessageBox::Ok)
         ui_.tabWidget->setCurrentIndex(i);
-        return;
-      }
+      return;
+    }
 
 
     setDir(QFileInfo(fileName).absolutePath());
@@ -205,7 +207,8 @@ void MainWindow::openMolecule()
     if (molFile.read())
     {
       addToLog(tr("Reading succeeded."));
-      if (molFile.parse(true))
+      molFile.parse(true);
+      if (molFile.parsedSuccessfully())
       {
         addToLog(tr("Parsing succeeded."));
         newTab(molFile.fileName(), molFile);
@@ -219,9 +222,14 @@ void MainWindow::openMolecule()
         messageBox.setIcon(QMessageBox::Critical);
         messageBox.setText(tr("Can't parse *.mol file ")
                            + molFile.fileName());
-        messageBox.setInformativeText("Error at line #" + QString::number(
-            molFile.parseErrorIndex() + 1));
-        messageBox.setDetailedText(molFile.parseErrorMessage());
+        messageBox.setInformativeText("Errors: " + QString::number(molFile.parseErrorsCount()));
+
+        QString detailedText;
+        for (int i = 0; i < molFile.parseErrorsCount(); ++i)
+        {
+          detailedText += "Line #" + QString::number(molFile.parseError(i).index() + 1) + ": " + molFile.parseError(i).message();
+        }
+        messageBox.setDetailedText(detailedText);
         messageBox.setStandardButtons(QMessageBox::Ok);
         messageBox.exec();
       }
@@ -251,7 +259,7 @@ void MainWindow::saveMoleculeAs(const QString& absoluteFilePath)
 
   if (absoluteFilePath.isEmpty())
     fileName = QFileDialog::getSaveFileName(
-       this, tr("Save *.mol file"), dir(), tr("*.mol files(*.mol)"));
+        this, tr("Save *.mol file"), dir(), tr("*.mol files(*.mol)"));
   else
     fileName = absoluteFilePath;
 
@@ -363,6 +371,8 @@ void MainWindow::goToTab(int index)
             &currentViewer(), SLOT(setView(int)));
     connect(ui_.comboBoxLabelsOnAtoms, SIGNAL(currentIndexChanged(int)),
             &currentViewer(), SLOT(setLabelsOnAtoms(int)));
+    connect(ui_.comboBoxLabelsOnBonds, SIGNAL(currentIndexChanged(int)),
+            &currentViewer(), SLOT(setLabelsOnBonds(int)));
     connect(ui_.comboBoxAtom, SIGNAL(editTextChanged(QString)),
             &currentViewer(), SLOT(setAtomSymbol(QString)));
   }
@@ -404,8 +414,8 @@ void MainWindow::updateActionsForEmptyMolecule()
 void MainWindow::updateActionsForNonemptyMolecule()
 {
   ui_.actionStructureAddHydrogens->setEnabled(true);
-//  ui_.actionStructureRemoveHydrogens->setEnabled(true);
-//  ui_.actionStructureConformations->setEnabled(true);
+  //  ui_.actionStructureRemoveHydrogens->setEnabled(true);
+  //  ui_.actionStructureConformations->setEnabled(true);
   ui_.actionStructureExportImage->setEnabled(true);
 }
 
@@ -519,9 +529,15 @@ void MainWindow::showFontDialogForLabelsOnAtoms()
       0, currentViewer().labelsOnAtomsFont()));
 }
 
+void MainWindow::showFontDialogForLabelsOnBonds()
+{
+  currentViewer().setLabelsOnBondsFont(QFontDialog::getFont(
+      0, currentViewer().labelsOnBondsFont()));
+}
+
 void MainWindow::onTabCloseRequested(int index)
 {
-//  if (index > 0)
+  //  if (index > 0)
   if (QMessageBox::information(
       this,
       QCoreApplication::applicationName(),
@@ -529,8 +545,8 @@ void MainWindow::onTabCloseRequested(int index)
       QMessageBox::Ok | QMessageBox::Cancel,
       QMessageBox::Cancel) == QMessageBox::Ok)
   {
+    ui_.tabWidget->widget(index)->deleteLater();
     ui_.tabWidget->removeTab(index);
-    delete ui_.tabWidget->widget(index);
   }
 }
 
