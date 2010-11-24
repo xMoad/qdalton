@@ -1,22 +1,4 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009, 2010 Anton Simakov
-
-  This file is part of QDalton.
-  For more information, see <http://code.google.com/p/qdalton/>
-
-  QDalton is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  QDalton is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
-
  **********************************************************************/
 
 #ifndef MAINWINDOW_H
@@ -25,7 +7,8 @@
 //#include <openbabel/forcefield.h>
 
 #include "ui_MainWindow.h"
-#include "Render/RenderMolecule.h"
+#include "Chemistry/ChemistryMolecularMechanics.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 namespace File
 {
@@ -55,7 +38,7 @@ public slots:
   void openMolecule();
   void saveMolecule();
   void saveMoleculeAs(const QString& absoluteFilePath = "");
-//  void fillConformersTable(double threshold);
+  //  void fillConformersTable(double threshold);
   void newTab(const QString& title, const File::Mol& fileMol);
   void goToTab(int index);
   void showImportStructureFromFileDialog();
@@ -65,14 +48,15 @@ public slots:
   void updateActionsForNonemptyMolecule();
   void startOptimization();
   void onOptimizationFinished();
-//  void startConformationalSearch();
-//  void onConformationalSearchFinished();
-//  void onTableWidgetConformersCurrentCellChanged(int currentRow);
+  //  void startConformationalSearch();
+  //  void onConformationalSearchFinished();
+  //  void onTableWidgetConformersCurrentCellChanged(int currentRow);
   void onSearchTypeChanged(int index);
   void setObForceFieldName(const QString& obForceFieldName);
   void showFontDialogForLabelsOnAtoms();
   void showFontDialogForLabelsOnBonds();
   void onTabCloseRequested(int index);
+  void addHydrogensAndBuild();
 
 private:
   Render::Viewer& currentViewer();
@@ -82,6 +66,7 @@ private:
   std::ostringstream os_;
   QString obForceFieldName_;
   QString dir_;
+  Chemistry::MolecularMechanics mm_;
 
 private slots:
   void on_actionExit_triggered();

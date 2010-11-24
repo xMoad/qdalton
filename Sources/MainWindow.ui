@@ -379,8 +379,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>340</width>
-         <height>445</height>
+         <width>333</width>
+         <height>367</height>
         </rect>
        </property>
        <attribute name="label">
@@ -677,8 +677,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>340</width>
-         <height>445</height>
+         <width>157</width>
+         <height>145</height>
         </rect>
        </property>
        <attribute name="label">
@@ -808,7 +808,7 @@
     </widget>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
-    <addaction name="actionStructureAddHydrogens"/>
+    <addaction name="actionStructureAddHydrogensAndBuild"/>
     <addaction name="actionStructureRemoveHydrogens"/>
     <addaction name="separator"/>
     <addaction name="actionStructureConformations"/>
@@ -937,7 +937,7 @@
     <enum>QAction::AboutRole</enum>
    </property>
   </action>
-  <action name="actionStructureAddHydrogens">
+  <action name="actionStructureAddHydrogensAndBuild">
    <property name="enabled">
     <bool>false</bool>
    </property>

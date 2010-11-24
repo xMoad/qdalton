@@ -1,22 +1,4 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009, 2010 Anton Simakov
-
-  This file is part of QDalton.
-  For more information, see <http://code.google.com/p/qdalton/>
-
-  QDalton is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  QDalton is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
-
  **********************************************************************/
 
 #include <QtGlobal>
@@ -32,9 +14,12 @@
 #include <QTableWidget>
 #include <qglviewer.h>
 
-#include "Render/RenderAtom.h"
-#include "Render/RenderBond.h"
+#include "Chemistry/ChemistryAtom.h"
+#include "Chemistry/ChemistryBond.h"
 #include "File/FileMol.h"
+#include "Render/RenderColor.h"
+#include "Render/RenderConstants.h"
+
 
 namespace Render
 {
@@ -47,7 +32,8 @@ namespace Render
     ~Viewer();
 
     File::Mol& fileMol();
-//    void setFileMol(const File::Mol& fileMol);
+    const File::Mol& fileMol() const;
+    //    void setFileMol(const File::Mol& fileMol);
 
     bool isAxesVisible() const;
     float axesSize() const;
@@ -65,7 +51,7 @@ namespace Render
 
     QString atomSymbol() const;
 
-//    void displayConformer(quint16 index);
+    //    void displayConformer(quint16 index);
 
     bool isSomethingUnderPixel(const QPoint& pixel);
 
@@ -108,7 +94,16 @@ namespace Render
     QFont labelsOnAtomsFont_;
     QFont labelsOnBondsFont_;
 
-    void drawAxes(float size);
+    GLfloat atomDrawRadius(const Chemistry::Atom& atom) const;
+    Render::Color atomColor(const Chemistry::Atom& atom) const;
+    void drawAtom(const Chemistry::Atom& atom, bool fast) const;
+
+    void drawBond(const Chemistry::Bond& bond, bool fast) const;
+
+    void drawMolecule(bool fast) const;
+    void drawMoleculeWithNames() const;
+
+    void drawAxes(float size) const;
     void drawDebugInfo();
 
     void mouseLeftButtonPressEvent(QMouseEvent* e);

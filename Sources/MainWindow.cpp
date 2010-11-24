@@ -36,7 +36,7 @@
 #include "FileMolGeneratorDialog.h"
 #include "File/FileDal.h"
 #include "File/FileMol.h"
-#include "Render/RenderAtom.h"
+#include "Chemistry/ChemistryAtom.h"
 #include "Render/RenderColor.h"
 #include "Render/RenderViewer.h"
 
@@ -45,7 +45,8 @@ MainWindow::MainWindow(QWidget* parent):
     ui_(),
     os_(),
     obForceFieldName_(),
-    dir_(QDir::homePath())
+    dir_(QDir::homePath()),
+    mm_()
 {
   ui_.setupUi(this);
 
@@ -120,6 +121,11 @@ MainWindow::MainWindow(QWidget* parent):
   connect(ui_.tableWidgetConformers, SIGNAL(currentCellChanged(int,int,int,int)),
           this, SLOT(onTableWidgetConformersCurrentCellChanged(int)));
 
+  connect(&mm_, SIGNAL(optimizationFinished()),
+          this, SLOT(onOptimizationFinished()));
+  connect(&mm_, SIGNAL(conformationalSearchFinished()),
+          this, SLOT(onConformationalSearchFinished()));
+
   ui_.comboBoxForceField->setCurrentIndex(2);
 }
 
@@ -134,7 +140,7 @@ void MainWindow::addToLog(const QString& string)
 void MainWindow::importMoleculeFromFile(const QString& fileName,
                                         OpenBabel::OBFormat* obFormat)
 {
-  Render::Molecule molecule;
+  Chemistry::Molecule molecule;
 
   if (!fileName.isEmpty())
   {
@@ -330,7 +336,7 @@ void MainWindow::goToTab(int index)
   if (index >= 0)
   {
     currentViewer().fileMol().molecule().disconnect();
-    ui_.actionStructureAddHydrogens->disconnect();
+    ui_.actionStructureAddHydrogensAndBuild->disconnect();
     ui_.actionStructureRemoveHydrogens->disconnect();
     ui_.checkBoxAxes->disconnect();
     ui_.doubleSpinBoxAxesSize->disconnect();
@@ -349,15 +355,9 @@ void MainWindow::goToTab(int index)
             this, SLOT(updateActionsForEmptyMolecule()));
     connect(&currentViewer().fileMol().molecule(), SIGNAL(becameNonempty()),
             this, SLOT(updateActionsForNonemptyMolecule()));
-    connect(&currentViewer().fileMol().molecule(), SIGNAL(geometryChanged()),
-            &currentViewer(), SLOT(updateGL()));
-    connect(&currentViewer().fileMol().molecule(), SIGNAL(optimizationFinished()),
-            this, SLOT(onOptimizationFinished()));
-    connect(&currentViewer().fileMol().molecule(), SIGNAL(conformationalSearchFinished()),
-            this, SLOT(onConformationalSearchFinished()));
 
-    connect(ui_.actionStructureAddHydrogens, SIGNAL(triggered()),
-            &currentViewer().fileMol().molecule(), SLOT(addHydrogensAndBuild()));
+    connect(ui_.actionStructureAddHydrogensAndBuild, SIGNAL(triggered()),
+            this, SLOT(addHydrogensAndBuild()));
     connect(ui_.actionStructureRemoveHydrogens, SIGNAL(triggered()),
             &currentViewer().fileMol().molecule(), SLOT(removeHydrogens()));
 
@@ -375,6 +375,11 @@ void MainWindow::goToTab(int index)
             &currentViewer(), SLOT(setLabelsOnBonds(int)));
     connect(ui_.comboBoxAtom, SIGNAL(editTextChanged(QString)),
             &currentViewer(), SLOT(setAtomSymbol(QString)));
+
+    connect(&currentViewer().fileMol().molecule(), SIGNAL(repaintingIsNecessary()),
+            &currentViewer(), SLOT(updateGL()));
+    connect(&mm_, SIGNAL(geometryChanged()),
+            &currentViewer(), SLOT(updateGL()));
   }
 }
 
@@ -404,7 +409,7 @@ void MainWindow::showFileMolGeneratorDialog()
 
 void MainWindow::updateActionsForEmptyMolecule()
 {
-  ui_.actionStructureAddHydrogens->setEnabled(false);
+  ui_.actionStructureAddHydrogensAndBuild->setEnabled(false);
   ui_.actionStructureRemoveHydrogens->setEnabled(false);
   ui_.actionStructureConformations->setEnabled(false);
   ui_.actionStructureExportImage->setEnabled(false);
@@ -413,8 +418,8 @@ void MainWindow::updateActionsForEmptyMolecule()
 
 void MainWindow::updateActionsForNonemptyMolecule()
 {
-  ui_.actionStructureAddHydrogens->setEnabled(true);
-  //  ui_.actionStructureRemoveHydrogens->setEnabled(true);
+  ui_.actionStructureAddHydrogensAndBuild->setEnabled(true);
+  ui_.actionStructureRemoveHydrogens->setEnabled(true);
   //  ui_.actionStructureConformations->setEnabled(true);
   ui_.actionStructureExportImage->setEnabled(true);
 }
@@ -424,12 +429,15 @@ void MainWindow::startOptimization()
   ui_.centralWidget->setEnabled(false);
   ui_.menuBar->setEnabled(false);
   ui_.toolBar->setEnabled(false);
+
   QCoreApplication::processEvents();
-  currentViewer().fileMol().molecule().optimize(
+
+  mm_.optimize(
+      currentViewer().fileMol().molecule(),
       ui_.comboBoxForceField->currentText(),
       ui_.spinBoxMaxStepsCount->value(),
       ui_.spinBoxStepsPerUpdate->value(),
-      &os_);
+      os_);
 }
 
 void MainWindow::onOptimizationFinished()
@@ -562,4 +570,9 @@ Render::Viewer& MainWindow::viewer(int index)
   if (index < 0)
     index = ui_.tabWidget->count() + index;
   return *ui_.tabWidget->widget(index)->findChild<Render::Viewer*>();
+}
+
+void MainWindow::addHydrogensAndBuild()
+{
+  mm_.addHydrogensAndBuild(currentViewer().fileMol().molecule());
 }

@@ -1,22 +1,4 @@
 /**********************************************************************
-  Copyright (C) 2008, 2009, 2010 Anton Simakov
-
-  This file is part of QDalton.
-  For more information, see <http://code.google.com/p/qdalton/>
-
-  QDalton is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  QDalton is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with QDalton. If not, see <http://www.gnu.org/licenses/>.
-
  **********************************************************************/
 
 #include <cmath>
@@ -58,7 +40,7 @@ void Render::Viewer::draw()
   if (isAxesVisible_)
     drawAxes(axesSize_);
 
-  fileMol().molecule().draw(view_, false);
+  drawMolecule(false);
 
   if (isDebugInfoVisible_)
     drawDebugInfo();
@@ -71,9 +53,9 @@ void Render::Viewer::draw()
 
     for (int i = 0; i < fileMol().molecule().atomsCount(); ++i)
     {
-      Render::Atom& atom = fileMol().molecule().atom(i);
+      Chemistry::Atom& atom = fileMol().molecule().atom(i);
       Eigen::Vector3f v = atom.centre() - cameraPosition();
-      v = v * (v.norm() - atom.drawRadius() - 0.1f) / v.norm();
+      v = v * (v.norm() - atomDrawRadius(atom) - 0.1f) / v.norm();
       v = v + cameraPosition();
 
       QString text;
@@ -102,7 +84,7 @@ void Render::Viewer::draw()
 
     for (int i = 0; i < fileMol().molecule().bondsCount(); ++i)
     {
-      Render::Bond& bond = fileMol().molecule().bond(i);
+      Chemistry::Bond& bond = fileMol().molecule().bond(i);
       Eigen::Vector3f v = bond.centre() - cameraPosition();
       v = v * (v.norm() - 1.0f) / v.norm();
       v = v + cameraPosition();
@@ -128,12 +110,12 @@ void Render::Viewer::fastDraw()
   if (isAxesVisible_)
     drawAxes(axesSize_);
 
-  fileMol().molecule().draw(view_, true);
+  drawMolecule(true);
 }
 
 void Render::Viewer::drawWithNames()
 {
-  fileMol().molecule().drawWithNames(view_);
+  drawMoleculeWithNames();
 }
 
 void Render::Viewer::init()
@@ -192,7 +174,7 @@ void Render::Viewer::init()
   showEntireScene();
 }
 
-void Render::Viewer::drawAxes(float size)
+void Render::Viewer::drawAxes(float size) const
 {
   Render::Arrow x;
   Render::Arrow y;
@@ -358,6 +340,11 @@ File::Mol& Render::Viewer::fileMol()
   return fileMol_;
 }
 
+const File::Mol& Render::Viewer::fileMol() const
+{
+  return fileMol_;
+}
+
 //void Render::Viewer::setFileMol(const File::Mol& fileMol)
 //{
 //  fileMol_ = fileMol;
@@ -382,6 +369,185 @@ bool Render::Viewer::isSomethingUnderPixel(const QPoint& pixel)
   camera()->pointUnderPixel(pixel, found);
 
   return found;
+}
+
+GLfloat Render::Viewer::atomDrawRadius(const Chemistry::Atom& atom) const
+{
+#ifdef Q_CC_MSVC
+  return pow(atom.exactMass(), 1.0f/3.0f) / 10.0f + 0.2f;
+#else
+  return cbrt(atom.exactMass()) / 10.0f + 0.2f;
+#endif
+}
+
+Render::Color Render::Viewer::atomColor(const Chemistry::Atom& atom) const
+{
+  std::vector<double> rgb =
+      OpenBabel::etab.GetRGB(atom.atomicNumber());
+  return Render::Color(rgb[0], rgb[1], rgb[2], 1.0f);
+}
+
+void Render::Viewer::drawAtom(const Chemistry::Atom& atom,
+                              bool fast) const
+{
+  Render::Sphere sphere;
+
+  sphere.setCentre(atom.centre());
+  if (atom.isSelected())
+    sphere.setMaterial(Render::Material::selection());
+  else
+    sphere.setMaterial(Render::Material(atomColor(atom), true));
+
+  switch (view_)
+  {
+  case Render::ViewBallsAndSticks:
+  case Render::ViewBallsAndBonds:
+    sphere.setRadius(atomDrawRadius(atom));
+    break;
+  case Render::ViewSticks:
+    sphere.setRadius(Render::stickThikness);
+    break;
+  case Render::ViewVdWSpheres:
+    sphere.setRadius(atom.vanDerWaalsRadius());
+    break;
+  }
+
+  if (fast)
+    sphere.draw(Render::StyleFill, Render::slicesForFastDrawing);
+  else
+    sphere.draw(Render::StyleFill, Render::slicesForDrawing);
+}
+
+void Render::Viewer::drawBond(const Chemistry::Bond& bond,
+                              bool fast) const
+{
+  float shift;
+
+  if (bond.bondOrder() < 3)
+    shift = 0.125f;
+  else
+    shift = 0.2f;
+
+  Render::Cylinder cylinder1;
+  Render::Cylinder cylinder2;
+
+  // Compute the centre of bond
+  Eigen::Vector3f vec1 = bond.endAtom().centre() - bond.beginAtom().centre();
+  vec1 = vec1 * (vec1.norm() - atomDrawRadius(bond.endAtom())) / vec1.norm();
+  vec1 = vec1 + bond.beginAtom().centre();
+  Eigen::Vector3f vec2 = bond.beginAtom().centre() - bond.endAtom().centre();
+  vec2 = vec2 * (vec2.norm() - atomDrawRadius(bond.beginAtom())) / vec2.norm();
+  vec2 = vec2 + bond.endAtom().centre();
+  Eigen::Vector3f vMiddle = (vec1 + vec2) / 2;
+
+  cylinder1.setVertex1(bond.beginAtom().centre());
+  cylinder1.setVertex2(vMiddle);
+
+  cylinder2.setVertex1(vMiddle);
+  cylinder2.setVertex2(bond.endAtom().centre());
+
+  if (bond.isSelected())
+  {
+    cylinder1.setMaterial(Render::Material::selection());
+    cylinder2.setMaterial(Render::Material::selection());
+  }
+  else
+  {
+    cylinder1.setMaterial(Render::Material(atomColor(bond.beginAtom()), true));
+    cylinder2.setMaterial(Render::Material(atomColor(bond.endAtom()), true));
+  }
+
+  switch (view_)
+  {
+  case Render::ViewBallsAndBonds:
+    cylinder1.setRadius(Render::bondThikness);
+    cylinder2.setRadius(Render::bondThikness);
+    if (fast)
+    {
+      cylinder1.drawMulti(Render::StyleFill,
+                          bond.bondOrder(),
+                          shift,
+                          fileMol().molecule().planeNormalVector(),
+                          Render::slicesForFastDrawing);
+      cylinder2.drawMulti(Render::StyleFill,
+                          bond.bondOrder(),
+                          shift,
+                          fileMol().molecule().planeNormalVector(),
+                          Render::slicesForFastDrawing);
+    }
+    else
+    {
+      cylinder1.drawMulti(Render::StyleFill,
+                          bond.bondOrder(),
+                          shift,
+                          fileMol().molecule().planeNormalVector(),
+                          Render::slicesForDrawing);
+      cylinder2.drawMulti(Render::StyleFill,
+                          bond.bondOrder(),
+                          shift,
+                          fileMol().molecule().planeNormalVector(),
+                          Render::slicesForDrawing);
+    }
+    break;
+  case Render::ViewBallsAndSticks:
+  case Render::ViewSticks:
+    cylinder1.setRadius(Render::stickThikness);
+    cylinder2.setRadius(Render::stickThikness);
+    if (fast)
+    {
+      cylinder1.draw(Render::StyleFill, Render::slicesForFastDrawing);
+      cylinder2.draw(Render::StyleFill, Render::slicesForFastDrawing);
+    }
+    else
+    {
+      cylinder1.draw(Render::StyleFill, Render::slicesForDrawing);
+      cylinder2.draw(Render::StyleFill, Render::slicesForDrawing);
+    }
+    break;
+  case Render::ViewVdWSpheres:
+    break;
+  }
+}
+
+void Render::Viewer::drawMolecule(bool fast) const
+{
+  for (int i = 0; i < fileMol().molecule().atomsCount(); ++i)
+    drawAtom(fileMol().molecule().atom(i), fast);
+
+  if (view_ != Render::ViewVdWSpheres)
+  {
+    for (int i = 0; i < fileMol().molecule().bondsCount(); ++i)
+      drawBond(fileMol().molecule().bond(i), fast);
+  }
+}
+
+void Render::Viewer::drawMoleculeWithNames() const
+{
+  int n = 0;
+
+  glInitNames();
+
+  for (int i = 0; i < fileMol().molecule().atomsCount(); ++i)
+  {
+    glPushName(n);
+    {
+      drawAtom(fileMol().molecule().atom(i), false);
+    }
+    glPopName();
+    n++;
+  }
+
+  if (view_ != Render::ViewVdWSpheres)
+    for (int i = 0; i < fileMol().molecule().bondsCount(); ++i)
+    {
+    glPushName(n);
+    {
+      drawBond(fileMol().molecule().bond(i),
+                   false);
+    }
+    glPopName();
+    n++;
+  }
 }
 
 Eigen::Vector3f Render::Viewer::cameraPosition() const

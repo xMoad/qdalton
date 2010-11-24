@@ -24,10 +24,7 @@
 
 #include <Eigen/Array>
 
-#include "Render/RenderConstants.h"
-#include "Render/RenderGL.h"
-
-namespace Render
+namespace Chemistry
 {
   class Atom;
   class Molecule;
@@ -35,24 +32,22 @@ namespace Render
   class Bond
   {
   public:
-    Bond(Render::Molecule* molecule,
-         Render::Atom* beginAtom,
-         Render::Atom* endAtom,
+    Bond(Chemistry::Molecule& molecule,
+         Chemistry::Atom* beginAtom,
+         Chemistry::Atom* endAtom,
          quint8 bondOrder);
-    Bond(const Render::Bond& bond);
-    Render::Bond& operator=(const Render::Bond& rhs);
 
-    bool operator==(const Render::Bond& bond) const;
-    bool operator!=(const Render::Bond& bond) const;
+    Bond(const Chemistry::Bond& bond);
+
+    Chemistry::Bond& operator=(const Chemistry::Bond& rhs);
+
+    bool operator==(const Chemistry::Bond& bond) const;
+    bool operator!=(const Chemistry::Bond& bond) const;
 
     quint16 index() const;
 
-    const Render::Atom& beginAtom() const;
-    const Render::Atom& endAtom() const;
-
-    void draw(Render::View view,
-              const Eigen::Vector3f& planeNormalVector,
-              bool fast) const;
+    const Chemistry::Atom& beginAtom() const;
+    const Chemistry::Atom& endAtom() const;
 
     quint8 bondOrder() const;
     void setBondOrder(quint8 bondOrder);
@@ -65,9 +60,9 @@ namespace Render
     void toggleSelection();
 
   private:
-    Render::Molecule* molecule_;
-    Render::Atom* beginAtom_;
-    Render::Atom* endAtom_;
+    Chemistry::Molecule& molecule_;
+    Chemistry::Atom* beginAtom_;
+    Chemistry::Atom* endAtom_;
     quint8 bondOrder_;
     bool selected_;
   };

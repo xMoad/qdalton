@@ -28,16 +28,15 @@
 #include <openbabel/mol.h>
 #include <openbabel/forcefield.h>
 
-#include "Render/RenderAtom.h"
-#include "Render/RenderBond.h"
-#include "Render/RenderConstants.h"
+#include "Chemistry/ChemistryAtom.h"
+#include "Chemistry/ChemistryBond.h"
 
 namespace OpenBabel
 {
   class OBFormat;
 }
 
-namespace Render
+namespace Chemistry
 {
 
   enum SearchType
@@ -53,17 +52,17 @@ namespace Render
 
   public:
     Molecule();
-    Molecule(const Render::Molecule& molecule);
+    Molecule(const Chemistry::Molecule& molecule);
     ~Molecule();
 
-    Render::Atom& atom(quint16 index);
-    const Render::Atom& atom(quint16 index) const;
+    Chemistry::Atom& atom(quint16 index);
+    const Chemistry::Atom& atom(quint16 index) const;
 
-    Render::Bond& bond(quint16 index);
-    const Render::Bond& bond(quint16 index) const;
+    Chemistry::Bond& bond(quint16 index);
+    const Chemistry::Bond& bond(quint16 index) const;
 
-    quint16 indexOfAtom(const Render::Atom& atom) const;
-    quint16 indexOfBond(const Render::Bond& bond) const;
+    quint16 indexOfAtom(const Chemistry::Atom& atom) const;
+    quint16 indexOfBond(const Chemistry::Bond& bond) const;
 
     void newAtom(quint8 atomicNumber,
                  quint8 isotope,
@@ -75,9 +74,6 @@ namespace Render
 
     void removeAtom(quint16 index);
     void removeBond(quint16 index);
-
-    void draw(Render::View view, bool fast);
-    void drawWithNames(Render::View view);
 
     bool importFromFile(const QString& fileName, OpenBabel::OBFormat* obFormat);
 
@@ -93,11 +89,6 @@ namespace Render
 //    quint16 conformersCount() const;
 
     void rebond();
-
-    void optimize(const QString& obForceFieldName,
-                  quint16 maxSteps,
-                  quint8 stepsPerUpdate,
-                  std::ostream* logOstream);
 
 //    void searchConformers(const QString& obForceFieldName,
 //                          Render::SearchType searchType,
@@ -116,28 +107,27 @@ namespace Render
     Eigen::Vector3f centreOfMass() const;
     void setOriginOfAxesToCentreOfMass();
 
+    OpenBabel::OBMol toOBMol() const;
+    void fromOBMol(OpenBabel::OBMol& obMol);
+
   public slots:
-    void addHydrogensAndBuild();
     void removeHydrogens();
 
   signals:
     void becameEmpty();
     void becameNonempty();
-    void geometryChanged();
-    void optimizationFinished();
-    void conformationalSearchFinished();
+    void repaintingIsNecessary();
+//    void optimizationFinished();
+//    void conformationalSearchFinished();
 
   private:
-    Render::Molecule& operator=(const Render::Molecule& rhs);
+    Chemistry::Molecule& operator=(const Chemistry::Molecule& rhs);
 
-    OpenBabel::OBMol toOBMol() const;
-    void fromOBMol(OpenBabel::OBMol& obMol);
-
-    typedef QList<Render::Bond*> BondsList;
+    typedef QList<Chemistry::Bond*> BondsList;
     typedef QList<BondsList> IncidenceMatrix;
 
-    QList<Render::Atom> atoms_;
-    QList<Render::Bond> bonds_;
+    QList<Chemistry::Atom> atoms_;
+    QList<Chemistry::Bond> bonds_;
     IncidenceMatrix incidenceMatrix_;
 
     quint8 charge_;

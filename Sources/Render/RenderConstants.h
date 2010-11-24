@@ -51,8 +51,8 @@ namespace Render
 
   enum LabelsOnBonds
   {
-      LabelsOnBondsNone,
-      LabelsOnBondsLength
+    LabelsOnBondsNone,
+    LabelsOnBondsLength
   };
 
   const GLfloat bondThikness = 0.075f;

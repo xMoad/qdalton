@@ -25,31 +25,30 @@
 #include <QString>
 #include <Eigen/Array>
 
-#include "Render/RenderGL.h"
-#include "Render/RenderConstants.h"
-
-namespace Render
+namespace Chemistry
 {
   class Molecule;
-  class Color;
+
   /**
-   * @class Atom Atom.h "Render/RenderAtom.h"
-   * @brief Represents and draw atom.
+   * @class Atom Atom.h "Chemistry/ChemistryAtom.h"
+   * @brief Represents an atom.
    * @author Anton Simakov
    * @version 0.1
    */
   class Atom
   {
   public:
-    Atom(Render::Molecule* molecule,
+    Atom(Chemistry::Molecule& molecule,
          quint8 atomicNumber,
          quint8 isotope,
          const Eigen::Vector3f& centre);
-    Atom(const Render::Atom& atom);
-    Render::Atom& operator=(const Render::Atom& rhs);
 
-    bool operator==(const Render::Atom& atom) const;
-    bool operator!=(const Render::Atom& atom) const;
+    Atom(const Chemistry::Atom& atom);
+
+    Chemistry::Atom& operator=(const Chemistry::Atom& rhs);
+
+    bool operator==(const Chemistry::Atom& atom) const;
+    bool operator!=(const Chemistry::Atom& atom) const;
 
     quint16 index() const;
 
@@ -63,10 +62,7 @@ namespace Render
 
     QString symbol() const;
 
-    GLfloat drawRadius() const;
-    GLfloat vanderwaalsRadius() const;
-
-    Render::Color color() const;
+    double vanDerWaalsRadius() const;
 
     Eigen::Vector3f centre() const;
     void setCentre(const Eigen::Vector3f& centre);
@@ -75,11 +71,8 @@ namespace Render
     void setSelected(bool selected);
     void toggleSelection();
 
-    void draw(Render::View view,
-              bool fast) const;
-
   private:
-    Render::Molecule* molecule_;
+    Chemistry::Molecule& molecule_;
     quint8 atomicNumber_;
     quint8 isotope_;
     Eigen::Vector3f centre_;

@@ -26,7 +26,7 @@
 
 #include "Constants.h"
 #include "File/FileText.h"
-#include "Render/RenderMolecule.h"
+#include "Chemistry/ChemistryMolecule.h"
 
 namespace File
 {
@@ -34,14 +34,15 @@ namespace File
   {
   public:
     Mol();
-    Mol(const Render::Molecule& molecule);
+    Mol(const Chemistry::Molecule& molecule);
     Mol(const File::Mol& fileMol);
 
     void parse(bool doAutoRebond);
     bool generate();
 
-    Render::Molecule& molecule();
-//    void setMolecule(const Render::Molecule& molecule);
+    Chemistry::Molecule& molecule();
+    const Chemistry::Molecule& molecule() const;
+//    void setMolecule(const Chemistry::Molecule& molecule);
 
     const QString& comment() const;
     int atomTypes() const;
@@ -60,7 +61,7 @@ namespace File
     void parseGeneralString();
     void parseAtoms();
 
-    Render::Molecule molecule_;
+    Chemistry::Molecule molecule_;
     // General string contains most important information
     int generalStringIndex_;
     QString basisType_;
