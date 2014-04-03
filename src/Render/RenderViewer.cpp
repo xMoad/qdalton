@@ -7,6 +7,8 @@
 #include <QMouseEvent>
 #include <QDebug>
 
+#include <QGLViewer/manipulatedCameraFrame.h>
+
 #include "Render/RenderViewer.h"
 #include "Render/RenderSphere.h"
 #include "Render/RenderCylinder.h"

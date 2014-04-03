@@ -12,7 +12,7 @@
 
 #include <QMouseEvent>
 #include <QTableWidget>
-#include <qglviewer.h>
+#include <QGLViewer/qglviewer.h>
 
 #include "Chemistry/ChemistryAtom.h"
 #include "Chemistry/ChemistryBond.h"
